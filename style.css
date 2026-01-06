@@ -82,6 +82,32 @@ body {
   color: var(--text-primary);
   line-height: 1.6;
   letter-spacing: 0.3px;
+  /* Prevent text size adjustment on mobile */
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* Improve tap highlighting */
+  -webkit-tap-highlight-color: rgba(59, 130, 246, 0.2);
+  /* Prevent horizontal scroll */
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Ensure all elements respect container width */
+img,
+video,
+iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Smooth scrolling with offset for sticky nav */
+html {
+  scroll-padding-top: 80px;
+  overflow-x: hidden;
+  width: 100%;
+}
+
 section {
   padding: var(--spacing-xl) 0;
 }
@@ -110,12 +136,14 @@ section {
   font-weight: 700;
   color: var(--accent);
   letter-spacing: -0.5px;
+  z-index: 101;
 }
 
 .nav-links {
   list-style: none;
   display: flex;
   gap: var(--spacing-lg);
+  align-items: center;
 }
 
 .nav-link {
@@ -123,10 +151,35 @@ section {
   text-decoration: none;
   font-weight: 500;
   transition: color 0.3s ease;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  display: inline-block;
+  /* Touch-friendly sizing */
+  min-height: 44px;
+  display: flex;
+  align-items: center;
 }
 
 .nav-link:hover {
   color: var(--accent);
+}
+
+/* Mobile menu toggle (hidden by default) */
+.mobile-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  z-index: 101;
+}
+
+/* Container for consistent max-width */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
 }
 
 /* ========================================
@@ -503,8 +556,14 @@ p {
   border-radius: var(--radius-md);
   color: var(--text-primary);
   font-family: var(--font-family);
+  font-size: 1rem; /* Prevent iOS zoom on focus */
   margin-bottom: var(--spacing-md);
   transition: border-color 0.3s ease;
+  /* Touch-friendly height */
+  min-height: 48px;
+  /* Improve appearance on iOS */
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .exercise-input:focus {
@@ -899,36 +958,93 @@ p {
 }
 
 @media (max-width: 768px) {
+  /* Typography adjustments */
   h1 {
-    font-size: 3rem;
+    font-size: 2.5rem;
+    line-height: 1.2;
   }
 
   h2 {
-    font-size: 2rem;
+    font-size: 1.875rem;
+  }
+
+  h3 {
+    font-size: 1.125rem;
+  }
+
+  /* Mobile menu toggle */
+  .mobile-menu-toggle {
+    display: block;
+  }
+
+  /* Navigation - Mobile menu */
+  .nav-wrapper {
+    position: relative;
   }
 
   .nav-links {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    height: 100vh;
+    width: 80%;
+    max-width: 300px;
+    background: var(--bg-secondary);
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 5rem var(--spacing-lg) var(--spacing-lg);
     gap: var(--spacing-md);
-    font-size: 0.9rem;
+    transition: right 0.3s ease;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+    overflow-y: auto;
   }
 
+  .nav-links.active {
+    right: 0;
+  }
+
+  .nav-link {
+    width: 100%;
+    padding: var(--spacing-md);
+    justify-content: center;
+    font-size: 1.125rem;
+  }
+
+  .logo {
+    font-size: 1.25rem;
+  }
+
+  /* Container padding */
   .container {
-    padding: 0 var(--spacing-lg);
+    padding: 0 var(--spacing-md);
   }
 
+  /* Hero section */
   .hero {
-    padding-top: 5rem;
-    padding-bottom: var(--spacing-xl);
+    padding-top: 3rem;
+    padding-bottom: var(--spacing-lg);
   }
 
   .hero h1 {
-    font-size: 2.75rem;
+    font-size: 2.25rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+    margin-bottom: var(--spacing-md);
+  }
+
+  /* Section spacing */
+  section {
+    padding: var(--spacing-lg) 0;
   }
 
   .section-subtitle {
-    margin-bottom: var(--spacing-xl);
+    font-size: 1rem;
+    margin-bottom: var(--spacing-lg);
   }
 
+  /* Grid layouts - Single column */
   .languages-grid,
   .quiz-grid,
   .exercise-grid {
@@ -936,18 +1052,55 @@ p {
     gap: var(--spacing-md);
   }
 
-  .language-card {
+  /* Cards */
+  .language-card,
+  .card {
     padding: var(--spacing-md);
   }
 
   .language-emoji {
     font-size: 2.5rem;
+    margin-bottom: var(--spacing-sm);
   }
 
-  .card {
-    padding: var(--spacing-md);
+  /* Buttons - Full width on mobile */
+  .btn {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.9375rem;
   }
 
+  /* Tabs */
+  .tabs {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .tab-btn,
+  .level-btn,
+  .lang-btn {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.9375rem;
+  }
+
+  /* Question and option buttons */
+  .question {
+    font-size: 1rem;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .option-btn {
+    padding: 0.875rem 1rem;
+    font-size: 0.9375rem;
+  }
+
+  /* Input fields */
+  .exercise-input {
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+
+  /* Contact section */
   .contact {
     padding: var(--spacing-xl) var(--spacing-md);
   }
@@ -955,61 +1108,197 @@ p {
   .contact h2 {
     font-size: 1.75rem;
   }
+
+  .contact p {
+    font-size: 1rem;
+  }
+
+  /* Language filter */
+  .language-filter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .language-filter label {
+    text-align: center;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  /* Level tabs */
+  .level-tabs {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 480px) {
+  /* Ultra-compact mobile view */
   h1 {
-    font-size: 2.25rem;
+    font-size: 1.875rem;
+    line-height: 1.15;
   }
 
   h2 {
     font-size: 1.5rem;
   }
 
-  .nav-links {
-    gap: var(--spacing-sm);
-    font-size: 0.85rem;
-  }
-
-  .nav-link::after {
-    display: none;
-  }
-
-  .hero {
-    padding-top: 3rem;
-  }
-
-  .hero-subtitle {
+  h3 {
     font-size: 1rem;
-    margin-bottom: var(--spacing-lg);
   }
 
-  .btn {
-    width: 100%;
-    padding: 0.75rem 1.5rem;
+  /* Navigation - Compact */
+  .nav-wrapper {
+    padding: var(--spacing-xs) 0;
+  }
+
+  .nav-links {
+    gap: var(--spacing-xs);
+    font-size: 0.8125rem;
+  }
+
+  .logo {
+    font-size: 1.125rem;
+  }
+
+  /* Tighter spacing */
+  .container {
+    padding: 0 var(--spacing-sm);
   }
 
   section {
-    padding: var(--spacing-lg) 0;
+    padding: var(--spacing-md) 0;
   }
 
-  .tab-btn {
-    padding: var(--spacing-md) var(--spacing-sm);
-    font-size: 0.9rem;
+  /* Hero compact */
+  .hero {
+    padding-top: 2rem;
+    padding-bottom: var(--spacing-md);
   }
 
-  .tabs {
-    gap: var(--spacing-sm);
+  .hero h1 {
+    font-size: 1.75rem;
   }
 
-  .question {
-    font-size: 1rem;
+  .hero-subtitle {
+    font-size: 0.9375rem;
+    margin-bottom: var(--spacing-md);
+  }
+
+  /* Buttons - Touch-friendly */
+  .btn {
+    padding: 1rem 1.25rem;
+    font-size: 0.9375rem;
+    min-height: 48px; /* iOS touch target minimum */
   }
 
   .option-btn {
-    padding: 0.75rem 1rem;
+    padding: 1rem;
+    font-size: 0.9375rem;
+    min-height: 48px;
+  }
+
+  /* Cards */
+  .language-card,
+  .card {
+    padding: var(--spacing-sm);
+  }
+
+  .language-emoji {
+    font-size: 2rem;
+  }
+
+  /* Tab buttons - Touch-friendly */
+  .tab-btn,
+  .level-btn,
+  .lang-btn {
+    padding: var(--spacing-md);
+    font-size: 0.9375rem;
+    min-height: 48px;
+  }
+
+  /* Input fields - Touch-friendly */
+  .exercise-input {
+    padding: 1rem;
+    font-size: 1rem; /* Prevent iOS zoom on focus */
+    min-height: 48px;
+  }
+
+  /* Feedback text */
+  .feedback {
+    font-size: 0.875rem;
+  }
+
+  /* Tighter grids */
+  .languages-grid,
+  .quiz-grid,
+  .exercise-grid {
+    gap: var(--spacing-sm);
+  }
+
+  /* Contact section */
+  .contact {
+    padding: var(--spacing-lg) var(--spacing-sm);
+  }
+
+  .contact h2 {
+    font-size: 1.5rem;
   }
 
   .contact p {
-    font-size: 1rem;
+    font-size: 0.9375rem;
   }
+
+  /* Footer */
+  .footer {
+    font-size: 0.875rem;
+    padding: var(--spacing-md) var(--spacing-sm);
+  }
+}
+
+/* Landscape mode optimization for phones */
+@media (max-height: 600px) and (orientation: landscape) {
+  .hero {
+    padding-top: 2rem;
+    padding-bottom: var(--spacing-md);
+  }
+
+  section {
+    padding: var(--spacing-md) 0;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets */
+  .nav-link,
+  .btn,
+  .option-btn,
+  .tab-btn,
+  .level-btn,
+  .lang-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Remove hover effects on touch devices */
+  .language-card:hover,
+  .card:hover {
+    transform: none;
+  }
+
+  /* Active states instead of hover */
+  .btn:active,
+  .option-btn:active,
+  .tab-btn:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
