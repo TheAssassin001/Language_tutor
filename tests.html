@@ -266,6 +266,7 @@
     let userAnswers = {};
     let currentLanguage = '';
     let currentLevel = '';
+    let timerInterval = null;
 
     // Load test based on URL parameters
     document.addEventListener('DOMContentLoaded', function() {
@@ -315,9 +316,14 @@
       
       // Start timer
       if (typeof Timer !== 'undefined') {
+        // Clear previous interval if exists
+        if (timerInterval) {
+          clearInterval(timerInterval);
+        }
+        
         document.getElementById('timerDisplay').style.display = 'block';
         Timer.start();
-        setInterval(() => {
+        timerInterval = setInterval(() => {
           const elapsed = Timer.getElapsed();
           const minutes = Math.floor(elapsed / 60);
           const seconds = elapsed % 60;
@@ -361,6 +367,10 @@
       // Stop timer
       if (typeof Timer !== 'undefined') {
         Timer.stop();
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
       }
 
       // Grade the test
