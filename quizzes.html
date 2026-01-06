@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Quizzes - Language Tutor">
+  <title>Quizzes - Language Tutor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-wrapper">
+        <div class="logo">LangTutor</div>
+        <ul class="nav-links">
+          <li><a href="index.html#home" class="nav-link">Home</a></li>
+          <li><a href="index.html#languages" class="nav-link">Languages</a></li>
+          <li><a href="index.html#practice" class="nav-link">Practice</a></li>
+          <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <section class="practice" id="practice">
+    <div class="container">
+      <h2>Quizzes</h2>
+      <p class="section-subtitle" id="subtitle">Loading...</p>
+
+      <div id="quizContainer"></div>
+
+      <p><a href="quiz-select.html" class="btn btn-primary">Back to Selection</a></p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 Language Tutor. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="quizzes.js"></script>
+  <script>
+    // Load quiz data based on URL parameters
+    document.addEventListener('DOMContentLoaded', function() {
+      const params = new URLSearchParams(window.location.search);
+      const language = params.get('language');
+      const level = params.get('level');
+      
+      if (language && level) {
+        loadQuiz(language, level);
+      } else {
+        document.getElementById('quizContainer').innerHTML = '<p>No quiz selected. <a href="quiz-select.html">Go back to selection</a></p>';
+      }
+    });
+
+    const quizData = {
+      beginner: {
+        english: [
+          {
+            id: 1,
+            title: 'English Quiz',
+            question: 'What is the plural of "child"?',
+            options: [{ text: 'Childs', correct: false }, { text: 'Children', correct: true }]
+          }
+        ],
+        hindi: [
+          {
+            id: 2,
+            title: 'Hindi Quiz',
+            question: 'What is the Hindi word for "Water"?',
+            options: [{ text: 'Paani', correct: true }, { text: 'Agni', correct: false }]
+          }
+        ],
+        mandarin: [],
+        cantonese: []
+      },
+      intermediate: {
+        mandarin: [
+          {
+            id: 1,
+            title: 'Mandarin Quiz',
+            question: 'Which pinyin corresponds to the character "一"?',
+            options: [{ text: 'yi', correct: true }, { text: 'ya', correct: false }]
+          }
+        ],
+        cantonese: [
+          {
+            id: 2,
+            title: 'Cantonese Quiz',
+            question: 'Choose the casual Cantonese greeting:',
+            options: [{ text: 'Nei5 hou2', correct: true }, { text: 'Zoi3 gin3', correct: false }]
+          }
+        ],
+        english: [],
+        hindi: []
+      },
+      expert: {
+        english: [
+          {
+            id: 1,
+            title: 'Grammar Challenge',
+            question: 'Select the sentence with correct subject-verb agreement:',
+            options: [{ text: 'They has been here.', correct: false }, { text: 'They have been here.', correct: true }]
+          }
+        ],
+        mandarin: [
+          {
+            id: 2,
+            title: 'Advanced Pinyin',
+            question: 'Which pinyin (with tones) is correct for "你好"?',
+            options: [{ text: 'nǐhǎo', correct: true }, { text: 'nìhào', correct: false }]
+          }
+        ],
+        cantonese: [],
+        hindi: []
+      }
+    };
+
+    function loadQuiz(language, level) {
+      const quizzes = quizData[level]?.[language] || [];
+      document.getElementById('subtitle').textContent = `${language.charAt(0).toUpperCase() + language.slice(1)} - ${level.charAt(0).toUpperCase() + level.slice(1)}`;
+      
+      if (quizzes.length === 0) {
+        document.getElementById('quizContainer').innerHTML = '<p>No quizzes available for this selection. <a href="quiz-select.html">Try another selection</a></p>';
+        return;
+      }
+
+      let html = '<div class="quiz-grid">';
+      quizzes.forEach(quiz => {
+        html += `
+          <div class="card">
+            <h3>${quiz.title} (${level.charAt(0).toUpperCase() + level.slice(1)})</h3>
+            <p class="question">${quiz.question}</p>
+            <div class="options">
+              ${quiz.options.map((opt, idx) => `
+                <button class="option-btn" onclick="checkAnswer('${level}',${quiz.id},'${opt.correct ? 'right' : 'wrong'}')">${opt.text}</button>
+              `).join('')}
+            </div>
+            <p id="result-${level}-${quiz.id}" class="feedback"></p>
+          </div>
+        `;
+      });
+      html += '</div>';
+      document.getElementById('quizContainer').innerHTML = html;
+    }
+  </script>
