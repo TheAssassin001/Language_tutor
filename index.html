@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn Chinese online with expert tuition. Interactive quizzes and comprehensive tests for Mandarin and Cantonese.">
+  <title>Chinese Language Tutor - Learn Mandarin & Cantonese</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-wrapper">
+        <div class="logo">LangTutor</div>
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+          ☰
+        </button>
+        <ul class="nav-links" id="mobileMenu">
+          <li><a href="#home" class="nav-link" onclick="closeMobileMenu()">Home</a></li>
+          <li><a href="quiz-select.html" class="nav-link">Quizzes</a></li>
+          <li><a href="test-select.html" class="nav-link">Tests</a></li>
+          <li><a href="flashcards.html" class="nav-link">Flashcards</a></li>
+          <li><a href="progress.html" class="nav-link">Progress</a></li>
+          <li><a href="resources.html" class="nav-link">Resources</a></li>
+          <li><a href="writing.html" class="nav-link">Writing Practice</a></li>
+        </ul>
+        <button id="darkModeToggle" class="dark-mode-toggle" onclick="DarkMode.toggle()" aria-label="Toggle dark mode">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero" id="home">
+    <div class="container">
+      <div class="hero-content">
+        <h1>Master Chinese Language</h1>
+        <p class="hero-subtitle">Learn Mandarin and Cantonese from an experienced tutor. Practice with interactive quizzes and tests. Achieve fluency.</p>
+        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+          <a href="quiz-select.html" class="btn btn-primary">Start Quizzes</a>
+          <a href="test-select.html" class="btn btn-primary">Take Tests</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Languages Section -->
+  <section class="languages" id="languages">
+    <div class="container">
+      <h2>Chinese Language Learning</h2>
+      <p class="section-subtitle">Master Mandarin and Cantonese with expert instruction</p>
+      
+      <div class="languages-grid">
+        <div class="language-card">
+          <div class="language-emoji">🇨🇳</div>
+          <h3>Mandarin Chinese</h3>
+          <p>Pinyin, characters, tones, and spoken fluency for all levels</p>
+        </div>
+        <div class="language-card">
+          <div class="language-emoji">🇭🇰</div>
+          <h3>Cantonese</h3>
+          <p>Native pronunciation, colloquial usage, and traditional characters</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="contact" id="contact">
+    <div class="container">
+      <div class="contact-content">
+        <h2>Ready to Learn?</h2>
+        <p>Message me to discuss your goals and schedule your first Chinese lesson.</p>
+        <a href="https://wa.me/?text=Hi%20I%20want%20to%20learn%20Chinese" class="btn btn-primary" target="_blank">Start on WhatsApp</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 Chinese Language Tutor. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="quizzes.js"></script>
+  <script>
+    function toggleMobileMenu() {
+      document.getElementById('mobileMenu').classList.toggle('active');
+    }
+    
+    function closeMobileMenu() {
+      document.getElementById('mobileMenu').classList.remove('active');
+    }
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+      const menu = document.getElementById('mobileMenu');
+      const toggle = document.querySelector('.mobile-menu-toggle');
+      if (menu && !menu.contains(event.target) && !toggle.contains(event.target)) {
+        closeMobileMenu();
+      }
+    });
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>

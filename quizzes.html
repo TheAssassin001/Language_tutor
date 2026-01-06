@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Quizzes - Chinese Language Tutor">
+  <title>Quizzes - Chinese Language Tutor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-wrapper">
+        <div class="logo">LangTutor</div>
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+          ☰
+        </button>
+        <ul class="nav-links" id="mobileMenu">
+          <li><a href="index.html#home" class="nav-link" onclick="closeMobileMenu()">Home</a></li>
+          <li><a href="quiz-select.html" class="nav-link">Quizzes</a></li>
+          <li><a href="test-select.html" class="nav-link">Tests</a></li>
+          <li><a href="flashcards.html" class="nav-link">Flashcards</a></li>
+          <li><a href="progress.html" class="nav-link">Progress</a></li>
+          <li><a href="resources.html" class="nav-link">Resources</a></li>
+          <li><a href="writing.html" class="nav-link">Writing Practice</a></li>
+        </ul>
+        <button id="darkModeToggle" class="dark-mode-toggle" onclick="DarkMode.toggle()" aria-label="Toggle dark mode">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="practice" id="practice">
+    <div class="container">
+      <h2>Quizzes</h2>
+      <p class="section-subtitle" id="subtitle">Loading...</p>
+
+      <div id="quizContainer"></div>
+
+      <p><a href="quiz-select.html" class="btn btn-primary">Back to Selection</a></p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 Language Tutor. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="quizzes.js"></script>
+  <script>
+    // Load quiz data based on URL parameters
+    document.addEventListener('DOMContentLoaded', function() {
+      const params = new URLSearchParams(window.location.search);
+      const language = params.get('language');
+      const level = params.get('level');
+      
+      if (language && level) {
+        loadQuiz(language, level);
+      } else {
+        document.getElementById('quizContainer').innerHTML = '<p>No quiz selected. <a href="quiz-select.html">Go back to selection</a></p>';
+      }
+    });
+
+    const quizData = {
+      beginner: {
+        mandarin: [
+          {
+            id: 1,
+            title: 'Mandarin Basics',
+            question: 'What is the pinyin for "你"?',
+            options: [{ text: 'nǐ', correct: true }, { text: 'wǒ', correct: false }, { text: 'tā', correct: false }]
+          },
+          {
+            id: 2,
+            title: 'Numbers',
+            question: 'Which character means "one"?',
+            options: [{ text: '一', correct: true }, { text: '二', correct: false }, { text: '三', correct: false }]
+          }
+        ],
+        cantonese: [
+          {
+            id: 1,
+            title: 'Cantonese Basics',
+            question: 'How do you say "hello" in Cantonese?',
+            options: [{ text: 'Nei5 hou2', correct: true }, { text: 'Zoi3 gin3', correct: false }]
+          }
+        ]
+      },
+      intermediate: {
+        mandarin: [
+          {
+            id: 1,
+            title: 'Mandarin Characters',
+            question: 'Which pinyin corresponds to the character "一"?',
+            options: [{ text: 'yi', correct: true }, { text: 'er', correct: false }, { text: 'san', correct: false }]
+          },
+          {
+            id: 2,
+            title: 'Common Phrases',
+            question: 'What does "谢谢" mean?',
+            options: [{ text: 'Thank you', correct: true }, { text: 'Hello', correct: false }, { text: 'Goodbye', correct: false }]
+          }
+        ],
+        cantonese: [
+          {
+            id: 1,
+            title: 'Cantonese Greetings',
+            question: 'Choose the casual Cantonese greeting:',
+            options: [{ text: 'Nei5 hou2', correct: true }, { text: 'Zoi3 gin3', correct: false }]
+          }
+        ]
+      },
+      expert: {
+        mandarin: [
+          {
+            id: 1,
+            title: 'Advanced Pinyin',
+            question: 'Which pinyin (with tones) is correct for "你好"?',
+            options: [{ text: 'nǐhǎo', correct: true }, { text: 'nìhào', correct: false }, { text: 'níhāo', correct: false }]
+          },
+          {
+            id: 2,
+            title: 'Complex Characters',
+            question: 'What is the correct stroke order principle?',
+            options: [{ text: 'Top to bottom, left to right', correct: true }, { text: 'Right to left, bottom to top', correct: false }]
+          }
+        ],
+        cantonese: [
+          {
+            id: 1,
+            title: 'Cantonese Tones',
+            question: 'How many tones does Cantonese have?',
+            options: [{ text: '6-9 tones', correct: true }, { text: '4 tones', correct: false }, { text: '5 tones', correct: false }]
+          }
+        ]
+      }
+    };
+
+    function loadQuiz(language, level) {
+      const quizzes = quizData[level]?.[language] || [];
+      document.getElementById('subtitle').textContent = `${language.charAt(0).toUpperCase() + language.slice(1)} - ${level.charAt(0).toUpperCase() + level.slice(1)}`;
+      
+      if (quizzes.length === 0) {
+        document.getElementById('quizContainer').innerHTML = '<p>No quizzes available for this selection. <a href="quiz-select.html">Try another selection</a></p>';
+        return;
+      }
+
+      let html = '<div class="quiz-grid">';
+      quizzes.forEach(quiz => {
+        html += `
+          <div class="card">
+            <h3>${quiz.title} (${level.charAt(0).toUpperCase() + level.slice(1)})</h3>
+            <p class="question">${quiz.question}</p>
+            <div class="options">
+              ${quiz.options.map((opt, idx) => `
+                <button class="option-btn" onclick="checkAnswer('${level}',${quiz.id},'${opt.correct ? 'right' : 'wrong'}')">${opt.text}</button>
+              `).join('')}
+            </div>
+            <p id="result-${level}-${quiz.id}" class="feedback"></p>
+          </div>
+        `;
+      });
+      html += '</div>';
+      document.getElementById('quizContainer').innerHTML = html;
+    }
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobileMenu');
+      menu.classList.toggle('active');
+    }
+
+    function closeMobileMenu() {
+      const menu = document.getElementById('mobileMenu');
+      menu.classList.remove('active');
+    }
+  </script>
+  <script src="app.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Test Selection - Chinese Language Tutor">
+  <title>Select Test - Chinese Language Tutor</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .selector-container {
+      max-width: 600px;
+      margin: 40px auto;
+      text-align: center;
+    }
+    .selector-group {
+      margin: 30px 0;
+    }
+    .selector-group h3 {
+      margin-bottom: 15px;
+      font-size: 1.3em;
+      color: var(--text-primary);
+    }
+    .selector-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    .selector-btn {
+      padding: 12px 20px;
+      font-size: 1em;
+      border: 2px solid var(--accent);
+      background: var(--bg-secondary);
+      color: var(--accent);
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .selector-btn:hover {
+      background: var(--accent);
+      color: white;
+    }
+    .selector-btn.selected {
+      background: var(--accent);
+      color: white;
+    }
+    .proceed-btn {
+      margin-top: 40px;
+      padding: 15px 40px;
+      font-size: 1.1em;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .proceed-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+    }
+    .proceed-btn:disabled {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      cursor: not-allowed;
+      transform: none;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-wrapper">
+        <div class="logo">LangTutor</div>
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+          ☰
+        </button>
+        <ul class="nav-links" id="mobileMenu">
+          <li><a href="index.html#home" class="nav-link" onclick="closeMobileMenu()">Home</a></li>
+          <li><a href="quiz-select.html" class="nav-link">Quizzes</a></li>
+          <li><a href="test-select.html" class="nav-link">Tests</a></li>
+          <li><a href="flashcards.html" class="nav-link">Flashcards</a></li>
+          <li><a href="progress.html" class="nav-link">Progress</a></li>
+          <li><a href="resources.html" class="nav-link">Resources</a></li>
+          <li><a href="writing.html" class="nav-link">Writing Practice</a></li>
+        </ul>
+        <button id="darkModeToggle" class="dark-mode-toggle" onclick="DarkMode.toggle()" aria-label="Toggle dark mode">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="practice" style="padding: 60px 0;">
+    <div class="container">
+      <div class="selector-container">
+        <h2>Select Your Test</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 30px;">Choose a Chinese dialect and difficulty level for your test</p>
+
+        <div class="selector-group">
+          <h3>Select Dialect:</h3>
+          <div class="selector-buttons">
+            <button class="selector-btn" onclick="selectLanguage('mandarin')">Mandarin</button>
+            <button class="selector-btn" onclick="selectLanguage('cantonese')">Cantonese</button>
+          </div>
+        </div>
+
+        <div class="selector-group">
+          <h3>Select Level:</h3>
+          <div class="selector-buttons">
+            <button class="selector-btn" onclick="selectLevel('beginner')">Beginner</button>
+            <button class="selector-btn" onclick="selectLevel('intermediate')">Intermediate</button>
+            <button class="selector-btn" onclick="selectLevel('expert')">Expert</button>
+          </div>
+        </div>
+
+        <button class="proceed-btn" id="proceedBtn" disabled onclick="proceedToTest()">Start Test</button>
+        <br><br>
+        <a href="index.html" class="btn btn-secondary" style="display: inline-block; margin-top: 20px;">Back to Home</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 Chinese Language Tutor. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="quizzes.js"></script>
+  <script>
+    let selectedLanguage = null;
+    let selectedLevel = null;
+
+    function selectLanguage(language) {
+      selectedLanguage = language;
+      document.querySelectorAll('.selector-group:nth-child(1) .selector-btn').forEach(btn => {
+        btn.classList.remove('selected');
+      });
+      event.target.classList.add('selected');
+      checkProceedBtn();
+    }
+
+    function selectLevel(level) {
+      selectedLevel = level;
+      document.querySelectorAll('.selector-group:nth-child(2) .selector-btn').forEach(btn => {
+        btn.classList.remove('selected');
+      });
+      event.target.classList.add('selected');
+      checkProceedBtn();
+    }
+
+    function checkProceedBtn() {
+      const proceedBtn = document.getElementById('proceedBtn');
+      if (selectedLanguage && selectedLevel) {
+        proceedBtn.disabled = false;
+      } else {
+        proceedBtn.disabled = true;
+      }
+    }
+
+    function proceedToTest() {
+      if (selectedLanguage && selectedLevel) {
+        if (confirm(`Ready to start ${selectedLanguage.charAt(0).toUpperCase() + selectedLanguage.slice(1)} ${selectedLevel} test?`)) {
+          window.location.href = `tests.html?language=${selectedLanguage}&level=${selectedLevel}`;
+        }
+      }
+    }
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobileMenu');
+      menu.classList.toggle('active');
+    }
+
+    function closeMobileMenu() {
+      const menu = document.getElementById('mobileMenu');
+      menu.classList.remove('active');
+    }
+  </script>
+  <script src="app.js"></script>
+
+</body>
+</html>
