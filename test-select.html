@@ -94,15 +94,7 @@
     <div class="container">
       <div class="selector-container">
         <h2>Select Your Test</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 30px;">Choose a Chinese dialect and difficulty level for your test</p>
-
-        <div class="selector-group">
-          <h3>Select Dialect:</h3>
-          <div class="selector-buttons">
-            <button class="selector-btn" onclick="selectLanguage('mandarin')">Mandarin</button>
-            <button class="selector-btn" onclick="selectLanguage('cantonese')">Cantonese</button>
-          </div>
-        </div>
+        <p style="color: var(--text-secondary); margin-bottom: 30px;">Choose your difficulty level for Mandarin Chinese</p>
 
         <div class="selector-group">
           <h3>Select Level:</h3>
@@ -128,21 +120,12 @@
 
   <script src="quizzes.js"></script>
   <script>
-    let selectedLanguage = null;
+    let selectedLanguage = 'mandarin'; // Auto-select Mandarin since it's the only option
     let selectedLevel = null;
-
-    function selectLanguage(language) {
-      selectedLanguage = language;
-      document.querySelectorAll('.selector-group:nth-child(1) .selector-btn').forEach(btn => {
-        btn.classList.remove('selected');
-      });
-      event.target.classList.add('selected');
-      checkProceedBtn();
-    }
 
     function selectLevel(level) {
       selectedLevel = level;
-      document.querySelectorAll('.selector-group:nth-child(2) .selector-btn').forEach(btn => {
+      document.querySelectorAll('.selector-btn').forEach(btn => {
         btn.classList.remove('selected');
       });
       event.target.classList.add('selected');

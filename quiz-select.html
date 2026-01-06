@@ -90,17 +90,9 @@
   <section class="practice">
     <div class="container">
       <h2>Select Your Quiz</h2>
-      <p class="section-subtitle">Choose a Chinese dialect and difficulty level</p>
+      <p class="section-subtitle">Choose your difficulty level for Mandarin Chinese</p>
 
       <div class="selector-container">
-        <div class="selector-group">
-          <h3>Chinese Dialect</h3>
-          <div class="selector-buttons">
-            <button class="selector-btn" onclick="selectLanguage('mandarin')">Mandarin</button>
-            <button class="selector-btn" onclick="selectLanguage('cantonese')">Cantonese</button>
-          </div>
-        </div>
-
         <div class="selector-group">
           <h3>Level</h3>
           <div class="selector-buttons">
@@ -123,13 +115,8 @@
   </footer>
 
   <script>
-    let selectedLanguage = null;
+    let selectedLanguage = 'mandarin'; // Auto-select Mandarin since it's the only option
     let selectedLevel = null;
-
-    function selectLanguage(lang) {
-      selectedLanguage = lang;
-      updateUI();
-    }
 
     function selectLevel(level) {
       selectedLevel = level;
@@ -137,17 +124,14 @@
     }
 
     function updateUI() {
-      document.querySelectorAll('.selector-group')[0].querySelectorAll('.selector-btn').forEach(btn => {
-        btn.classList.toggle('selected', btn.textContent.toLowerCase() === selectedLanguage);
-      });
-      document.querySelectorAll('.selector-group')[1].querySelectorAll('.selector-btn').forEach(btn => {
+      document.querySelectorAll('.selector-btn').forEach(btn => {
         btn.classList.toggle('selected', btn.textContent.toLowerCase() === selectedLevel);
       });
-      document.getElementById('proceedBtn').disabled = !selectedLanguage || !selectedLevel;
-      if (selectedLanguage && selectedLevel) {
-        document.getElementById('message').textContent = `Ready to start ${selectedLanguage} ${selectedLevel}?`;
+      document.getElementById('proceedBtn').disabled = !selectedLevel;
+      if (selectedLevel) {
+        document.getElementById('message').textContent = `Ready to start Mandarin ${selectedLevel}?`;
       } else {
-        document.getElementById('message').textContent = 'Please select both language and level';
+        document.getElementById('message').textContent = 'Please select a level';
       }
     }
 
