@@ -401,11 +401,6 @@
       // Save to progress tracker
       if (typeof ProgressTracker !== 'undefined') {
         ProgressTracker.saveTestScore(currentLanguage, currentLevel, percentage, totalQuestions);
-        
-        // Award certificate if 90% or higher
-        if (percentage >= 90) {
-          ProgressTracker.awardCertificate(currentLanguage, currentLevel, 'test', percentage);
-        }
       }
 
       // Show overall results

@@ -44,12 +44,6 @@
         </div>
       </div>
 
-      <!-- Certificates -->
-      <div id="certificatesSection" style="margin-bottom: 40px;">
-        <h3 style="text-align: center; margin-bottom: 20px;">Your Certificates</h3>
-        <div id="certificatesList"></div>
-      </div>
-
       <!-- Progress Stats -->
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 40px;">
         <div class="card">
@@ -102,26 +96,6 @@
       const streak = ProgressTracker.getStreak();
       document.getElementById('currentStreak').textContent = streak.current;
       document.getElementById('bestStreak').textContent = streak.best;
-
-      // Load certificates
-      const certificates = ProgressTracker.getCertificates();
-      const certList = document.getElementById('certificatesList');
-      
-      if (certificates.length === 0) {
-        certList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No certificates yet. Score 90%+ on an Expert level test to earn one!</p>';
-      } else {
-        certList.innerHTML = certificates.map(cert => `
-          <div class="certificate">
-            <h2>Certificate of Achievement</h2>
-            <p class="cert-name">Chinese Language Proficiency</p>
-            <div class="cert-details">
-              <p><strong>${cert.language.charAt(0).toUpperCase() + cert.language.slice(1)}</strong> - <strong>${cert.level.charAt(0).toUpperCase() + cert.level.slice(1)}</strong> Level</p>
-              <p>Awarded on ${new Date(cert.date).toLocaleDateString()}</p>
-            </div>
-            <button class="btn btn-primary" style="margin-top: 20px;" onclick="downloadCertificate(${cert.id})">Download Certificate</button>
-          </div>
-        `).join('');
-      }
 
       // Load overall progress
       const progress = ProgressTracker.getAllProgress();
@@ -194,10 +168,6 @@
         localStorage.clear();
         location.reload();
       }
-    }
-
-    function downloadCertificate(certId) {
-      alert('Certificate download feature coming soon! For now, you can screenshot this certificate.');
     }
 
     function toggleMobileMenu() {

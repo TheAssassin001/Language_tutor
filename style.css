@@ -2,20 +2,22 @@
    VARIABLES & RESET
    ======================================== */
 :root {
-  /* Colors */
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-tertiary: #334155;
-  --bg-card: #1e293b;
-  --text-primary: #f1f5f9;
-  --text-secondary: #cbd5e1;
-  --text-tertiary: #94a3b8;
-  --accent: #3b82f6;
-  --accent-hover: #2563eb;
-  --accent-light: #60a5fa;
-  --success: #10b981;
-  --error: #ef4444;
-  --warning: #f59e0b;
+  /* Colors - Chinese-inspired theme */
+  --bg-primary: #f0e8d8;
+  --bg-secondary: #faf5eb;
+  --bg-tertiary: #e5ead5;
+  --bg-card: #fdfaf3;
+  --text-primary: #1a1410;
+  --text-secondary: #3d3528;
+  --text-tertiary: #5a5045;
+  --accent: #4a9d6f;
+  --accent-hover: #3a8259;
+  --accent-light: #6ab88f;
+  --accent-red: #d64550;
+  --accent-red-hover: #b83843;
+  --success: #4a9d6f;
+  --error: #d64550;
+  --warning: #f5a623;
   
   /* Spacing */
   --spacing-xs: 0.5rem;
@@ -35,11 +37,11 @@
   --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   
   /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
-  --shadow-accent: 0 20px 40px rgba(59, 130, 246, 0.15);
+  --shadow-sm: 0 1px 3px rgba(74, 157, 111, 0.08);
+  --shadow-md: 0 4px 6px rgba(74, 157, 111, 0.1);
+  --shadow-lg: 0 10px 20px rgba(74, 157, 111, 0.12);
+  --shadow-xl: 0 20px 40px rgba(74, 157, 111, 0.15);
+  --shadow-accent: 0 10px 30px rgba(74, 157, 111, 0.2);
   
   /* Transitions */
   --transition-fast: 0.15s ease;
@@ -49,17 +51,17 @@
 
 /* Dark Mode Variables */
 body.dark-mode {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8fafc;
-  --bg-tertiary: #e2e8f0;
-  --bg-card: #ffffff;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-tertiary: #64748b;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.08);
-  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+  --bg-primary: #0d1f0f;
+  --bg-secondary: #1a2e1a;
+  --bg-tertiary: #2d4a32;
+  --bg-card: #1a2e1a;
+  --text-primary: #e8f5e8;
+  --text-secondary: #b8d4bd;
+  --text-tertiary: #8ab18f;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.6);
 }
 
 * {
@@ -409,10 +411,7 @@ h1 {
   font-weight: 800;
   line-height: 1.1;
   margin-bottom: var(--spacing-md);
-  background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text-primary);
 }
 
 h2 {
@@ -475,7 +474,7 @@ p {
 .btn-primary:hover {
   background: var(--accent-hover);
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
+  box-shadow: var(--shadow-accent);
 }
 
 .btn-secondary {
@@ -528,17 +527,109 @@ p {
   margin: 0 auto;
 }
 
+.hero-content h1 {
+  color: var(--text-primary);
+}
+
 .hero-subtitle {
   font-size: 1.25rem;
   color: var(--text-secondary);
+  margin-bottom: var(--spacing-md);
+  line-height: 1.7;
+}
+
+.hero-tagline {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--accent);
   margin-bottom: var(--spacing-lg);
+  letter-spacing: 1px;
+}
+
+/* ========================================
+   PRACTICE & IMPROVE SECTION
+   ======================================== */
+.practice-section {
+  background: var(--bg-secondary);
+  padding: var(--spacing-2xl) 0;
+}
+
+.practice-section h2 {
+  text-align: center;
+  color: var(--text-primary);
+  font-size: 2.5rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+.practice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-xl);
+}
+
+.practice-card {
+  background: var(--bg-card);
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--bg-tertiary);
+  text-align: center;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
+}
+
+.practice-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.practice-icon {
+  font-size: 3rem;
+  margin-bottom: var(--spacing-md);
+  display: block;
+}
+
+.practice-card h3 {
+  color: var(--accent);
+  margin-bottom: var(--spacing-sm);
+  font-size: 1.3rem;
+}
+
+.practice-card p {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.practice-note {
+  background: linear-gradient(135deg, var(--bg-tertiary) 0%, rgba(74, 157, 111, 0.1) 100%);
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  margin-top: var(--spacing-xl);
+  text-align: center;
+  border-left: 4px solid var(--accent);
+}
+
+.practice-note p {
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  line-height: 1.8;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.practice-note strong {
+  color: var(--accent);
+  font-size: 1.2rem;
 }
 
 /* ========================================
    LANGUAGES SECTION
    ======================================== */
 .languages {
-  background: linear-gradient(180deg, transparent 0%, rgba(59, 130, 246, 0.05) 100%);
+  background: linear-gradient(180deg, transparent 0%, rgba(74, 157, 111, 0.05) 100%);
+  padding: var(--spacing-2xl) 0;
 }
 
 .section-subtitle {
@@ -566,7 +657,7 @@ p {
 .language-card:hover {
   border-color: var(--accent);
   transform: translateY(-8px);
-  box-shadow: 0 15px 40px rgba(59, 130, 246, 0.1);
+  box-shadow: var(--shadow-lg);
 }
 
 .language-emoji {
@@ -768,10 +859,24 @@ p {
    ======================================== */
 .footer {
   background: var(--bg-secondary);
-  border-top: 1px solid var(--bg-tertiary);
-  padding: var(--spacing-lg) 0;
+  border-top: 2px solid var(--bg-tertiary);
+  padding: var(--spacing-xl) 0;
   text-align: center;
-  color: var(--text-secondary);
+}
+
+.footer-note {
+  margin-bottom: var(--spacing-md);
+}
+
+.footer-note p {
+  color: var(--accent);
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.footer-copyright {
+  color: var(--text-tertiary);
+  font-size: 0.9rem;
 }
 
 /* ========================================
@@ -856,7 +961,7 @@ p {
 
 .card:hover {
   border-color: var(--accent);
-  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(59, 130, 246, 0.03) 100%);
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(74, 157, 111, 0.03) 100%);
   box-shadow: var(--shadow-lg);
   transform: translateY(-4px);
 }
@@ -874,7 +979,7 @@ p {
   font-style: italic;
   margin-bottom: var(--spacing-md);
   padding: 0.5rem 0.75rem;
-  background: rgba(96, 165, 250, 0.05);
+  background: rgba(74, 157, 111, 0.08);
   border-radius: var(--radius-md);
   border-left: 2px solid var(--accent-light);
 }
@@ -971,10 +1076,41 @@ p {
 
   /* Grid layouts - Single column */
   .languages-grid,
+  .practice-grid,
   .quiz-grid,
   .exercise-grid {
     grid-template-columns: 1fr;
     gap: var(--spacing-md);
+  }
+
+  /* Practice section */
+  .practice-section h2 {
+    font-size: 2rem;
+  }
+
+  .practice-card {
+    padding: var(--spacing-lg);
+  }
+
+  .practice-icon {
+    font-size: 2.5rem;
+  }
+
+  .practice-note {
+    padding: var(--spacing-lg);
+  }
+
+  .practice-note p {
+    font-size: 1rem;
+  }
+
+  .practice-note strong {
+    font-size: 1.1rem;
+  }
+
+  /* Hero tagline */
+  .hero-tagline {
+    font-size: 1.1rem;
   }
 
   /* Cards */
