@@ -63,13 +63,13 @@
   <script>
     // Test data structure
     const testData = {
-      beginner: {
+      newbie: {
         mandarin: [
           {
             id: 1,
             question: 'What is the pinyin for "你好"?',
             options: ['nihao', 'neihao', 'nǐhǎo', 'All of the above'],
-            correctAnswer: 3
+            correctAnswer: 2
           },
           {
             id: 2,
@@ -97,7 +97,7 @@
           }
         ]
       },
-      intermediate: {
+      level1: {
         mandarin: [
           {
             id: 1,
@@ -129,47 +129,49 @@
             options: ['个', '本', '张', '条'],
             correctAnswer: 1
           }
-        ],
-        cantonese: [
+        ]
+      },
+      level2: {
+        mandarin: [
           {
             id: 1,
-            question: 'What does "好靚" (hou leng) mean in Cantonese?',
-            options: ['Very cold', 'Very beautiful', 'Very good', 'Very tall'],
+            question: 'What does "学校" mean?',
+            options: ['Hospital', 'School', 'Library', 'Park'],
             correctAnswer: 1
           },
           {
             id: 2,
-            question: 'How many tones does Cantonese have?',
-            options: ['4 tones', '5 tones', '6 tones', '9 tone variations'],
-            correctAnswer: 3
+            question: 'Which is the correct word order in Mandarin?',
+            options: ['Verb + Subject + Object', 'Subject + Verb + Object', 'Object + Subject + Verb', 'Subject + Object + Verb'],
+            correctAnswer: 1
           },
           {
             id: 3,
-            question: 'What is "唔好意思" in Cantonese?',
-            options: ['Thank you', 'Excuse me/Sorry', 'You\'re welcome', 'Goodbye'],
+            question: 'What does "昨天" mean?',
+            options: ['Today', 'Yesterday', 'Tomorrow', 'Now'],
             correctAnswer: 1
           },
           {
             id: 4,
-            question: 'Which sentence means "How much is this?"',
-            options: ['呢個幾多錢?', '你好嗎?', '食咗飯未?', '去邊度?'],
-            correctAnswer: 0
+            question: 'How do you say "I am a student" in Chinese?',
+            options: ['我是老师', '我是学生', '我是医生', '我是律师'],
+            correctAnswer: 1
           },
           {
             id: 5,
-            question: 'What does "食飯" mean?',
-            options: ['Drink water', 'Eat rice/meal', 'Go home', 'Sleep'],
+            question: 'What is the meaning of "图书馆"?',
+            options: ['Museum', 'Library', 'Gallery', 'Bookstore'],
             correctAnswer: 1
           }
         ]
       },
-      expert: {
+      level3: {
         mandarin: [
           {
             id: 1,
-            question: 'Which classical Chinese text is attributed to Laozi?',
+            question: 'Which classical Chinese text is attributed to Confucius?',
             options: ['论语 (Analects)', '道德经 (Tao Te Ching)', '孙子兵法 (Art of War)', '易经 (I Ching)'],
-            correctAnswer: 1
+            correctAnswer: 0
           },
           {
             id: 2,
@@ -193,6 +195,49 @@
             id: 5,
             question: 'In traditional Chinese culture, which number is considered unlucky?',
             options: ['3', '4', '7', '9'],
+            correctAnswer: 1
+          }
+        ]
+      },
+      level4: {
+        mandarin: []
+      },
+      level5: {
+        mandarin: []
+      },
+      level6: {
+        mandarin: []
+      },
+      sjkc: {
+        mandarin: [
+          {
+            id: 1,
+            question: 'What is the meaning of "华文"?',
+            options: ['English language', 'Chinese language', 'Malay language', 'Tamil language'],
+            correctAnswer: 1
+          },
+          {
+            id: 2,
+            question: 'What does the idiom "一石二鸟" mean?',
+            options: ['Kill two birds with one stone', 'Birds of a feather', 'Early bird catches the worm', 'Free as a bird'],
+            correctAnswer: 0
+          },
+          {
+            id: 3,
+            question: 'Which character means "country" or "nation"?',
+            options: ['国', '家', '人', '地'],
+            correctAnswer: 0
+          },
+          {
+            id: 4,
+            question: 'What is the correct measure word for "一___车" (one car)?',
+            options: ['辆', '个', '本', '张'],
+            correctAnswer: 0
+          },
+          {
+            id: 5,
+            question: 'What does "勤劳" mean?',
+            options: ['Lazy', 'Hardworking/Diligent', 'Smart', 'Wealthy'],
             correctAnswer: 1
           }
         ]
@@ -226,9 +271,27 @@
     });
 
     function loadTest(tests, language, level) {
-      document.getElementById('subtitle').textContent = `${language.charAt(0).toUpperCase() + language.slice(1)} - ${level.charAt(0).toUpperCase() + level.slice(1)} Level`;
+      const levelNames = {
+        'newbie': 'Newbie',
+        'level1': 'Level 1',
+        'level2': 'Level 2',
+        'level3': 'Level 3',
+        'level4': 'Level 4',
+        'level5': 'Level 5',
+        'level6': 'Level 6',
+        'sjkc': 'SJKC'
+      };
+      const levelName = levelNames[level] || level;
+      document.getElementById('subtitle').textContent = `${language.charAt(0).toUpperCase() + language.slice(1)} - ${levelName} Level`;
       
       const container = document.getElementById('testContainer');
+      
+      if (!tests || tests.length === 0) {
+        container.innerHTML = '<div class="card"><p style="text-align: center; font-size: 1.2rem;">📚 Tests for this level are coming soon! Stay tuned.</p></div>';
+        document.getElementById('submitTest').style.display = 'none';
+        return;
+      }
+      
       let html = '';
 
       tests.forEach((test, index) => {

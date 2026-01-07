@@ -513,6 +513,51 @@ p {
   color: #ffffff;
 }
 
+/* Locked/Disabled Level Buttons */
+.selector-btn.locked,
+.level-btn.locked,
+.btn.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+  position: relative;
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+  border-color: var(--text-tertiary);
+  pointer-events: auto;
+}
+
+.selector-btn.locked::after,
+.level-btn.locked::after,
+.btn.locked::after {
+  content: " 🔒";
+  margin-left: 0.25rem;
+}
+
+.selector-btn.locked:hover,
+.level-btn.locked:hover,
+.btn.locked:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+  transform: none;
+  box-shadow: none;
+  border-color: var(--text-tertiary);
+}
+
+/* Category Separator */
+.category-separator {
+  margin: 40px 0 20px 0;
+  padding-top: 20px;
+  border-top: 2px dashed var(--text-tertiary);
+}
+
+.category-note {
+  color: var(--text-secondary);
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 10px;
+  margin-bottom: 15px;
+}
+
 /* ========================================
    HERO SECTION
    ======================================== */

@@ -58,8 +58,8 @@ const ProgressTracker = {
       averageScore: 0
     };
 
-    const languages = ['mandarin', 'cantonese'];
-    const levels = ['beginner', 'intermediate', 'expert'];
+    const languages = ['mandarin'];
+    const levels = ['newbie', 'level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'sjkc'];
 
     languages.forEach(lang => {
       levels.forEach(level => {
@@ -227,7 +227,7 @@ const Timer = {
 
 const FlashcardData = {
   mandarin: {
-    beginner: [
+    newbie: [
       { front: '你好', back: 'nǐ hǎo - Hello', audio: '你好' },
       { front: '谢谢', back: 'xiè xiè - Thank you', audio: '谢谢' },
       { front: '再见', back: 'zài jiàn - Goodbye', audio: '再见' },
@@ -239,7 +239,7 @@ const FlashcardData = {
       { front: '人', back: 'rén - Person', audio: '人' },
       { front: '大', back: 'dà - Big', audio: '大' }
     ],
-    intermediate: [
+    level1: [
       { front: '美丽', back: 'měi lì - Beautiful', audio: '美丽' },
       { front: '学习', back: 'xué xí - Study/Learn', audio: '学习' },
       { front: '朋友', back: 'péng yǒu - Friend', audio: '朋友' },
@@ -249,29 +249,31 @@ const FlashcardData = {
       { front: '地方', back: 'dì fāng - Place', audio: '地方' },
       { front: '问题', back: 'wèn tí - Question/Problem', audio: '问题' }
     ],
-    expert: [
+    level2: [
+      { front: '学校', back: 'xué xiào - School', audio: '学校' },
+      { front: '图书馆', back: 'tú shū guǎn - Library', audio: '图书馆' },
+      { front: '昨天', back: 'zuó tiān - Yesterday', audio: '昨天' },
+      { front: '今天', back: 'jīn tiān - Today', audio: '今天' },
+      { front: '明天', back: 'míng tiān - Tomorrow', audio: '明天' },
+      { front: '老师', back: 'lǎo shī - Teacher', audio: '老师' },
+      { front: '学生', back: 'xué sheng - Student', audio: '学生' }
+    ],
+    level3: [
       { front: '画蛇添足', back: 'huà shé tiān zú - To ruin something by adding unnecessary details', audio: '画蛇添足' },
       { front: '一举两得', back: 'yī jǔ liǎng dé - Kill two birds with one stone', audio: '一举两得' },
       { front: '马到成功', back: 'mǎ dào chéng gōng - Instant success', audio: '马到成功' },
       { front: '开门见山', back: 'kāi mén jiàn shān - Get straight to the point', audio: '开门见山' }
-    ]
-  },
-  cantonese: {
-    beginner: [
-      { front: '你好', back: 'nei5 hou2 - Hello', audio: '你好' },
-      { front: '多謝', back: 'm4 goi1 / do1 ze6 - Thank you', audio: '多謝' },
-      { front: '再見', back: 'zoi3 gin3 - Goodbye', audio: '再見' },
-      { front: '一', back: 'jat1 - One', audio: '一' },
-      { front: '飲茶', back: 'jam2 caa4 - Drink tea/Dim sum', audio: '飲茶' }
     ],
-    intermediate: [
-      { front: '好靚', back: 'hou2 leng3 - Very beautiful', audio: '好靚' },
-      { front: '唔該', back: 'm4 goi1 - Excuse me/Thanks', audio: '唔該' },
-      { front: '食飯', back: 'sik6 faan6 - Eat rice/meal', audio: '食飯' }
-    ],
-    expert: [
-      { front: '講嘢', back: 'gong2 je5 - To speak', audio: '講嘢' },
-      { front: '冇', back: 'mou5 - Don\'t have/None', audio: '冇' }
+    level4: [],
+    level5: [],
+    level6: [],
+    sjkc: [
+      { front: '华文', back: 'huá wén - Chinese language', audio: '华文' },
+      { front: '勤劳', back: 'qín láo - Hardworking/Diligent', audio: '勤劳' },
+      { front: '一石二鸟', back: 'yī shí èr niǎo - Kill two birds with one stone', audio: '一石二鸟' },
+      { front: '国家', back: 'guó jiā - Country/Nation', audio: '国家' },
+      { front: '辆', back: 'liàng - Measure word for vehicles', audio: '辆' },
+      { front: '成语', back: 'chéng yǔ - Chinese idiom', audio: '成语' }
     ]
   }
 };

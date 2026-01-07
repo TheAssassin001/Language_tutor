@@ -109,24 +109,35 @@
 
       // Load Mandarin progress
       loadLanguageProgress('mandarin', 'mandarinProgress', progress);
-      
-      // Load Cantonese progress
-      loadLanguageProgress('cantonese', 'cantoneseProgress', progress);
     }
 
     function loadLanguageProgress(language, containerId, progress) {
       const container = document.getElementById(containerId);
-      const levels = ['beginner', 'intermediate', 'expert'];
+      const levels = ['newbie', 'level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'sjkc'];
+      const levelNames = {
+        'newbie': 'Newbie',
+        'level1': 'Level 1',
+        'level2': 'Level 2',
+        'level3': 'Level 3',
+        'level4': 'Level 4',
+        'level5': 'Level 5',
+        'level6': 'Level 6',
+        'sjkc': 'SJKC'
+      };
       
       let html = '';
       levels.forEach(level => {
         const testKey = `${language}_${level}`;
         const testData = progress.tests[testKey];
         const quizData = progress.quizzes[testKey];
+        const levelName = levelNames[level] || level;
+        
+        // Only show levels that have been attempted
+        if (!testData && !quizData) return;
         
         html += `
           <div class="card" style="margin-bottom: 15px;">
-            <h4 style="text-transform: capitalize; margin-bottom: 10px;">${level}</h4>
+            <h4 style="margin-bottom: 10px;">${levelName}</h4>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
               <div>
                 <p style="font-weight: 600; color: var(--accent);">Tests</p>
@@ -154,6 +165,10 @@
           </div>
         `;
       });
+      
+      if (html === '') {
+        html = '<p style="color: var(--text-secondary); text-align: center;">No progress data yet. Start practicing to see your progress!</p>';
+      }
       
       container.innerHTML = html;
     }

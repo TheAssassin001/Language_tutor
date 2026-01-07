@@ -44,6 +44,33 @@
       background: var(--accent);
       color: white;
     }
+    .selector-btn.locked {
+      opacity: 0.5;
+      cursor: not-allowed;
+      position: relative;
+      background: var(--bg-tertiary);
+      color: var(--text-tertiary);
+      border-color: var(--text-tertiary);
+    }
+    .selector-btn.locked::after {
+      content: " 🔒";
+    }
+    .selector-btn.locked:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-tertiary);
+      transform: none;
+    }
+    .category-separator {
+      margin: 40px 0 20px 0;
+      padding-top: 20px;
+      border-top: 2px dashed var(--text-tertiary);
+    }
+    .category-note {
+      color: var(--text-secondary);
+      font-size: 0.9em;
+      font-style: italic;
+      margin-top: 10px;
+    }
     .proceed-btn {
       margin-top: 40px;
       padding: 15px 40px;
@@ -99,9 +126,21 @@
         <div class="selector-group">
           <h3>Select Level:</h3>
           <div class="selector-buttons">
-            <button class="selector-btn" onclick="selectLevel('beginner')">Beginner</button>
-            <button class="selector-btn" onclick="selectLevel('intermediate')">Intermediate</button>
-            <button class="selector-btn" onclick="selectLevel('expert')">Expert</button>
+            <button class="selector-btn" onclick="selectLevel('newbie')">Newbie</button>
+            <button class="selector-btn" onclick="selectLevel('level1')">Level 1</button>
+            <button class="selector-btn" onclick="selectLevel('level2')">Level 2</button>
+            <button class="selector-btn" onclick="selectLevel('level3')">Level 3</button>
+            <button class="selector-btn locked" onclick="showLockedMessage()">Level 4</button>
+            <button class="selector-btn locked" onclick="showLockedMessage()">Level 5</button>
+            <button class="selector-btn locked" onclick="showLockedMessage()">Level 6</button>
+          </div>
+        </div>
+
+        <div class="selector-group category-separator">
+          <h3>Special Category</h3>
+          <p class="category-note">For SJKC students (Chinese medium school curriculum)</p>
+          <div class="selector-buttons">
+            <button class="selector-btn" onclick="selectLevel('sjkc')">SJKC</button>
           </div>
         </div>
 
@@ -125,11 +164,15 @@
 
     function selectLevel(level) {
       selectedLevel = level;
-      document.querySelectorAll('.selector-btn').forEach(btn => {
+      document.querySelectorAll('.selector-btn:not(.locked)').forEach(btn => {
         btn.classList.remove('selected');
       });
       event.target.classList.add('selected');
       checkProceedBtn();
+    }
+
+    function showLockedMessage() {
+      alert('🔒 This level will be unlocked soon! Keep practicing the current levels.');
     }
 
     function checkProceedBtn() {
@@ -143,7 +186,15 @@
 
     function proceedToTest() {
       if (selectedLanguage && selectedLevel) {
-        if (confirm(`Ready to start ${selectedLanguage.charAt(0).toUpperCase() + selectedLanguage.slice(1)} ${selectedLevel} test?`)) {
+        const levelNames = {
+          'newbie': 'Newbie',
+          'level1': 'Level 1',
+          'level2': 'Level 2',
+          'level3': 'Level 3',
+          'sjkc': 'SJKC'
+        };
+        const levelName = levelNames[selectedLevel] || selectedLevel;
+        if (confirm(`Ready to start Mandarin ${levelName} test?`)) {
           window.location.href = `tests.html?language=${selectedLanguage}&level=${selectedLevel}`;
         }
       }

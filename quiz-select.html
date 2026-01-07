@@ -44,6 +44,32 @@
       background: #007bff;
       color: white;
     }
+    .selector-btn.locked {
+      opacity: 0.5;
+      cursor: not-allowed;
+      position: relative;
+      background: #e9ecef;
+      color: #6c757d;
+      border-color: #adb5bd;
+    }
+    .selector-btn.locked::after {
+      content: " 🔒";
+    }
+    .selector-btn.locked:hover {
+      background: #e9ecef;
+      color: #6c757d;
+    }
+    .category-separator {
+      margin: 40px 0 20px 0;
+      padding-top: 20px;
+      border-top: 2px dashed #ccc;
+    }
+    .category-note {
+      color: #666;
+      font-size: 0.9em;
+      font-style: italic;
+      margin-top: 10px;
+    }
     .proceed-btn {
       margin-top: 40px;
       padding: 15px 40px;
@@ -96,9 +122,21 @@
         <div class="selector-group">
           <h3>Level</h3>
           <div class="selector-buttons">
-            <button class="selector-btn" onclick="selectLevel('beginner')">Beginner</button>
-            <button class="selector-btn" onclick="selectLevel('intermediate')">Intermediate</button>
-            <button class="selector-btn" onclick="selectLevel('expert')">Expert</button>
+            <button class="selector-btn" onclick="selectLevel('newbie')">Newbie</button>
+            <button class="selector-btn" onclick="selectLevel('level1')">Level 1</button>
+            <button class="selector-btn" onclick="selectLevel('level2')">Level 2</button>
+            <button class="selector-btn" onclick="selectLevel('level3')">Level 3</button>
+            <button class="selector-btn locked" onclick="showLockedMessage()">Level 4</button>
+            <button class="selector-btn locked" onclick="showLockedMessage()">Level 5</button>
+            <button class="selector-btn locked" onclick="showLockedMessage()">Level 6</button>
+          </div>
+        </div>
+
+        <div class="selector-group category-separator">
+          <h3>Special Category</h3>
+          <p class="category-note">For SJKC students (Chinese medium school curriculum)</p>
+          <div class="selector-buttons">
+            <button class="selector-btn" onclick="selectLevel('sjkc')">SJKC</button>
           </div>
         </div>
 
@@ -123,15 +161,30 @@
       updateUI();
     }
 
+    function showLockedMessage() {
+      document.getElementById('message').textContent = '🔒 This level will be unlocked soon!';
+      document.getElementById('message').style.color = '#f39c12';
+    }
+
     function updateUI() {
-      document.querySelectorAll('.selector-btn').forEach(btn => {
-        btn.classList.toggle('selected', btn.textContent.toLowerCase() === selectedLevel);
+      document.querySelectorAll('.selector-btn:not(.locked)').forEach(btn => {
+        const btnText = btn.textContent.toLowerCase().replace(' ', '');
+        btn.classList.toggle('selected', btnText === selectedLevel);
       });
       document.getElementById('proceedBtn').disabled = !selectedLevel;
       if (selectedLevel) {
-        document.getElementById('message').textContent = `Ready to start Mandarin ${selectedLevel}?`;
+        const levelNames = {
+          'newbie': 'Newbie',
+          'level1': 'Level 1',
+          'level2': 'Level 2',
+          'level3': 'Level 3',
+          'sjkc': 'SJKC'
+        };
+        document.getElementById('message').textContent = `Ready to start Mandarin ${levelNames[selectedLevel] || selectedLevel}?`;
+        document.getElementById('message').style.color = '#666';
       } else {
         document.getElementById('message').textContent = 'Please select a level';
+        document.getElementById('message').style.color = '#666';
       }
     }
 

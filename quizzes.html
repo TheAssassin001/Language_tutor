@@ -63,7 +63,7 @@
     });
 
     const quizData = {
-      beginner: {
+      newbie: {
         mandarin: [
           {
             id: 1,
@@ -79,7 +79,7 @@
           }
         ]
       },
-      intermediate: {
+      level1: {
         mandarin: [
           {
             id: 1,
@@ -95,7 +95,23 @@
           }
         ]
       },
-      expert: {
+      level2: {
+        mandarin: [
+          {
+            id: 1,
+            title: 'Intermediate Vocabulary',
+            question: 'What does "学校" mean?',
+            options: [{ text: 'School', correct: true }, { text: 'Hospital', correct: false }, { text: 'Library', correct: false }]
+          },
+          {
+            id: 2,
+            title: 'Sentence Structure',
+            question: 'Which word order is correct in Mandarin?',
+            options: [{ text: 'Subject + Verb + Object', correct: true }, { text: 'Verb + Subject + Object', correct: false }, { text: 'Object + Verb + Subject', correct: false }]
+          }
+        ]
+      },
+      level3: {
         mandarin: [
           {
             id: 1,
@@ -110,15 +126,51 @@
             options: [{ text: 'Top to bottom, left to right', correct: true }, { text: 'Right to left, bottom to top', correct: false }]
           }
         ]
+      },
+      level4: {
+        mandarin: []
+      },
+      level5: {
+        mandarin: []
+      },
+      level6: {
+        mandarin: []
+      },
+      sjkc: {
+        mandarin: [
+          {
+            id: 1,
+            title: 'SJKC - Advanced Characters',
+            question: 'What is the meaning of "华文"?',
+            options: [{ text: 'Chinese language', correct: true }, { text: 'English language', correct: false }, { text: 'Mathematics', correct: false }]
+          },
+          {
+            id: 2,
+            title: 'SJKC - Idioms',
+            question: 'What does the idiom "一石二鸟" mean?',
+            options: [{ text: 'Kill two birds with one stone', correct: true }, { text: 'Birds of a feather', correct: false }, { text: 'Early bird', correct: false }]
+          }
+        ]
       }
     };
 
     function loadQuiz(language, level) {
       const quizzes = quizData[level]?.[language] || [];
-      document.getElementById('subtitle').textContent = `${language.charAt(0).toUpperCase() + language.slice(1)} - ${level.charAt(0).toUpperCase() + level.slice(1)}`;
+      const levelNames = {
+        'newbie': 'Newbie',
+        'level1': 'Level 1',
+        'level2': 'Level 2',
+        'level3': 'Level 3',
+        'level4': 'Level 4',
+        'level5': 'Level 5',
+        'level6': 'Level 6',
+        'sjkc': 'SJKC'
+      };
+      const levelName = levelNames[level] || level;
+      document.getElementById('subtitle').textContent = `${language.charAt(0).toUpperCase() + language.slice(1)} - ${levelName}`;
       
       if (quizzes.length === 0) {
-        document.getElementById('quizContainer').innerHTML = '<p>No quizzes available for this selection. <a href="quiz-select.html">Try another selection</a></p>';
+        document.getElementById('quizContainer').innerHTML = '<p>No quizzes available for this selection yet. More content coming soon! <a href="quiz-select.html">Try another selection</a></p>';
         return;
       }
 
@@ -126,7 +178,7 @@
       quizzes.forEach(quiz => {
         html += `
           <div class="card">
-            <h3>${quiz.title} (${level.charAt(0).toUpperCase() + level.slice(1)})</h3>
+            <h3>${quiz.title} (${levelName})</h3>
             <p class="question">${quiz.question}</p>
             <div class="options">
               ${quiz.options.map((opt, idx) => `
