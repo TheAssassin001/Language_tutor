@@ -34,6 +34,7 @@
     <div class="container">
       <h2>Chinese Language Test</h2>
       <p class="section-subtitle" id="subtitle">Loading...</p>
+      <div id="authStatus" style="text-align: center; padding: 10px; margin-bottom: 20px; border-radius: 8px; display: none;"></div>
       <div class="timer-display" id="timerDisplay" style="display: none;">⏱️ Time: <span id="timeElapsed">0:00</span></div>
 
       <div id="testContainer"></div>
@@ -59,6 +60,8 @@
   </footer>
 
   <script src="app.js"></script>
+  <script src="auth-client.js"></script>
+  <script src="progress-api.js"></script>
   <script src="quizzes.js"></script>
   <script>
     // Test data structure
@@ -251,6 +254,23 @@
 
     // Load test based on URL parameters
     document.addEventListener('DOMContentLoaded', function() {
+      // Check and display authentication status
+      const authStatusDiv = document.getElementById('authStatus');
+      if (typeof AuthAPI !== 'undefined' && AuthAPI.isAuthenticated()) {
+        const user = AuthAPI.getCurrentUser();
+        authStatusDiv.innerHTML = '✅ Logged in as: <strong>' + (user?.name || user?.email || 'User') + '</strong> - Your progress will be saved!';
+        authStatusDiv.style.background = '#d4edda';
+        authStatusDiv.style.border = '2px solid #c3e6cb';
+        authStatusDiv.style.color = '#155724';
+        authStatusDiv.style.display = 'block';
+      } else {
+        authStatusDiv.innerHTML = '⚠️ Not logged in - Progress will only be saved locally. <a href="login.html" style="color: #004085; text-decoration: underline;">Login here</a>';
+        authStatusDiv.style.background = '#fff3cd';
+        authStatusDiv.style.border = '2px solid #ffeeba';
+        authStatusDiv.style.color = '#856404';
+        authStatusDiv.style.display = 'block';
+      }
+
       const params = new URLSearchParams(window.location.search);
       currentLanguage = params.get('language');
       currentLevel = params.get('level');
@@ -397,9 +417,12 @@
       // Calculate percentage
       const percentage = Math.round((correctCount / totalQuestions) * 100);
 
-      // Save to progress tracker
-      if (typeof ProgressTracker !== 'undefined') {
-        ProgressTracker.saveTestScore(currentLanguage, currentLevel, percentage, totalQuestions);
+      // Save to progress tracker and API
+      const timeSpent = typeof Timer !== 'undefined' ? Timer.getElapsed() : 0;
+      if (typeof ProgressTracker !== 'undefined' && typeof ProgressTracker.saveTestScore === 'function') {
+        ProgressTracker.saveTestScore(currentLanguage, currentLevel, correctCount, totalQuestions, timeSpent).catch(err => {
+          console.error('Error saving test score:', err);
+        });
       }
 
       // Show overall results

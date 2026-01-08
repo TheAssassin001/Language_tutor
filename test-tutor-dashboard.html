@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Tutor Dashboard API</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .test-section {
+      background: white;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .test-section h2 {
+      margin-top: 0;
+      color: #2c3e50;
+    }
+    .status {
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    .success {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+    .error {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+    .info {
+      background: #d1ecf1;
+      border: 1px solid #bee5eb;
+      color: #0c5460;
+    }
+    pre {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .token-input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 Tutor Dashboard API Test</h1>
+  
+  <div class="test-section">
+    <h2>1. Server Health Check</h2>
+    <button onclick="testHealth()">Test Server Connection</button>
+    <div id="healthResult"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>2. Authentication</h2>
+    <div>
+      <label>Tutor Token (from login):</label>
+      <input type="text" id="tokenInput" class="token-input" placeholder="Paste your JWT token here">
+    </div>
+    <button onclick="saveToken()">Save Token</button>
+    <button onclick="testAuth()">Test Authentication</button>
+    <div id="authResult"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>3. Students List</h2>
+    <button onclick="testStudents()">Fetch Students</button>
+    <div id="studentsResult"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>4. Analytics</h2>
+    <button onclick="testAnalytics()">Fetch Analytics</button>
+    <div id="analyticsResult"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>5. Create Test Data</h2>
+    <p class="info">This will create a test student account and sample progress data</p>
+    <button onclick="createTestData()">Create Test Student & Progress</button>
+    <div id="testDataResult"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>6. Direct Database Check</h2>
+    <button onclick="checkDatabase()">Check Database Status</button>
+    <div id="databaseResult"></div>
+  </div>
+
+  <script>
+    const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://language-tutor-efn5.onrender.com/api';
+
+    function getToken() {
+      return document.getElementById('tokenInput').value || localStorage.getItem('token');
+    }
+
+    function saveToken() {
+      const token = document.getElementById('tokenInput').value;
+      if (token) {
+        localStorage.setItem('token', token);
+        showResult('authResult', 'Token saved successfully!', 'success');
+      } else {
+        showResult('authResult', 'Please enter a token', 'error');
+      }
+    }
+
+    function showResult(elementId, message, type = 'info') {
+      const element = document.getElementById(elementId);
+      element.innerHTML = `<div class="status ${type}">${message}</div>`;
+    }
+
+    function showJSON(elementId, data, type = 'success') {
+      const element = document.getElementById(elementId);
+      element.innerHTML = `
+        <div class="status ${type}">
+          <strong>Response:</strong>
+          <pre>${JSON.stringify(data, null, 2)}</pre>
+        </div>
+      `;
+    }
+
+    async function testHealth() {
+      showResult('healthResult', 'Testing server connection...', 'info');
+      try {
+        const response = await fetch(`${API_URL}/health`);
+        const data = await response.json();
+        showJSON('healthResult', data, 'success');
+      } catch (error) {
+        showResult('healthResult', `Error: ${error.message}. Make sure the server is running!`, 'error');
+      }
+    }
+
+    async function testAuth() {
+      const token = getToken();
+      if (!token) {
+        showResult('authResult', 'Please enter a token first', 'error');
+        return;
+      }
+
+      showResult('authResult', 'Testing authentication...', 'info');
+      try {
+        const response = await fetch(`${API_URL}/auth/me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          showJSON('authResult', data, 'success');
+          if (data.data.role !== 'tutor') {
+            showResult('authResult', 'WARNING: This user is not a tutor! You need a tutor account.', 'error');
+          }
+        } else {
+          showJSON('authResult', data, 'error');
+        }
+      } catch (error) {
+        showResult('authResult', `Error: ${error.message}`, 'error');
+      }
+    }
+
+    async function testStudents() {
+      const token = getToken();
+      if (!token) {
+        showResult('studentsResult', 'Please enter a token first', 'error');
+        return;
+      }
+
+      showResult('studentsResult', 'Fetching students...', 'info');
+      try {
+        const response = await fetch(`${API_URL}/tutor/students`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          showJSON('studentsResult', data, 'success');
+          if (data.count === 0) {
+            showResult('studentsResult', 'No students found. Create a student account to test!', 'info');
+          }
+        } else {
+          showJSON('studentsResult', data, 'error');
+        }
+      } catch (error) {
+        showResult('studentsResult', `Error: ${error.message}`, 'error');
+      }
+    }
+
+    async function testAnalytics() {
+      const token = getToken();
+      if (!token) {
+        showResult('analyticsResult', 'Please enter a token first', 'error');
+        return;
+      }
+
+      showResult('analyticsResult', 'Fetching analytics...', 'info');
+      try {
+        const response = await fetch(`${API_URL}/tutor/analytics`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        const data = await response.json();
+        showJSON('analyticsResult', data, data.success ? 'success' : 'error');
+      } catch (error) {
+        showResult('analyticsResult', `Error: ${error.message}`, 'error');
+      }
+    }
+
+    async function createTestData() {
+      showResult('testDataResult', 'Creating test data...', 'info');
+      
+      try {
+        // Step 1: Create test student
+        showResult('testDataResult', 'Step 1: Creating test student account...', 'info');
+        const studentResponse = await fetch(`${API_URL}/auth/signup`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: 'Test Student',
+            email: `teststudent${Date.now()}@example.com`,
+            password: 'password123',
+            role: 'student'
+          })
+        });
+        const studentData = await studentResponse.json();
+        
+        if (!studentData.success) {
+          showJSON('testDataResult', studentData, 'error');
+          return;
+        }
+
+        const studentToken = studentData.token;
+        showResult('testDataResult', `Step 1: ✓ Student created: ${studentData.data.name}`, 'success');
+
+        // Step 2: Create sample progress entries
+        showResult('testDataResult', 'Step 2: Creating sample progress data...', 'info');
+        const progressEntries = [
+          { type: 'quiz', language: 'mandarin', level: 'level1', score: 8, total: 10, timeSpent: 120 },
+          { type: 'test', language: 'mandarin', level: 'level1', score: 15, total: 20, timeSpent: 300 },
+          { type: 'quiz', language: 'mandarin', level: 'level2', score: 9, total: 10, timeSpent: 150 },
+          { type: 'test', language: 'mandarin', level: 'level2', score: 18, total: 20, timeSpent: 350 },
+          { type: 'quiz', language: 'mandarin', level: 'level3', score: 7, total: 10, timeSpent: 180 }
+        ];
+
+        let progressCount = 0;
+        for (const entry of progressEntries) {
+          const progressResponse = await fetch(`${API_URL}/progress`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${studentToken}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(entry)
+          });
+          const progressData = await progressResponse.json();
+          if (progressData.success) {
+            progressCount++;
+          }
+        }
+
+        showResult('testDataResult', 
+          `✓ Test data created successfully!<br>
+          - Student: ${studentData.data.name} (${studentData.data.email})<br>
+          - Progress entries: ${progressCount}<br>
+          <br>Now refresh the tutor dashboard to see the new student!`, 
+          'success'
+        );
+
+      } catch (error) {
+        showResult('testDataResult', `Error: ${error.message}`, 'error');
+      }
+    }
+
+    async function checkDatabase() {
+      showResult('databaseResult', 'This requires server-side endpoint. Checking via API calls...', 'info');
+      
+      const token = getToken();
+      if (!token) {
+        showResult('databaseResult', 'Please enter a token first', 'error');
+        return;
+      }
+
+      try {
+        // Try to get students and analytics to verify DB connection
+        const [studentsRes, analyticsRes] = await Promise.all([
+          fetch(`${API_URL}/tutor/students`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          }),
+          fetch(`${API_URL}/tutor/analytics`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+        ]);
+
+        const studentsData = await studentsRes.json();
+        const analyticsData = await analyticsRes.json();
+
+        if (studentsData.success && analyticsData.success) {
+          showResult('databaseResult', 
+            `✓ Database is connected and working!<br>
+            - Total Students: ${analyticsData.data.totalStudents}<br>
+            - Total Activities: ${analyticsData.data.totalActivities}<br>
+            - Active Students: ${analyticsData.data.activeStudents}`, 
+            'success'
+          );
+        } else {
+          showResult('databaseResult', 'Database connection issue detected', 'error');
+        }
+      } catch (error) {
+        showResult('databaseResult', `Error: ${error.message}`, 'error');
+      }
+    }
+
+    // Auto-load token if available
+    window.onload = function() {
+      const savedToken = localStorage.getItem('token');
+      if (savedToken) {
+        document.getElementById('tokenInput').value = savedToken;
+        showResult('authResult', 'Token loaded from localStorage', 'info');
+      }
+    };
+  </script>
+</body>
+</html>
