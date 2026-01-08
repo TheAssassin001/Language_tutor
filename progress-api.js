@@ -1,12 +1,8 @@
 /**
  * Progress API Client
  * Handles all progress-related API calls
+ * NOTE: Uses API_BASE_URL from auth-client.js (loaded first)
  */
-
-// Use environment-based API URL (for deployment)
-const API_BASE_URL = window.location.hostname === 'localhost' 
-  ? 'http://localhost:5000/api' 
-  : 'https://language-tutor-efn5.onrender.com/api';
 
 const ProgressAPI = {
   /**
