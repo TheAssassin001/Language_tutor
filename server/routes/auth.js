@@ -46,12 +46,21 @@ router.post('/signup', [
       });
     }
 
-    // Create user
+    // SECURITY: Prevent tutor account creation via public signup
+    // Tutors must be created manually by administrators
+    if (role && role === 'tutor') {
+      return res.status(403).json({
+        success: false,
+        message: 'Tutor accounts cannot be created through public signup. Please contact an administrator.'
+      });
+    }
+
+    // Create user (always as student for public signups)
     const user = await User.create({
       name,
       email,
       password,
-      role: role || 'student'
+      role: 'student' // Force student role for public signups
     });
 
     // Generate token

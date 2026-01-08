@@ -159,14 +159,8 @@
           <div class="form-error" id="confirmPasswordError"></div>
         </div>
 
-        <div class="form-group">
-          <label for="role">I am a...</label>
-          <select id="role" name="role" required>
-            <option value="student">Student</option>
-            <option value="tutor">Tutor / Teacher</option>
-          </select>
-          <div class="role-info">Students can take quizzes and track progress. Tutors can view all student progress.</div>
-        </div>
+        <!-- Role is automatically set to 'student' for public signups -->
+        <input type="hidden" id="role" name="role" value="student">
 
         <button type="submit" class="btn-submit" id="submitBtn">
           Create Account
