@@ -83,41 +83,71 @@
     </div>
   </footer>
 
+  <script src="auth-service.js"></script>
+  <script src="progress-service.js"></script>
   <script src="app.js"></script>
-  <script src="quizzes.js"></script>
-  <script src="auth-client.js"></script>
-  <script src="progress-api.js"></script>
   <script>
     async function loadProgress() {
-      // Load streak data
-      const streak = await ProgressTracker.getStreak();
-      document.getElementById('currentStreak').textContent = streak.current || 0;
-      document.getElementById('bestStreak').textContent = streak.best || 0;
-
-      // Load overall progress
-      const progress = await ProgressTracker.getAllProgress();
-      document.getElementById('totalTests').textContent = progress.totalTests || 0;
-      document.getElementById('totalQuizzes').textContent = progress.totalQuizzes || 0;
-
-      // Calculate best score
-      let bestScore = 0;
-      if (progress.tests) {
-        Object.values(progress.tests).forEach(test => {
-          if (test.best > bestScore) bestScore = test.best;
-        });
+      console.log('Loading progress from database...');
+      
+      // Check authentication
+      if (!AuthService.isAuthenticated()) {
+        document.querySelector('.practice').innerHTML = `
+          <div class="container">
+            <div class="card" style="text-align: center; padding: 40px;">
+              <h3>⚠️ Login Required</h3>
+              <p>You must be logged in to view your progress.</p>
+              <a href="login.html?redirect=progress.html" class="btn btn-primary" style="margin-top: 20px;">Login Now</a>
+            </div>
+          </div>
+        `;
+        return;
       }
-      if (progress.quizzes) {
-        Object.values(progress.quizzes).forEach(quiz => {
-          if (quiz.best > bestScore) bestScore = quiz.best;
-        });
-      }
-      document.getElementById('bestScore').textContent = bestScore + '%';
 
-      // Load Mandarin progress
-      loadLanguageProgress('mandarin', 'mandarinProgress', progress);
+      try {
+        // Fetch progress from database
+        const result = await ProgressService.getProgress();
+        console.log('Progress data from database:', result);
+        
+        const progressData = result.data || [];
+        
+        // Calculate statistics
+        const tests = progressData.filter(p => p.type === 'test');
+        const quizzes = progressData.filter(p => p.type === 'quiz');
+        
+        document.getElementById('totalTests').textContent = tests.length;
+        document.getElementById('totalQuizzes').textContent = quizzes.length;
+        
+        // Calculate best score
+        const allScores = progressData.map(p => p.percentage);
+        const bestScore = allScores.length > 0 ? Math.max(...allScores) : 0;
+        document.getElementById('bestScore').textContent = bestScore + '%';
+        
+        // Calculate streak (simple: count unique days with activity)
+        const uniqueDays = new Set(progressData.map(p => 
+          new Date(p.completedAt).toDateString()
+        ));
+        document.getElementById('currentStreak').textContent = uniqueDays.size;
+        document.getElementById('bestStreak').textContent = uniqueDays.size;
+
+        // Load Mandarin progress
+        loadLanguageProgress('mandarin', 'mandarinProgress', progressData);
+        
+      } catch (error) {
+        console.error('Error loading progress:', error);
+        document.querySelector('.practice').innerHTML = `
+          <div class="container">
+            <div class="card" style="text-align: center; padding: 40px;">
+              <h3>❌ Error Loading Progress</h3>
+              <p>${error.message}</p>
+              <button onclick="location.reload()" class="btn btn-primary" style="margin-top: 20px;">Retry</button>
+            </div>
+          </div>
+        `;
+      }
     }
 
-    function loadLanguageProgress(language, containerId, progress) {
+    function loadLanguageProgress(language, containerId, progressArray) {
       const container = document.getElementById(containerId);
       const levels = ['newbie', 'level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'sjkc'];
       const levelNames = {
@@ -133,13 +163,32 @@
       
       let html = '';
       levels.forEach(level => {
-        const testKey = `${language}_${level}`;
-        const testData = progress.tests[testKey];
-        const quizData = progress.quizzes[testKey];
+        // Filter progress for this language and level
+        const testsForLevel = progressArray.filter(p => 
+          p.language === language && 
+          p.level === level && 
+          p.type === 'test'
+        );
+        const quizzesForLevel = progressArray.filter(p => 
+          p.language === language && 
+          p.level === level && 
+          p.type === 'quiz'
+        );
+        
         const levelName = levelNames[level] || level;
         
         // Only show levels that have been attempted
-        if (!testData && !quizData) return;
+        if (testsForLevel.length === 0 && quizzesForLevel.length === 0) return;
+        
+        // Calculate stats for tests
+        const testAttempts = testsForLevel.length;
+        const testBest = testAttempts > 0 ? Math.max(...testsForLevel.map(t => t.percentage)) : 0;
+        const testLatest = testAttempts > 0 ? testsForLevel[0].percentage : 0;
+        
+        // Calculate stats for quizzes
+        const quizAttempts = quizzesForLevel.length;
+        const quizBest = quizAttempts > 0 ? Math.max(...quizzesForLevel.map(q => q.percentage)) : 0;
+        const quizLatest = quizAttempts > 0 ? quizzesForLevel[0].percentage : 0;
         
         html += `
           <div class="card" style="margin-bottom: 15px;">
@@ -147,23 +196,23 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
               <div>
                 <p style="font-weight: 600; color: var(--accent);">Tests</p>
-                ${testData ? `
-                  <p>Attempts: ${testData.attempts}</p>
-                  <p>Best: ${testData.best}%</p>
-                  <p>Latest: ${testData.latest}%</p>
+                ${testAttempts > 0 ? `
+                  <p>Attempts: ${testAttempts}</p>
+                  <p>Best: ${testBest}%</p>
+                  <p>Latest: ${testLatest}%</p>
                   <div class="progress-bar">
-                    <div class="progress-fill" style="width: ${testData.best}%"></div>
+                    <div class="progress-fill" style="width: ${testBest}%"></div>
                   </div>
                 ` : '<p style="color: var(--text-secondary);">No tests completed</p>'}
               </div>
               <div>
                 <p style="font-weight: 600; color: var(--accent);">Quizzes</p>
-                ${quizData ? `
-                  <p>Attempts: ${quizData.attempts}</p>
-                  <p>Best: ${quizData.best}%</p>
-                  <p>Latest: ${quizData.latest}%</p>
+                ${quizAttempts > 0 ? `
+                  <p>Attempts: ${quizAttempts}</p>
+                  <p>Best: ${quizBest}%</p>
+                  <p>Latest: ${quizLatest}%</p>
                   <div class="progress-bar">
-                    <div class="progress-fill" style="width: ${quizData.best}%"></div>
+                    <div class="progress-fill" style="width: ${quizBest}%"></div>
                   </div>
                 ` : '<p style="color: var(--text-secondary);">No quizzes completed</p>'}
               </div>
@@ -179,11 +228,8 @@
       container.innerHTML = html;
     }
 
-    function clearProgress() {
-      if (confirm('Are you sure you want to reset all progress? This cannot be undone!')) {
-        localStorage.clear();
-        location.reload();
-      }
+    async function clearProgress() {
+      alert('⚠️ Clear Progress Feature\n\nProgress is now stored in the database and cannot be deleted from here.\n\nIf you need to reset your progress, please contact your tutor or administrator.');
     }
 
     function toggleMobileMenu() {
