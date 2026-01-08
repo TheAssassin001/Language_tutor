@@ -203,8 +203,10 @@ section {
   font-size: 1.5rem;
   cursor: pointer;
   padding: var(--spacing-xs);
-  z-index: 101;
+  z-index: 102;
   position: relative;
+  pointer-events: auto;
+  touch-action: manipulation;
 }
 
 /* Backdrop overlay for mobile menu */
@@ -237,6 +239,8 @@ section {
   border-radius: var(--radius-md);
   transition: all var(--transition-base);
   margin-left: var(--spacing-sm);
+  position: relative;
+  z-index: 101;
 }
 
 .dark-mode-toggle:hover {
