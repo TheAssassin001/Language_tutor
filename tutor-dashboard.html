@@ -190,7 +190,7 @@
           <li><a href="index.html" class="nav-link">Home</a></li>
           <li><a href="tutor-dashboard.html" class="nav-link">Dashboard</a></li>
           <li><span id="userNameNav" class="nav-link" style="color: var(--accent);">Loading...</span></li>
-          <li><a href="#" onclick="AuthAPI.logout(); return false;" class="nav-link">Logout</a></li>
+          <li><a href="#" onclick="AuthService.logout(); return false;" class="nav-link">Logout</a></li>
         </ul>
         <button id="darkModeToggle" class="dark-mode-toggle" onclick="DarkMode.toggle()" aria-label="Toggle dark mode">🌙</button>
       </div>
@@ -238,15 +238,15 @@
     </div>
   </footer>
 
+  <script src="auth-service.js"></script>
   <script src="app.js"></script>
-  <script src="auth-client.js"></script>
   <script>
     // Require tutor access
-    AuthAPI.requireTutor();
+    AuthService.requireRole('tutor');
 
     // Load dashboard data
     async function loadDashboard() {
-      const user = AuthAPI.getCurrentUser();
+      const user = AuthService.getCurrentUser();
       if (user) {
         document.getElementById('welcomeMessage').textContent = `Welcome back, ${user.name}`;
         document.getElementById('userNameNav').textContent = user.name;
@@ -264,7 +264,7 @@
         console.log('Fetching analytics from:', `${API_URL}/tutor/analytics`);
         
         const response = await fetch(`${API_URL}/tutor/analytics`, {
-          headers: AuthAPI.getAuthHeaders()
+          headers: AuthService.getAuthHeaders()
         });
         
         console.log('Analytics response status:', response.status);
@@ -308,7 +308,7 @@
         console.log('Fetching students from:', `${API_URL}/tutor/students`);
         
         const response = await fetch(`${API_URL}/tutor/students`, {
-          headers: AuthAPI.getAuthHeaders()
+          headers: AuthService.getAuthHeaders()
         });
         
         console.log('Students response status:', response.status);
@@ -374,7 +374,7 @@
         console.log('Fetching student details for:', studentId);
         
         const response = await fetch(`${API_URL}/tutor/students/${studentId}`, {
-          headers: AuthAPI.getAuthHeaders()
+          headers: AuthService.getAuthHeaders()
         });
         
         console.log('Student details response status:', response.status);
