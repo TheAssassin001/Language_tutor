@@ -261,84 +261,107 @@
     async function loadAnalytics() {
       try {
         const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://language-tutor-efn5.onrender.com/api';
+        console.log('Fetching analytics from:', `${API_URL}/tutor/analytics`);
+        
         const response = await fetch(`${API_URL}/tutor/analytics`, {
           headers: AuthAPI.getAuthHeaders()
         });
+        
+        console.log('Analytics response status:', response.status);
         const data = await response.json();
+        console.log('Analytics data:', data);
 
         if (data.success) {
           const stats = data.data;
           const html = `
             <div class="stat-card">
               <h3>Total Students</h3>
-              <p class="stat-value">${stats.totalStudents}</p>
+              <p class="stat-value">${stats.totalStudents || 0}</p>
             </div>
             <div class="stat-card">
               <h3>Active Students</h3>
-              <p class="stat-value">${stats.activeStudents}</p>
+              <p class="stat-value">${stats.activeStudents || 0}</p>
             </div>
             <div class="stat-card">
               <h3>Total Activities</h3>
-              <p class="stat-value">${stats.totalActivities}</p>
+              <p class="stat-value">${stats.totalActivities || 0}</p>
             </div>
             <div class="stat-card">
               <h3>Avg Score</h3>
-              <p class="stat-value">${stats.averageScore}%</p>
+              <p class="stat-value">${stats.averageScore || 0}%</p>
             </div>
           `;
           document.getElementById('analyticsStats').innerHTML = html;
+        } else {
+          console.error('Analytics failed:', data.message);
+          document.getElementById('analyticsStats').innerHTML = `<p class="empty-state">Error: ${data.message || 'Failed to load analytics'}</p>`;
         }
       } catch (error) {
         console.error('Error loading analytics:', error);
-        document.getElementById('analyticsStats').innerHTML = '<p class="empty-state">Error loading analytics</p>';
+        document.getElementById('analyticsStats').innerHTML = `<p class="empty-state">Error loading analytics: ${error.message}</p>`;
       }
     }
 
     async function loadStudents() {
       try {
         const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://language-tutor-efn5.onrender.com/api';
+        console.log('Fetching students from:', `${API_URL}/tutor/students`);
+        
         const response = await fetch(`${API_URL}/tutor/students`, {
           headers: AuthAPI.getAuthHeaders()
         });
+        
+        console.log('Students response status:', response.status);
         const data = await response.json();
+        console.log('Students data:', data);
 
-        if (data.success && data.data.length > 0) {
-          const html = `
-            <table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Total Activities</th>
-                  <th>Last Activity</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${data.data.map(student => `
-                  <tr onclick="viewStudent('${student.id}')">
-                    <td><strong>${student.name}</strong></td>
-                    <td>${student.email}</td>
-                    <td>${student.totalActivities}</td>
-                    <td>${student.lastActivity ? new Date(student.lastActivity).toLocaleDateString() : 'Never'}</td>
-                    <td><button class="btn-view" onclick="event.stopPropagation(); viewStudent('${student.id}')">View Details</button></td>
+        if (data.success) {
+          if (data.data && data.data.length > 0) {
+            const html = `
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Total Activities</th>
+                    <th>Last Activity</th>
+                    <th>Action</th>
                   </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          `;
-          document.getElementById('studentsTable').innerHTML = html;
+                </thead>
+                <tbody>
+                  ${data.data.map(student => `
+                    <tr onclick="viewStudent('${student.id}')">
+                      <td><strong>${student.name}</strong></td>
+                      <td>${student.email}</td>
+                      <td>${student.totalActivities || 0}</td>
+                      <td>${student.lastActivity ? new Date(student.lastActivity).toLocaleDateString() : 'Never'}</td>
+                      <td><button class="btn-view" onclick="event.stopPropagation(); viewStudent('${student.id}')">View Details</button></td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            `;
+            document.getElementById('studentsTable').innerHTML = html;
+          } else {
+            document.getElementById('studentsTable').innerHTML = `
+              <div class="empty-state">
+                <h3>📚 No students yet</h3>
+                <p>Students who sign up will appear here</p>
+              </div>
+            `;
+          }
         } else {
+          console.error('Students fetch failed:', data.message);
           document.getElementById('studentsTable').innerHTML = `
             <div class="empty-state">
-              <h3>📚 No students yet</h3>
-              <p>Students who sign up will appear here</p>
+              <h3>Error loading students</h3>
+              <p>${data.message || 'Unknown error'}</p>
             </div>
           `;
         }
       } catch (error) {
         console.error('Error loading students:', error);
-        document.getElementById('studentsTable').innerHTML = '<p class="empty-state">Error loading students</p>';
+        document.getElementById('studentsTable').innerHTML = `<p class="empty-state">Error: ${error.message}</p>`;
       }
     }
 
@@ -348,10 +371,15 @@
 
       try {
         const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://language-tutor-efn5.onrender.com/api';
+        console.log('Fetching student details for:', studentId);
+        
         const response = await fetch(`${API_URL}/tutor/students/${studentId}`, {
           headers: AuthAPI.getAuthHeaders()
         });
+        
+        console.log('Student details response status:', response.status);
         const data = await response.json();
+        console.log('Student details data:', data);
 
         if (data.success) {
           const student = data.data.student;
@@ -427,10 +455,13 @@
           `;
 
           document.getElementById('modalContent').innerHTML = html;
+        } else {
+          console.error('Failed to load student details:', data.message);
+          document.getElementById('modalContent').innerHTML = `<p class="empty-state">Error: ${data.message || 'Failed to load student details'}</p>`;
         }
       } catch (error) {
         console.error('Error loading student details:', error);
-        document.getElementById('modalContent').innerHTML = '<p class="empty-state">Error loading student details</p>';
+        document.getElementById('modalContent').innerHTML = `<p class="empty-state">Error: ${error.message}</p>`;
       }
     }
 
