@@ -2,11 +2,9 @@
  * Progress Service
  * DATABASE-ONLY progress tracking - NO localStorage fallbacks
  * All progress operations require authentication
+ * 
+ * NOTE: Uses API_URL from auth-service.js (loaded first)
  */
-
-const API_URL = window.location.hostname === 'localhost' 
-  ? 'http://localhost:5000/api' 
-  : 'https://language-tutor-efn5.onrender.com/api';
 
 const ProgressService = {
   /**
