@@ -260,7 +260,7 @@
 
     async function loadAnalytics() {
       try {
-        const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://chinese-tutor-api.onrender.com/api';
+        const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://language-tutor-efn5.onrender.com/api';
         const response = await fetch(`${API_URL}/tutor/analytics`, {
           headers: AuthAPI.getAuthHeaders()
         });
@@ -296,7 +296,7 @@
 
     async function loadStudents() {
       try {
-        const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://chinese-tutor-api.onrender.com/api';
+        const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://language-tutor-efn5.onrender.com/api';
         const response = await fetch(`${API_URL}/tutor/students`, {
           headers: AuthAPI.getAuthHeaders()
         });
@@ -347,7 +347,7 @@
       document.getElementById('modalContent').innerHTML = '<div class="loading">Loading student details...</div>';
 
       try {
-        const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://chinese-tutor-api.onrender.com/api';
+        const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://language-tutor-efn5.onrender.com/api';
         const response = await fetch(`${API_URL}/tutor/students/${studentId}`, {
           headers: AuthAPI.getAuthHeaders()
         });
