@@ -34,6 +34,7 @@
         </button>
       </div>
     </div>
+    <div class="nav-overlay" id="navOverlay" onclick="closeMobileMenu()"></div>
   </nav>
 
   <section class="practice" id="practice">
@@ -308,12 +309,24 @@
 
     function toggleMobileMenu() {
       const menu = document.getElementById('mobileMenu');
+      const overlay = document.getElementById('navOverlay');
       menu.classList.toggle('active');
+      if (overlay) overlay.classList.toggle('active');
+      
+      // Prevent body scroll when menu is open
+      if (menu.classList.contains('active')) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+      }
     }
 
     function closeMobileMenu() {
       const menu = document.getElementById('mobileMenu');
+      const overlay = document.getElementById('navOverlay');
       menu.classList.remove('active');
+      if (overlay) overlay.classList.remove('active');
+      document.body.style.overflow = '';
     }
   </script>
   <script src="app.js"></script>

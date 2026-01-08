@@ -204,6 +204,26 @@ section {
   cursor: pointer;
   padding: var(--spacing-xs);
   z-index: 101;
+  position: relative;
+}
+
+/* Backdrop overlay for mobile menu */
+.nav-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.nav-overlay.active {
+  display: block;
+  opacity: 1;
 }
 
 /* Dark Mode Toggle */
@@ -1127,6 +1147,7 @@ p {
     transition: right 0.3s ease;
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
     overflow-y: auto;
+    z-index: 100;
     /* Smooth scrolling on iOS */
     -webkit-overflow-scrolling: touch;
   }
