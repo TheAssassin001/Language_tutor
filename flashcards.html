@@ -26,7 +26,7 @@
           <li><a href="index.html#home" class="nav-link" onclick="closeMobileMenu()">Home</a></li>
           <li><a href="quiz-select.html" class="nav-link">Quizzes</a></li>
           <li><a href="test-select.html" class="nav-link">Tests</a></li>
-          <li><a href="flashcards.html" class="nav-link">Flashcards</a></li>
+          <li><a href="flashcard-select.html" class="nav-link">Flashcards</a></li>
           <li><a href="progress.html" class="nav-link">Progress</a></li>
           <li><a href="resources.html" class="nav-link">Resources</a></li>
         </ul>
@@ -38,24 +38,7 @@
   <section class="practice" style="padding: 60px 0; min-height: 80vh;">
     <div class="container">
       <h2>Chinese Flashcards</h2>
-      <p class="section-subtitle">Click card to flip • Swipe or use arrows to navigate</p>
-
-      <!-- Selection -->
-      <div style="text-align: center; margin-bottom: 30px;">
-        <select id="languageSelect" class="btn btn-secondary" onchange="loadFlashcards()" style="margin-right: 10px;">
-          <option value="mandarin">Mandarin</option>
-        </select>
-        <select id="levelSelect" class="btn btn-secondary" onchange="loadFlashcards()">
-          <option value="newbie">Newbie</option>
-          <option value="level1">Level 1</option>
-          <option value="level2">Level 2</option>
-          <option value="level3">Level 3</option>
-          <option value="level4" disabled>Level 4 🔒</option>
-          <option value="level5" disabled>Level 5 🔒</option>
-          <option value="level6" disabled>Level 6 🔒</option>
-          <option value="sjkc">SJKC</option>
-        </select>
-      </div>
+      <p class="section-subtitle" id="subtitle">Click card to flip • Swipe or use arrows to navigate</p>
 
       <!-- Progress Indicator -->
       <div style="text-align: center; margin-bottom: 20px;">
@@ -86,6 +69,7 @@
         <p style="color: var(--text-secondary); font-size: 0.9rem;">
           Keyboard shortcuts: Space to flip, Arrow keys to navigate
         </p>
+        <a href="flashcard-select.html" class="btn btn-secondary" style="display: inline-block; margin-top: 15px;">Back to Selection</a>
       </div>
     </div>
   </section>
@@ -102,15 +86,44 @@
     let currentDeck = [];
     let currentCardIndex = 0;
     let isFlipped = false;
+    let currentLanguage = '';
+    let currentLevel = '';
+
+    // Load flashcards based on URL parameters
+    document.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      currentLanguage = params.get('language') || 'mandarin';
+      currentLevel = params.get('level') || 'newbie';
+      
+      // Update subtitle with level info
+      const levelNames = {
+        'newbie': 'Newbie',
+        'level1': 'Level 1',
+        'level2': 'Level 2',
+        'level3': 'Level 3',
+        'sjkc': 'SJKC'
+      };
+      const levelName = levelNames[currentLevel] || currentLevel;
+      document.getElementById('subtitle').textContent = `${levelName} • Click card to flip • Swipe or use arrows to navigate`;
+      
+      loadFlashcards();
+    });
 
     function loadFlashcards() {
-      const language = document.getElementById('languageSelect').value;
-      const level = document.getElementById('levelSelect').value;
+      currentDeck = FlashcardData[currentLanguage]?.[currentLevel] || [];
       
-      currentDeck = FlashcardData[language][level] || [];
+      if (currentDeck.length === 0) {
+        document.getElementById('flashcard').innerHTML = `
+          <div style="padding: 40px; text-align: center;">
+            <h3>No flashcards available</h3>
+            <p>Flashcards for this level are coming soon!</p>
+          </div>
+        `;
+        return;
+      }
+      
       currentCardIndex = 0;
       isFlipped = false;
-      
       displayCard();
     }
 
