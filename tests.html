@@ -60,8 +60,8 @@
   </footer>
 
   <script src="app.js"></script>
-  <script src="auth-client.js"></script>
-  <script src="progress-api.js"></script>
+  <script src="auth-service.js"></script>
+  <script src="progress-service.js"></script>
   <script src="quizzes.js"></script>
   <script>
     // Test data structure
@@ -256,8 +256,8 @@
     document.addEventListener('DOMContentLoaded', function() {
       // Check and display authentication status
       const authStatusDiv = document.getElementById('authStatus');
-      if (typeof AuthAPI !== 'undefined' && AuthAPI.isAuthenticated()) {
-        const user = AuthAPI.getCurrentUser();
+      if (typeof AuthService !== 'undefined' && AuthService.isAuthenticated()) {
+        const user = AuthService.getCurrentUser();
         authStatusDiv.innerHTML = '✅ Logged in as: <strong>' + (user?.name || user?.email || 'User') + '</strong> - Your progress will be saved!';
         authStatusDiv.style.background = '#d4edda';
         authStatusDiv.style.border = '2px solid #c3e6cb';
@@ -432,42 +432,34 @@
       // Calculate percentage
       const percentage = Math.round((correctCount / totalQuestions) * 100);
 
-      // Save to progress - try multiple methods
-      console.log('=== SAVING TEST SCORE ===');
-      console.log('Authenticated:', typeof AuthAPI !== 'undefined' ? AuthAPI.isAuthenticated() : 'AuthAPI not loaded');
-      console.log('User:', typeof AuthAPI !== 'undefined' ? AuthAPI.getCurrentUser() : 'N/A');
-      console.log('Test data:', { type: 'test', currentLanguage, currentLevel, correctCount, totalQuestions, timeSpent });
-      
+      // Save to database using ProgressService (NEW - DATABASE ONLY)
       try {
-        // Try using ProgressAPI directly
-        if (typeof ProgressAPI !== 'undefined' && typeof ProgressAPI.saveScore === 'function') {
-          console.log('Saving via ProgressAPI...');
-          const result = await ProgressAPI.saveScore('test', currentLanguage, currentLevel, correctCount, totalQuestions, timeSpent);
-          console.log('ProgressAPI save result:', result);
-        }
-        // Fallback to ProgressTracker
-        else if (typeof ProgressTracker !== 'undefined' && typeof ProgressTracker.saveTestScore === 'function') {
-          console.log('Saving via ProgressTracker...');
-          const result = await ProgressTracker.saveTestScore(currentLanguage, currentLevel, correctCount, totalQuestions, timeSpent);
-          console.log('ProgressTracker save result:', result);
-        }
-        // Final fallback - use old method
-        else if (typeof ProgressTracker !== 'undefined') {
-          console.log('Saving via old ProgressTracker method (localStorage only)...');
-          const key = `test_${currentLanguage}_${currentLevel}`;
-          const history = JSON.parse(localStorage.getItem(key) || '[]');
-          history.push({
-            date: new Date().toISOString(),
-            score: correctCount,
-            total: totalQuestions,
-            percentage: percentage
-          });
-          localStorage.setItem(key, JSON.stringify(history));
-        }
-        console.log('Test score saved successfully');
+        console.log('💾 Saving test score to database...');
+        
+        await ProgressService.saveScore(
+          'test',
+          currentLanguage,
+          currentLevel,
+          correctCount,
+          totalQuestions,
+          timeSpent
+        );
+        
+        console.log('✅ Test score saved successfully!');
+        
       } catch (error) {
-        console.error('Error saving test score:', error);
-        alert('Score calculated but there was an issue saving your progress. Your score: ' + percentage + '%');
+        console.error('❌ Failed to save test score:', error);
+        
+        // Show visible error to user
+        alert(
+          `⚠️ Failed to save your progress!\n\n` +
+          `Error: ${error.message}\n\n` +
+          `Your score (${percentage}%) was calculated but NOT saved to the database.\n\n` +
+          `Please check:\n` +
+          `1. You are logged in\n` +
+          `2. You have internet connection\n` +
+          `3. Try refreshing the page and logging in again`
+        );
       }
 
       // Show overall results
