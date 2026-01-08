@@ -434,6 +434,11 @@
 
       // Save to database using ProgressService (NEW - DATABASE ONLY)
       try {
+        // Check if ProgressService is loaded
+        if (typeof ProgressService === 'undefined') {
+          throw new Error('ProgressService not loaded. Please refresh the page.');
+        }
+        
         console.log('💾 Saving test score to database...');
         
         await ProgressService.saveScore(
