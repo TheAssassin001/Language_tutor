@@ -14,7 +14,8 @@ const AuthService = {
    * @returns {string|null}
    */
   getToken() {
-    return localStorage.getItem('token');
+    // Check new key first, then fall back to old key for backward compatibility
+    return localStorage.getItem('token') || localStorage.getItem('authToken');
   },
 
   /**
@@ -22,7 +23,8 @@ const AuthService = {
    * @returns {Object|null}
    */
   getCurrentUser() {
-    const userStr = localStorage.getItem('user');
+    // Check new key first, then fall back to old key for backward compatibility
+    const userStr = localStorage.getItem('user') || localStorage.getItem('currentUser');
     if (!userStr) return null;
     try {
       return JSON.parse(userStr);
@@ -160,8 +162,11 @@ const AuthService = {
    * Logout user - clear all auth data
    */
   logout() {
+    // Remove both old and new keys
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
     console.log('✓ User logged out');
   },
 
