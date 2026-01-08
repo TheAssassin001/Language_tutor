@@ -136,6 +136,16 @@
           </div>
         </div>
 
+        <!-- Category selection for Level 1 and Level 2 -->
+        <div class="selector-group" id="categoryGroup" style="display: none;">
+          <h3>Select Category:</h3>
+          <div class="selector-buttons">
+            <button class="selector-btn" onclick="selectCategory('text')">Text</button>
+            <button class="selector-btn" onclick="selectCategory('hanyupinyin')">Hanyu Pinyin</button>
+            <button class="selector-btn" onclick="selectCategory('extravocab')">Extra Vocab</button>
+          </div>
+        </div>
+
         <div class="selector-group category-separator">
           <h3>Special Category</h3>
           <p class="category-note">For SJKC students (Chinese medium school curriculum)</p>
@@ -161,13 +171,41 @@
   <script>
     let selectedLanguage = 'mandarin'; // Auto-select Mandarin since it's the only option
     let selectedLevel = null;
+    let selectedCategory = null;
 
     function selectLevel(level) {
       selectedLevel = level;
+      selectedCategory = null; // Reset category when level changes
+      
       document.querySelectorAll('.selector-btn:not(.locked)').forEach(btn => {
         btn.classList.remove('selected');
       });
       event.target.classList.add('selected');
+      
+      // Show category selection for level1 and level2
+      const categoryGroup = document.getElementById('categoryGroup');
+      if (level === 'level1' || level === 'level2') {
+        categoryGroup.style.display = 'block';
+        // Reset category buttons
+        categoryGroup.querySelectorAll('.selector-btn').forEach(btn => {
+          btn.classList.remove('selected');
+        });
+      } else {
+        categoryGroup.style.display = 'none';
+      }
+      
+      checkProceedBtn();
+    }
+
+    function selectCategory(category) {
+      selectedCategory = category;
+      
+      // Remove selection from all category buttons
+      document.getElementById('categoryGroup').querySelectorAll('.selector-btn').forEach(btn => {
+        btn.classList.remove('selected');
+      });
+      event.target.classList.add('selected');
+      
       checkProceedBtn();
     }
 
@@ -177,10 +215,13 @@
 
     function checkProceedBtn() {
       const proceedBtn = document.getElementById('proceedBtn');
-      if (selectedLanguage && selectedLevel) {
-        proceedBtn.disabled = false;
+      
+      // For level1 and level2, both level and category must be selected
+      if (selectedLevel === 'level1' || selectedLevel === 'level2') {
+        proceedBtn.disabled = !(selectedLanguage && selectedLevel && selectedCategory);
       } else {
-        proceedBtn.disabled = true;
+        // For other levels, only level needs to be selected
+        proceedBtn.disabled = !(selectedLanguage && selectedLevel);
       }
     }
 
@@ -194,7 +235,14 @@
           'sjkc': 'SJKC'
         };
         const levelName = levelNames[selectedLevel] || selectedLevel;
-        window.location.href = `flashcards.html?language=${selectedLanguage}&level=${selectedLevel}`;
+        
+        // Build URL with category if applicable
+        let url = `flashcards.html?language=${selectedLanguage}&level=${selectedLevel}`;
+        if (selectedCategory) {
+          url += `&category=${selectedCategory}`;
+        }
+        
+        window.location.href = url;
       }
     }
 
