@@ -124,7 +124,7 @@
         <p style="color: var(--text-secondary); margin-bottom: 30px;">Choose your difficulty level for Mandarin Chinese</p>
 
         <div class="selector-group">
-          <h3>Select Level:</h3>
+          <h3>Step 1: Select Level</h3>
           <div class="selector-buttons">
             <button class="selector-btn" onclick="selectLevel('newbie')">Newbie</button>
             <button class="selector-btn" onclick="selectLevel('level1')">Level 1</button>
@@ -134,15 +134,20 @@
             <button class="selector-btn locked" onclick="showLockedMessage()">Level 5</button>
             <button class="selector-btn locked" onclick="showLockedMessage()">Level 6</button>
           </div>
+          <p id="levelHint" class="category-note" style="display: none; margin-top: 15px; color: var(--accent); font-weight: bold;">
+            ⬇️ Now select a category below to continue
+          </p>
         </div>
 
         <!-- Category selection for Level 1 and Level 2 -->
         <div class="selector-group" id="categoryGroup" style="display: none;">
-          <h3>Select Category:</h3>
+          <div class="category-separator" style="margin: 20px 0; padding-top: 20px; border-top: 2px solid var(--accent);"></div>
+          <h3>Step 2: Select Category</h3>
+          <p class="category-note" style="margin-bottom: 15px;">Choose a category to practice:</p>
           <div class="selector-buttons">
-            <button class="selector-btn" onclick="selectCategory('text')">Text</button>
-            <button class="selector-btn" onclick="selectCategory('hanyupinyin')">Hanyu Pinyin</button>
-            <button class="selector-btn" onclick="selectCategory('extravocab')">Extra Vocab</button>
+            <button class="selector-btn" onclick="selectCategory('text')">📖 Text</button>
+            <button class="selector-btn" onclick="selectCategory('hanyupinyin')">🔤 Hanyu Pinyin</button>
+            <button class="selector-btn" onclick="selectCategory('extravocab')">📚 Extra Vocab</button>
           </div>
         </div>
 
@@ -184,14 +189,22 @@
       
       // Show category selection for level1 and level2
       const categoryGroup = document.getElementById('categoryGroup');
+      const levelHint = document.getElementById('levelHint');
+      
       if (level === 'level1' || level === 'level2') {
         categoryGroup.style.display = 'block';
+        levelHint.style.display = 'block';
         // Reset category buttons
         categoryGroup.querySelectorAll('.selector-btn').forEach(btn => {
           btn.classList.remove('selected');
         });
+        // Scroll to category section
+        setTimeout(() => {
+          categoryGroup.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
       } else {
         categoryGroup.style.display = 'none';
+        levelHint.style.display = 'none';
       }
       
       checkProceedBtn();
