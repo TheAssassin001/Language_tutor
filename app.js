@@ -305,4 +305,158 @@ const SocialShare = {
 // Initialize dark mode on page load
 document.addEventListener('DOMContentLoaded', () => {
   DarkMode.init();
+  MobileOptimizations.init();
+});
+
+// ========================================
+// MOBILE OPTIMIZATIONS
+// ========================================
+
+const MobileOptimizations = {
+  init() {
+    this.registerServiceWorker();
+    this.setupPWA();
+    this.preventZoom();
+    this.setupTouchFeedback();
+    this.optimizeKeyboard();
+    this.preventPullToRefresh();
+  },
+
+  // Register service worker for offline functionality
+  registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(reg => console.log('Service Worker registered'))
+          .catch(err => console.log('Service Worker registration failed:', err));
+      });
+    }
+  },
+
+  // PWA install prompt
+  setupPWA() {
+    let deferredPrompt;
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      
+      // Show install button if needed
+      const installBtn = document.getElementById('installBtn');
+      if (installBtn) {
+        installBtn.style.display = 'block';
+        installBtn.addEventListener('click', () => {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+              console.log('User accepted the install prompt');
+            }
+            deferredPrompt = null;
+          });
+        });
+      }
+    });
+  },
+
+  // Prevent accidental zoom on double tap
+  preventZoom() {
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', (event) => {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
+  },
+
+  // Add visual feedback for touch interactions
+  setupTouchFeedback() {
+    const addTouchFeedback = (element) => {
+      element.addEventListener('touchstart', function() {
+        this.style.opacity = '0.7';
+      }, { passive: true });
+      
+      element.addEventListener('touchend', function() {
+        setTimeout(() => {
+          this.style.opacity = '1';
+        }, 100);
+      }, { passive: true });
+    };
+
+    // Apply to all interactive elements
+    document.querySelectorAll('.btn, .option-btn, .card, .tab-btn').forEach(addTouchFeedback);
+  },
+
+  // Optimize keyboard behavior on mobile
+  optimizeKeyboard() {
+    const inputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="password"], textarea');
+    
+    inputs.forEach(input => {
+      // Scroll into view when focused
+      input.addEventListener('focus', function() {
+        setTimeout(() => {
+          this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300); // Wait for keyboard animation
+      });
+      
+      // Add done button behavior for iOS
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && this.tagName !== 'TEXTAREA') {
+          this.blur();
+        }
+      });
+    });
+  },
+
+  // Prevent pull-to-refresh on iOS
+  preventPullToRefresh() {
+    let startY = 0;
+    
+    document.addEventListener('touchstart', (e) => {
+      startY = e.touches[0].pageY;
+    }, { passive: true });
+    
+    document.addEventListener('touchmove', (e) => {
+      const y = e.touches[0].pageY;
+      // Only prevent if scrolled to the top
+      if (window.scrollY === 0 && y > startY) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+  },
+
+  // Check if running as PWA
+  isPWA() {
+    return window.matchMedia('(display-mode: standalone)').matches ||
+           window.navigator.standalone === true;
+  },
+
+  // Vibrate feedback for mobile (if available)
+  vibrate(pattern = 10) {
+    if ('vibrate' in navigator) {
+      navigator.vibrate(pattern);
+    }
+  }
+};
+
+// Add vibration feedback to buttons
+document.addEventListener('click', (e) => {
+  if (e.target.matches('.btn, .option-btn, .tab-btn')) {
+    MobileOptimizations.vibrate(10);
+  }
+}, true);
+
+// Handle orientation changes
+window.addEventListener('orientationchange', () => {
+  // Close mobile menu on orientation change
+  const mobileMenu = document.getElementById('mobileMenu');
+  if (mobileMenu && mobileMenu.classList.contains('active')) {
+    mobileMenu.classList.remove('active');
+  }
+  
+  // Re-adjust layout after orientation change
+  setTimeout(() => {
+    window.scrollTo(0, window.scrollY);
+  }, 100);
 });
