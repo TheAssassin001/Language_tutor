@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Chinese Character Writing Practice">
+  <title>Writing Practice - Chinese Language Tutor</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    
+    #writingCanvas {
+      border: 3px solid var(--accent);
+      border-radius: 8px;
+      cursor: crosshair;
+      touch-action: none;
+      background: white;
+      display: block;
+      width: 100%;
+      height: 500px;
+    }
+    
+    .dark-mode #writingCanvas {
+      background: #2a2a2a;
+    }
+    
+    .guide-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      opacity: 0.2;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .character-display {
+      font-size: 200px;
+      text-align: center;
+      color: rgba(52, 152, 219, 0.15);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      user-select: none;
+    }
+    
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .character-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 10px;
+      margin-top: 30px;
+    }
+    
+    .character-btn {
+      padding: 20px;
+      font-size: 36px;
+      background: var(--card-background);
+      border: 2px solid var(--accent);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .character-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+    
+    .character-btn.active {
+      background: var(--accent);
+      color: white;
+    }
+    
+    .stroke-animation {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-wrapper">
+        <div class="logo">LangTutor</div>
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+          ☰
+        </button>
+        <ul class="nav-links" id="mobileMenu">
+          <li><a href="index.html#home" class="nav-link" onclick="closeMobileMenu()">Home</a></li>
+          <li><a href="quiz-select.html" class="nav-link">Quizzes</a></li>
+          <li><a href="test-select.html" class="nav-link">Tests</a></li>
+          <li><a href="flashcards.html" class="nav-link">Flashcards</a></li>
+          <li><a href="progress.html" class="nav-link">Progress</a></li>
+          <li><a href="resources.html" class="nav-link">Resources</a></li>
+          <li><a href="writing.html" class="nav-link">Writing Practice</a></li>
+        </ul>
+        <button id="darkModeToggle" class="dark-mode-toggle" onclick="DarkMode.toggle()" aria-label="Toggle dark mode">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="practice" style="padding: 60px 0;">
+    <div class="container">
+      <h2>Character Writing Practice</h2>
+      <p class="section-subtitle">Practice writing Chinese characters with proper stroke order</p>
+
+      <div style="margin: 40px 0;">
+        <div class="canvas-container">
+          <div class="character-display" id="characterDisplay"></div>
+          <canvas id="writingCanvas" width="500" height="500"></canvas>
+        </div>
+
+        <div class="controls">
+          <button class="btn" onclick="clearCanvas()">🗑️ Clear</button>
+          <button class="btn" onclick="showStrokeOrder()">👁️ Show Strokes</button>
+          <button class="btn" onclick="toggleGuides()">📐 Toggle Grid</button>
+          <select id="brushSize" class="btn" onchange="updateBrushSize()">
+            <option value="3">Thin</option>
+            <option value="5" selected>Normal</option>
+            <option value="8">Thick</option>
+          </select>
+          <select id="brushColor" class="btn" onchange="updateBrushColor()">
+            <option value="#2c3e50">Black</option>
+            <option value="#e74c3c">Red</option>
+            <option value="#3498db" selected>Blue</option>
+            <option value="#2ecc71">Green</option>
+          </select>
+        </div>
+
+        <div style="text-align: center; margin: 20px 0;">
+          <p style="font-size: 1.1rem; color: var(--text-secondary);">
+            Selected Character: <span id="currentChar" style="font-size: 2rem; color: var(--accent); font-weight: bold;">一</span>
+          </p>
+          <p id="charMeaning" style="font-size: 1rem; color: var(--text-secondary); margin-top: 5px;">
+            Meaning: one
+          </p>
+        </div>
+
+        <div>
+          <h3 style="margin-bottom: 15px;">Select a Character to Practice</h3>
+          <div class="character-grid" id="characterGrid"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 Chinese Language Tutor. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script src="quizzes.js"></script>
+  <script>
+    // Characters for practice
+    const practiceCharacters = [
+      { char: '一', meaning: 'one', strokes: 1 },
+      { char: '二', meaning: 'two', strokes: 2 },
+      { char: '三', meaning: 'three', strokes: 3 },
+      { char: '人', meaning: 'person', strokes: 2 },
+      { char: '大', meaning: 'big', strokes: 3 },
+      { char: '小', meaning: 'small', strokes: 3 },
+      { char: '中', meaning: 'middle', strokes: 4 },
+      { char: '天', meaning: 'sky/day', strokes: 4 },
+      { char: '日', meaning: 'sun/day', strokes: 4 },
+      { char: '月', meaning: 'moon/month', strokes: 4 },
+      { char: '水', meaning: 'water', strokes: 4 },
+      { char: '火', meaning: 'fire', strokes: 4 },
+      { char: '木', meaning: 'wood/tree', strokes: 4 },
+      { char: '山', meaning: 'mountain', strokes: 3 },
+      { char: '田', meaning: 'field', strokes: 5 },
+      { char: '目', meaning: 'eye', strokes: 5 },
+      { char: '口', meaning: 'mouth', strokes: 3 },
+      { char: '手', meaning: 'hand', strokes: 4 },
+      { char: '心', meaning: 'heart', strokes: 4 },
+      { char: '门', meaning: 'door', strokes: 3 },
+      { char: '好', meaning: 'good', strokes: 6 },
+      { char: '你', meaning: 'you', strokes: 7 },
+      { char: '我', meaning: 'I/me', strokes: 7 },
+      { char: '他', meaning: 'he', strokes: 5 }
+    ];
+
+    // Canvas setup
+    const canvas = document.getElementById('writingCanvas');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let currentCharacter = practiceCharacters[0];
+    let showGuides = true;
+    let brushSize = 5;
+    let brushColor = '#3498db';
+
+    // Initialize
+    function init() {
+      renderCharacterGrid();
+      selectCharacter(practiceCharacters[0]);
+      drawGuides();
+      
+      // Canvas event listeners
+      canvas.addEventListener('mousedown', startDrawing);
+      canvas.addEventListener('mousemove', draw);
+      canvas.addEventListener('mouseup', stopDrawing);
+      canvas.addEventListener('mouseout', stopDrawing);
+      
+      // Touch events
+      canvas.addEventListener('touchstart', handleTouch);
+      canvas.addEventListener('touchmove', handleTouch);
+      canvas.addEventListener('touchend', stopDrawing);
+    }
+
+    function renderCharacterGrid() {
+      const grid = document.getElementById('characterGrid');
+      grid.innerHTML = practiceCharacters.map(char => 
+        `<button class="character-btn" onclick="selectCharacter(${JSON.stringify(char).replace(/"/g, '&quot;')})">${char.char}</button>`
+      ).join('');
+    }
+
+    function selectCharacter(char) {
+      currentCharacter = char;
+      document.getElementById('currentChar').textContent = char.char;
+      document.getElementById('charMeaning').textContent = `Meaning: ${char.meaning} | Strokes: ${char.strokes}`;
+      document.getElementById('characterDisplay').textContent = char.char;
+      clearCanvas();
+      
+      // Update active state
+      document.querySelectorAll('.character-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.textContent === char.char) btn.classList.add('active');
+      });
+    }
+
+    function drawGuides() {
+      if (!showGuides) return;
+      
+      ctx.save();
+      ctx.strokeStyle = 'rgba(52, 152, 219, 0.2)';
+      ctx.lineWidth = 1;
+      
+      // Center cross
+      ctx.beginPath();
+      ctx.moveTo(canvas.width / 2, 0);
+      ctx.lineTo(canvas.width / 2, canvas.height);
+      ctx.moveTo(0, canvas.height / 2);
+      ctx.lineTo(canvas.width, canvas.height / 2);
+      ctx.stroke();
+      
+      // Diagonals
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(canvas.width, canvas.height);
+      ctx.moveTo(canvas.width, 0);
+      ctx.lineTo(0, canvas.height);
+      ctx.stroke();
+      
+      ctx.restore();
+    }
+
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (showGuides) drawGuides();
+    }
+
+    function toggleGuides() {
+      showGuides = !showGuides;
+      clearCanvas();
+    }
+
+    function updateBrushSize() {
+      brushSize = parseInt(document.getElementById('brushSize').value);
+    }
+
+    function updateBrushColor() {
+      brushColor = document.getElementById('brushColor').value;
+    }
+
+    function startDrawing(e) {
+      isDrawing = true;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+      
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      ctx.strokeStyle = brushColor;
+      ctx.lineWidth = brushSize;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    }
+
+    function stopDrawing() {
+      isDrawing = false;
+      ctx.beginPath();
+    }
+
+    function handleTouch(e) {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      const x = touch.clientX - rect.left;
+      const y = touch.clientY - rect.top;
+      
+      if (e.type === 'touchstart') {
+        isDrawing = true;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+      } else if (e.type === 'touchmove' && isDrawing) {
+        ctx.strokeStyle = brushColor;
+        ctx.lineWidth = brushSize;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.lineTo(x, y);
+        ctx.stroke();
+      }
+    }
+
+    function showStrokeOrder() {
+      alert('Stroke order animation feature coming soon! For now, refer to resources like Arch Chinese for detailed stroke orders.');
+    }
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobileMenu');
+      menu.classList.toggle('active');
+    }
+
+    function closeMobileMenu() {
+      const menu = document.getElementById('mobileMenu');
+      menu.classList.remove('active');
+    }
+
+    // Initialize on load
+    window.addEventListener('load', init);
+  </script>
+
+</body>
+</html>

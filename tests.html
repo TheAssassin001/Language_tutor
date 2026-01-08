@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Chinese Language Tests - Practice Mandarin">
+  <title>Tests - Chinese Language Tutor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-wrapper">
+        <div class="logo">LangTutor</div>
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+          ☰
+        </button>
+        <ul class="nav-links" id="mobileMenu">
+          <li><a href="index.html#home" class="nav-link" onclick="closeMobileMenu()">Home</a></li>
+          <li><a href="quiz-select.html" class="nav-link">Quizzes</a></li>
+          <li><a href="test-select.html" class="nav-link">Tests</a></li>
+          <li><a href="flashcards.html" class="nav-link">Flashcards</a></li>
+          <li><a href="progress.html" class="nav-link">Progress</a></li>
+          <li><a href="resources.html" class="nav-link">Resources</a></li>
+          <li><a href="writing.html" class="nav-link">Writing Practice</a></li>
+        </ul>
+        <button id="darkModeToggle" class="dark-mode-toggle" onclick="DarkMode.toggle()" aria-label="Toggle dark mode">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="practice" id="practice">
+    <div class="container">
+      <h2>Chinese Language Test</h2>
+      <p class="section-subtitle" id="subtitle">Loading...</p>
+      <div class="timer-display" id="timerDisplay" style="display: none;">⏱️ Time: <span id="timeElapsed">0:00</span></div>
+
+      <div id="testContainer"></div>
+
+      <div style="margin-top: 30px; text-align: center;">
+        <button id="submitTest" class="btn btn-primary" style="display: none;" onclick="submitTest()">Submit Test</button>
+        <div id="testResults" style="display: none; margin-top: 20px;">
+          <h3>Test Results</h3>
+          <p id="scoreDisplay" style="font-size: 1.5rem; margin: 20px 0;"></p>
+          <p id="feedbackMessage" style="margin-bottom: 20px;"></p>
+          <button id="shareBtn" class="share-btn" onclick="shareScore()" style="display: none;">📤 Share Score</button>
+        </div>
+      </div>
+
+      <p style="margin-top: 30px;"><a href="test-select.html" class="btn btn-secondary">Back to Selection</a></p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 Chinese Language Tutor. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script src="quizzes.js"></script>
+  <script>
+    // Test data structure
+    const testData = {
+      newbie: {
+        mandarin: [
+          {
+            id: 1,
+            question: 'What is the pinyin for "你好"?',
+            options: ['nihao', 'neihao', 'nǐhǎo', 'All of the above'],
+            correctAnswer: 2
+          },
+          {
+            id: 2,
+            question: 'Which character means "one"?',
+            options: ['二', '一', '三', '四'],
+            correctAnswer: 1
+          },
+          {
+            id: 3,
+            question: 'How do you say "thank you" in Mandarin?',
+            options: ['xiexie', 'zaijian', 'duibuqi', 'qing'],
+            correctAnswer: 0
+          },
+          {
+            id: 4,
+            question: 'What does "再见" mean?',
+            options: ['Hello', 'Thank you', 'Goodbye', 'Sorry'],
+            correctAnswer: 2
+          },
+          {
+            id: 5,
+            question: 'Which pinyin represents the character "水" (water)?',
+            options: ['shui', 'sui', 'shou', 'xui'],
+            correctAnswer: 0
+          }
+        ]
+      },
+      level1: {
+        mandarin: [
+          {
+            id: 1,
+            question: 'What is the correct stroke order principle in Chinese?',
+            options: ['Right to left, bottom to top', 'Left to right, top to bottom', 'Bottom to top, right to left', 'Random order'],
+            correctAnswer: 1
+          },
+          {
+            id: 2,
+            question: 'Which character means "beautiful"?',
+            options: ['好', '美', '大', '小'],
+            correctAnswer: 1
+          },
+          {
+            id: 3,
+            question: 'What does "我爱你" mean?',
+            options: ['I like you', 'I love you', 'I know you', 'I see you'],
+            correctAnswer: 1
+          },
+          {
+            id: 4,
+            question: 'How do you say "restaurant" in Chinese?',
+            options: ['饭店', '商店', '书店', '酒店'],
+            correctAnswer: 0
+          },
+          {
+            id: 5,
+            question: 'What is the measure word for books?',
+            options: ['个', '本', '张', '条'],
+            correctAnswer: 1
+          }
+        ]
+      },
+      level2: {
+        mandarin: [
+          {
+            id: 1,
+            question: 'What does "学校" mean?',
+            options: ['Hospital', 'School', 'Library', 'Park'],
+            correctAnswer: 1
+          },
+          {
+            id: 2,
+            question: 'Which is the correct word order in Mandarin?',
+            options: ['Verb + Subject + Object', 'Subject + Verb + Object', 'Object + Subject + Verb', 'Subject + Object + Verb'],
+            correctAnswer: 1
+          },
+          {
+            id: 3,
+            question: 'What does "昨天" mean?',
+            options: ['Today', 'Yesterday', 'Tomorrow', 'Now'],
+            correctAnswer: 1
+          },
+          {
+            id: 4,
+            question: 'How do you say "I am a student" in Chinese?',
+            options: ['我是老师', '我是学生', '我是医生', '我是律师'],
+            correctAnswer: 1
+          },
+          {
+            id: 5,
+            question: 'What is the meaning of "图书馆"?',
+            options: ['Museum', 'Library', 'Gallery', 'Bookstore'],
+            correctAnswer: 1
+          }
+        ]
+      },
+      level3: {
+        mandarin: [
+          {
+            id: 1,
+            question: 'Which classical Chinese text is attributed to Confucius?',
+            options: ['论语 (Analects)', '道德经 (Tao Te Ching)', '孙子兵法 (Art of War)', '易经 (I Ching)'],
+            correctAnswer: 0
+          },
+          {
+            id: 2,
+            question: 'What is a 成语 (chengyu)?',
+            options: ['A type of poem', 'A four-character idiom', 'A dialect', 'A writing style'],
+            correctAnswer: 1
+          },
+          {
+            id: 3,
+            question: 'Which radical is found in the character "想" (to think)?',
+            options: ['心 (heart)', '木 (wood)', '火 (fire)', '水 (water)'],
+            correctAnswer: 0
+          },
+          {
+            id: 4,
+            question: 'What does "画蛇添足" mean?',
+            options: ['To paint a perfect picture', 'To add unnecessary details (ruin something)', 'To be very talented', 'To work hard'],
+            correctAnswer: 1
+          },
+          {
+            id: 5,
+            question: 'In traditional Chinese culture, which number is considered unlucky?',
+            options: ['3', '4', '7', '9'],
+            correctAnswer: 1
+          }
+        ]
+      },
+      level4: {
+        mandarin: []
+      },
+      level5: {
+        mandarin: []
+      },
+      level6: {
+        mandarin: []
+      },
+      sjkc: {
+        mandarin: [
+          {
+            id: 1,
+            question: 'What is the meaning of "华文"?',
+            options: ['English language', 'Chinese language', 'Malay language', 'Tamil language'],
+            correctAnswer: 1
+          },
+          {
+            id: 2,
+            question: 'What does the idiom "一石二鸟" mean?',
+            options: ['Kill two birds with one stone', 'Birds of a feather', 'Early bird catches the worm', 'Free as a bird'],
+            correctAnswer: 0
+          },
+          {
+            id: 3,
+            question: 'Which character means "country" or "nation"?',
+            options: ['国', '家', '人', '地'],
+            correctAnswer: 0
+          },
+          {
+            id: 4,
+            question: 'What is the correct measure word for "一___车" (one car)?',
+            options: ['辆', '个', '本', '张'],
+            correctAnswer: 0
+          },
+          {
+            id: 5,
+            question: 'What does "勤劳" mean?',
+            options: ['Lazy', 'Hardworking/Diligent', 'Smart', 'Wealthy'],
+            correctAnswer: 1
+          }
+        ]
+      }
+    };
+
+    let userAnswers = {};
+    let currentLanguage = '';
+    let currentLevel = '';
+    let timerInterval = null;
+
+    // Load test based on URL parameters
+    document.addEventListener('DOMContentLoaded', function() {
+      const params = new URLSearchParams(window.location.search);
+      currentLanguage = params.get('language');
+      currentLevel = params.get('level');
+      
+      if (!currentLanguage || !currentLevel) {
+        document.getElementById('subtitle').textContent = 'Invalid test selection';
+        return;
+      }
+
+      const tests = testData[currentLevel]?.[currentLanguage];
+      
+      if (!tests) {
+        document.getElementById('subtitle').textContent = 'Test not found';
+        return;
+      }
+
+      loadTest(tests, currentLanguage, currentLevel);
+    });
+
+    function loadTest(tests, language, level) {
+      const levelNames = {
+        'newbie': 'Newbie',
+        'level1': 'Level 1',
+        'level2': 'Level 2',
+        'level3': 'Level 3',
+        'level4': 'Level 4',
+        'level5': 'Level 5',
+        'level6': 'Level 6',
+        'sjkc': 'SJKC'
+      };
+      const levelName = levelNames[level] || level;
+      document.getElementById('subtitle').textContent = `${language.charAt(0).toUpperCase() + language.slice(1)} - ${levelName} Level`;
+      
+      const container = document.getElementById('testContainer');
+      
+      if (!tests || tests.length === 0) {
+        container.innerHTML = '<div class="card"><p style="text-align: center; font-size: 1.2rem;">📚 Tests for this level are coming soon! Stay tuned.</p></div>';
+        document.getElementById('submitTest').style.display = 'none';
+        return;
+      }
+      
+      let html = '';
+
+      tests.forEach((test, index) => {
+        html += `
+          <div class="card" style="margin-bottom: 30px;">
+            <div class="question">Question ${index + 1}: ${test.question}</div>
+            <div class="options">
+              ${test.options.map((option, optIndex) => `
+                <button class="option-btn" onclick="selectAnswer(${test.id}, ${optIndex})" data-test="${test.id}" data-option="${optIndex}">
+                  ${option}
+                </button>
+              `).join('')}
+            </div>
+            <div id="result-${test.id}" class="feedback" style="display: none;"></div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+      document.getElementById('submitTest').style.display = 'inline-block';
+      
+      // Start timer
+      if (typeof Timer !== 'undefined') {
+        // Clear previous interval if exists
+        if (timerInterval) {
+          clearInterval(timerInterval);
+        }
+        
+        document.getElementById('timerDisplay').style.display = 'block';
+        Timer.start();
+        timerInterval = setInterval(() => {
+          const elapsed = Timer.getElapsed();
+          const minutes = Math.floor(elapsed / 60);
+          const seconds = elapsed % 60;
+          document.getElementById('timeElapsed').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }, 1000);
+      }
+    }
+
+    function selectAnswer(testId, optionIndex) {
+      // Clear previous selections for this question
+      document.querySelectorAll(`[data-test="${testId}"]`).forEach(btn => {
+        btn.style.background = '';
+        btn.style.color = '';
+        btn.style.borderColor = '';
+      });
+
+      // Highlight selected answer
+      const selectedBtn = document.querySelector(`[data-test="${testId}"][data-option="${optionIndex}"]`);
+      
+      if (selectedBtn) {
+        selectedBtn.style.background = 'var(--accent)';
+        selectedBtn.style.color = 'white';
+        selectedBtn.style.borderColor = 'var(--accent)';
+      }
+
+      // Store answer
+      userAnswers[testId] = optionIndex;
+    }
+
+    function submitTest() {
+      const tests = testData[currentLevel][currentLanguage];
+      let correctCount = 0;
+      let totalQuestions = tests.length;
+
+      // Check if all questions are answered
+      if (Object.keys(userAnswers).length < totalQuestions) {
+        alert('Please answer all questions before submitting!');
+        return;
+      }
+
+      // Stop timer
+      if (typeof Timer !== 'undefined') {
+        Timer.stop();
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+      }
+
+      // Grade the test
+      tests.forEach(test => {
+        const userAnswer = userAnswers[test.id];
+        const isCorrect = userAnswer === test.correctAnswer;
+        
+        if (isCorrect) {
+          correctCount++;
+        }
+
+        // Show feedback for each question
+        const resultDiv = document.getElementById(`result-${test.id}`);
+        resultDiv.style.display = 'block';
+        
+        if (isCorrect) {
+          resultDiv.className = 'feedback success';
+          resultDiv.textContent = '✓ Correct!';
+        } else {
+          resultDiv.className = 'feedback error';
+          resultDiv.textContent = `✗ Incorrect. Correct answer: ${test.options[test.correctAnswer]}`;
+        }
+      });
+
+      // Calculate percentage
+      const percentage = Math.round((correctCount / totalQuestions) * 100);
+
+      // Save to progress tracker
+      if (typeof ProgressTracker !== 'undefined') {
+        ProgressTracker.saveTestScore(currentLanguage, currentLevel, percentage, totalQuestions);
+      }
+
+      // Show overall results
+      const resultsDiv = document.getElementById('testResults');
+      const scoreDisplay = document.getElementById('scoreDisplay');
+      const feedbackMessage = document.getElementById('feedbackMessage');
+
+      scoreDisplay.textContent = `Score: ${correctCount}/${totalQuestions} (${percentage}%)`;
+      
+      if (percentage >= 90) {
+        feedbackMessage.textContent = '🎉 Excellent! You have mastered this level!';
+        feedbackMessage.style.color = 'var(--success)';
+      } else if (percentage >= 70) {
+        feedbackMessage.textContent = '👍 Good job! Keep practicing to improve.';
+        feedbackMessage.style.color = 'var(--accent)';
+      } else if (percentage >= 50) {
+        feedbackMessage.textContent = '📚 Not bad, but you need more practice.';
+        feedbackMessage.style.color = 'var(--warning)';
+      } else {
+        feedbackMessage.textContent = '💪 Keep studying! You\'ll improve with practice.';
+        feedbackMessage.style.color = 'var(--error)';
+      }
+
+      resultsDiv.style.display = 'block';
+      document.getElementById('submitTest').style.display = 'none';
+      document.getElementById('shareBtn').style.display = 'inline-block';
+
+      // Disable all option buttons
+      document.querySelectorAll('.option-btn').forEach(btn => {
+        btn.disabled = true;
+        btn.style.cursor = 'not-allowed';
+      });
+
+      // Scroll to results
+      resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function shareScore() {
+      const tests = testData[currentLevel][currentLanguage];
+      const percentage = Math.round((Object.keys(userAnswers).filter(id => 
+        userAnswers[id] === tests.find(t => t.id == id).correctAnswer
+      ).length / tests.length) * 100);
+      
+      if (typeof SocialShare !== 'undefined') {
+        SocialShare.shareScore(`Chinese ${currentLanguage.charAt(0).toUpperCase() + currentLanguage.slice(1)} Test`, currentLevel, percentage, 'test');
+      }
+    }
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobileMenu');
+      menu.classList.toggle('active');
+    }
+
+    function closeMobileMenu() {
+      const menu = document.getElementById('mobileMenu');
+      menu.classList.remove('active');
+    }
+  </script>
+
+</body>
+</html>

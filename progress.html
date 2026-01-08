@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Track your Chinese learning progress">
+  <title>Progress Dashboard - Chinese Language Tutor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-wrapper">
+        <div class="logo">LangTutor</div>
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+          ☰
+        </button>
+        <ul class="nav-links" id="mobileMenu">
+          <li><a href="index.html#home" class="nav-link" onclick="closeMobileMenu()">Home</a></li>
+          <li><a href="quiz-select.html" class="nav-link">Quizzes</a></li>
+          <li><a href="test-select.html" class="nav-link">Tests</a></li>
+          <li><a href="flashcards.html" class="nav-link">Flashcards</a></li>
+          <li><a href="progress.html" class="nav-link">Progress</a></li>
+          <li><a href="resources.html" class="nav-link">Resources</a></li>
+        </ul>
+        <button id="darkModeToggle" class="dark-mode-toggle" onclick="DarkMode.toggle()" aria-label="Toggle dark mode">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="practice" style="padding: 60px 0; min-height: 80vh;">
+    <div class="container">
+      <h2>Your Progress Dashboard</h2>
+      <p class="section-subtitle">Track your Chinese learning journey</p>
+
+      <!-- Streak Display -->
+      <div style="text-align: center; margin-bottom: 40px;">
+        <div class="streak-display">
+          <span class="streak-icon">🔥</span>
+          <span class="streak-count" id="currentStreak">0</span>
+          <div style="font-size: 1rem;">Day Streak</div>
+          <div style="font-size: 0.9rem; margin-top: 0.5rem;">Best: <span id="bestStreak">0</span> days</div>
+        </div>
+      </div>
+
+      <!-- Progress Stats -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 40px;">
+        <div class="card">
+          <h3 style="color: var(--accent);">📝 Total Tests</h3>
+          <p style="font-size: 3rem; font-weight: 700; margin: 10px 0;" id="totalTests">0</p>
+          <p style="color: var(--text-secondary);">Tests completed</p>
+        </div>
+        <div class="card">
+          <h3 style="color: var(--accent);">🎯 Total Quizzes</h3>
+          <p style="font-size: 3rem; font-weight: 700; margin: 10px 0;" id="totalQuizzes">0</p>
+          <p style="color: var(--text-secondary);">Quizzes completed</p>
+        </div>
+        <div class="card">
+          <h3 style="color: var(--accent);">⭐ Best Score</h3>
+          <p style="font-size: 3rem; font-weight: 700; margin: 10px 0;" id="bestScore">0%</p>
+          <p style="color: var(--text-secondary);">Personal best</p>
+        </div>
+      </div>
+
+      <!-- Detailed Progress by Level -->
+      <h3 style="margin-bottom: 20px;">Progress by Level</h3>
+      
+      <div style="margin-bottom: 30px;">
+        <h4 style="color: var(--accent); margin-bottom: 15px;">🎌 Mandarin Progress</h4>
+        <div id="mandarinProgress"></div>
+      </div>
+
+      <div style="text-align: center; margin-top: 40px;">
+        <button class="btn btn-secondary" onclick="clearProgress()">Reset All Progress</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 Chinese Language Tutor. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script src="quizzes.js"></script>
+  <script src="auth-client.js"></script>
+  <script src="progress-api.js"></script>
+  <script>
+    async function loadProgress() {
+      // Load streak data
+      const streak = await ProgressTracker.getStreak();
+      document.getElementById('currentStreak').textContent = streak.current || 0;
+      document.getElementById('bestStreak').textContent = streak.best || 0;
+
+      // Load overall progress
+      const progress = await ProgressTracker.getAllProgress();
+      document.getElementById('totalTests').textContent = progress.totalTests || 0;
+      document.getElementById('totalQuizzes').textContent = progress.totalQuizzes || 0;
+
+      // Calculate best score
+      let bestScore = 0;
+      if (progress.tests) {
+        Object.values(progress.tests).forEach(test => {
+          if (test.best > bestScore) bestScore = test.best;
+        });
+      }
+      if (progress.quizzes) {
+        Object.values(progress.quizzes).forEach(quiz => {
+          if (quiz.best > bestScore) bestScore = quiz.best;
+        });
+      }
+      document.getElementById('bestScore').textContent = bestScore + '%';
+
+      // Load Mandarin progress
+      loadLanguageProgress('mandarin', 'mandarinProgress', progress);
+    }
+
+    function loadLanguageProgress(language, containerId, progress) {
+      const container = document.getElementById(containerId);
+      const levels = ['newbie', 'level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'sjkc'];
+      const levelNames = {
+        'newbie': 'Newbie',
+        'level1': 'Level 1',
+        'level2': 'Level 2',
+        'level3': 'Level 3',
+        'level4': 'Level 4',
+        'level5': 'Level 5',
+        'level6': 'Level 6',
+        'sjkc': 'SJKC'
+      };
+      
+      let html = '';
+      levels.forEach(level => {
+        const testKey = `${language}_${level}`;
+        const testData = progress.tests[testKey];
+        const quizData = progress.quizzes[testKey];
+        const levelName = levelNames[level] || level;
+        
+        // Only show levels that have been attempted
+        if (!testData && !quizData) return;
+        
+        html += `
+          <div class="card" style="margin-bottom: 15px;">
+            <h4 style="margin-bottom: 10px;">${levelName}</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <div>
+                <p style="font-weight: 600; color: var(--accent);">Tests</p>
+                ${testData ? `
+                  <p>Attempts: ${testData.attempts}</p>
+                  <p>Best: ${testData.best}%</p>
+                  <p>Latest: ${testData.latest}%</p>
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${testData.best}%"></div>
+                  </div>
+                ` : '<p style="color: var(--text-secondary);">No tests completed</p>'}
+              </div>
+              <div>
+                <p style="font-weight: 600; color: var(--accent);">Quizzes</p>
+                ${quizData ? `
+                  <p>Attempts: ${quizData.attempts}</p>
+                  <p>Best: ${quizData.best}%</p>
+                  <p>Latest: ${quizData.latest}%</p>
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${quizData.best}%"></div>
+                  </div>
+                ` : '<p style="color: var(--text-secondary);">No quizzes completed</p>'}
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      
+      if (html === '') {
+        html = '<p style="color: var(--text-secondary); text-align: center;">No progress data yet. Start practicing to see your progress!</p>';
+      }
+      
+      container.innerHTML = html;
+    }
+
+    function clearProgress() {
+      if (confirm('Are you sure you want to reset all progress? This cannot be undone!')) {
+        localStorage.clear();
+        location.reload();
+      }
+    }
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobileMenu');
+      menu.classList.toggle('active');
+    }
+
+    function closeMobileMenu() {
+      const menu = document.getElementById('mobileMenu');
+      menu.classList.remove('active');
+    }
+
+    // Load progress on page load
+    document.addEventListener('DOMContentLoaded', loadProgress);
+  </script>
+
+</body>
+</html>

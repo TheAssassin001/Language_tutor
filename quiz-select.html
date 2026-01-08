@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Quiz Selection - Chinese Language Tutor">
+  <title>Select Quiz - Chinese Language Tutor</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .selector-container {
+      max-width: 600px;
+      margin: 40px auto;
+      text-align: center;
+    }
+    .selector-group {
+      margin: 30px 0;
+    }
+    .selector-group h3 {
+      margin-bottom: 15px;
+      font-size: 1.3em;
+      color: #333;
+    }
+    .selector-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    .selector-btn {
+      padding: 12px 20px;
+      font-size: 1em;
+      border: 2px solid #007bff;
+      background: white;
+      color: #007bff;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .selector-btn:hover {
+      background: #007bff;
+      color: white;
+    }
+    .selector-btn.selected {
+      background: #007bff;
+      color: white;
+    }
+    .selector-btn.locked {
+      opacity: 0.5;
+      cursor: not-allowed;
+      position: relative;
+      background: #e9ecef;
+      color: #6c757d;
+      border-color: #adb5bd;
+    }
+    .selector-btn.locked::after {
+      content: " 🔒";
+    }
+    .selector-btn.locked:hover {
+      background: #e9ecef;
+      color: #6c757d;
+    }
+    .category-separator {
+      margin: 40px 0 20px 0;
+      padding-top: 20px;
+      border-top: 2px dashed #ccc;
+    }
+    .category-note {
+      color: #666;
+      font-size: 0.9em;
+      font-style: italic;
+      margin-top: 10px;
+    }
+    .proceed-btn {
+      margin-top: 40px;
+      padding: 15px 40px;
+      font-size: 1.1em;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .proceed-btn:hover:not(:disabled) {
+      background: #218838;
+    }
+    .proceed-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-wrapper">
+        <div class="logo">LangTutor</div>
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+          ☰
+        </button>
+        <ul class="nav-links" id="mobileMenu">
+          <li><a href="index.html#home" class="nav-link" onclick="closeMobileMenu()">Home</a></li>
+          <li><a href="quiz-select.html" class="nav-link">Quizzes</a></li>
+          <li><a href="test-select.html" class="nav-link">Tests</a></li>
+          <li><a href="flashcards.html" class="nav-link">Flashcards</a></li>
+          <li><a href="progress.html" class="nav-link">Progress</a></li>
+          <li><a href="resources.html" class="nav-link">Resources</a></li>
+          <li><a href="writing.html" class="nav-link">Writing Practice</a></li>
+        </ul>
+        <button id="darkModeToggle" class="dark-mode-toggle" onclick="DarkMode.toggle()" aria-label="Toggle dark mode">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="practice">
+    <div class="container">
+      <h2>Select Your Quiz</h2>
+      <p class="section-subtitle">Choose your difficulty level for Mandarin Chinese</p>
+
+      <div class="selector-container">
+        <div class="selector-group">
+          <h3>Level</h3>
+          <div class="selector-buttons">
+            <button class="selector-btn" onclick="selectLevel('newbie')">Newbie</button>
+            <button class="selector-btn" onclick="selectLevel('level1')">Level 1</button>
+            <button class="selector-btn" onclick="selectLevel('level2')">Level 2</button>
+            <button class="selector-btn" onclick="selectLevel('level3')">Level 3</button>
+            <button class="selector-btn locked" onclick="showLockedMessage()">Level 4</button>
+            <button class="selector-btn locked" onclick="showLockedMessage()">Level 5</button>
+            <button class="selector-btn locked" onclick="showLockedMessage()">Level 6</button>
+          </div>
+        </div>
+
+        <div class="selector-group category-separator">
+          <h3>Special Category</h3>
+          <p class="category-note">For SJKC students (Chinese medium school curriculum)</p>
+          <div class="selector-buttons">
+            <button class="selector-btn" onclick="selectLevel('sjkc')">SJKC</button>
+          </div>
+        </div>
+
+        <button class="proceed-btn" onclick="proceedToQuiz()" id="proceedBtn" disabled>Start Quiz</button>
+        <p id="message" style="margin-top: 20px; color: #666;"></p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 Language Tutor. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    let selectedLanguage = 'mandarin'; // Auto-select Mandarin since it's the only option
+    let selectedLevel = null;
+
+    function selectLevel(level) {
+      selectedLevel = level;
+      updateUI();
+    }
+
+    function showLockedMessage() {
+      document.getElementById('message').textContent = '🔒 This level will be unlocked soon!';
+      document.getElementById('message').style.color = '#f39c12';
+    }
+
+    function updateUI() {
+      document.querySelectorAll('.selector-btn:not(.locked)').forEach(btn => {
+        const btnText = btn.textContent.toLowerCase().replace(' ', '');
+        btn.classList.toggle('selected', btnText === selectedLevel);
+      });
+      document.getElementById('proceedBtn').disabled = !selectedLevel;
+      if (selectedLevel) {
+        const levelNames = {
+          'newbie': 'Newbie',
+          'level1': 'Level 1',
+          'level2': 'Level 2',
+          'level3': 'Level 3',
+          'sjkc': 'SJKC'
+        };
+        document.getElementById('message').textContent = `Ready to start Mandarin ${levelNames[selectedLevel] || selectedLevel}?`;
+        document.getElementById('message').style.color = '#666';
+      } else {
+        document.getElementById('message').textContent = 'Please select a level';
+        document.getElementById('message').style.color = '#666';
+      }
+    }
+
+    function proceedToQuiz() {
+      if (selectedLanguage && selectedLevel) {
+        window.location.href = `quizzes.html?language=${selectedLanguage}&level=${selectedLevel}`;
+      }
+    }
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Chinese Language Tutor</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .auth-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
+    }
+    .auth-card {
+      background: var(--bg-primary);
+      border-radius: 12px;
+      padding: 40px;
+      max-width: 450px;
+      width: 100%;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    .auth-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .auth-header h1 {
+      color: var(--accent);
+      margin-bottom: 10px;
+      font-size: 2rem;
+    }
+    .auth-header p {
+      color: var(--text-secondary);
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      transition: border-color 0.3s;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .form-error {
+      color: #e74c3c;
+      font-size: 0.9rem;
+      margin-top: 5px;
+      display: none;
+    }
+    .form-error.show {
+      display: block;
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .btn-submit:hover {
+      background: var(--primary);
+    }
+    .btn-submit:disabled {
+      background: var(--text-secondary);
+      cursor: not-allowed;
+    }
+    .auth-footer {
+      text-align: center;
+      margin-top: 20px;
+      color: var(--text-secondary);
+    }
+    .auth-footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .auth-footer a:hover {
+      text-decoration: underline;
+    }
+    .alert {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .alert.show {
+      display: block;
+    }
+    .alert-error {
+      background: #fee;
+      color: #c33;
+      border: 1px solid #fcc;
+    }
+    .alert-success {
+      background: #efe;
+      color: #3c3;
+      border: 1px solid #cfc;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h1>🎓 Welcome Back</h1>
+        <p>Login to continue your Chinese learning journey</p>
+      </div>
+
+      <div id="alertBox" class="alert"></div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required placeholder="your@email.com">
+          <div class="form-error" id="emailError"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required placeholder="Enter your password">
+          <div class="form-error" id="passwordError"></div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">
+          Login
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
+        <p style="margin-top: 10px;"><a href="index.html">← Back to Home</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="auth-client.js"></script>
+  <script>
+    const form = document.getElementById('loginForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const alertBox = document.getElementById('alertBox');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Clear previous errors
+      document.querySelectorAll('.form-error').forEach(el => el.classList.remove('show'));
+      alertBox.classList.remove('show');
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      // Basic validation
+      if (!email || !password) {
+        showAlert('Please fill in all fields', 'error');
+        return;
+      }
+
+      // Disable submit button
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Logging in...';
+
+      try {
+        const result = await AuthAPI.login(email, password);
+        
+        if (result.success) {
+          showAlert('Login successful! Redirecting...', 'success');
+          
+          // Redirect based on role
+          setTimeout(() => {
+            if (result.user.role === 'tutor') {
+              window.location.href = 'tutor-dashboard.html';
+            } else {
+              window.location.href = 'index.html';
+            }
+          }, 1000);
+        } else {
+          showAlert(result.message || 'Login failed', 'error');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Login';
+        }
+      } catch (error) {
+        showAlert('An error occurred. Please try again.', 'error');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Login';
+      }
+    });
+
+    function showAlert(message, type) {
+      alertBox.textContent = message;
+      alertBox.className = `alert alert-${type} show`;
+    }
+
+    // Check if already logged in
+    if (AuthAPI.isAuthenticated()) {
+      const user = AuthAPI.getCurrentUser();
+      if (user.role === 'tutor') {
+        window.location.href = 'tutor-dashboard.html';
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+  </script>
+</body>
+</html>

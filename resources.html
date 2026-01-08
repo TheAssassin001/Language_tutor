@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Chinese Learning Resources">
+  <title>Study Resources - Chinese Language Tutor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-wrapper">
+        <div class="logo">LangTutor</div>
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+          ☰
+        </button>
+        <ul class="nav-links" id="mobileMenu">
+          <li><a href="index.html#home" class="nav-link" onclick="closeMobileMenu()">Home</a></li>
+          <li><a href="quiz-select.html" class="nav-link">Quizzes</a></li>
+          <li><a href="test-select.html" class="nav-link">Tests</a></li>
+          <li><a href="flashcards.html" class="nav-link">Flashcards</a></li>
+          <li><a href="progress.html" class="nav-link">Progress</a></li>
+          <li><a href="resources.html" class="nav-link">Resources</a></li>
+          <li><a href="writing.html" class="nav-link">Writing Practice</a></li>
+        </ul>
+        <button id="darkModeToggle" class="dark-mode-toggle" onclick="DarkMode.toggle()" aria-label="Toggle dark mode">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="practice" style="padding: 60px 0;">
+    <div class="container">
+      <h2>Study Resources</h2>
+      <p class="section-subtitle">Curated materials to enhance your Chinese learning</p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 40px;">
+        
+        <!-- Grammar Guides -->
+        <div class="card">
+          <h3 style="color: var(--accent); margin-bottom: 15px;">📚 Grammar Guides</h3>
+          <ul style="list-style: none; padding: 0;">
+            <li style="margin-bottom: 10px;">
+              <strong>Basic Sentence Structure</strong>
+              <p style="color: var(--text-secondary); font-size: 0.9rem;">Subject + Verb + Object (我吃饭 - I eat rice)</p>
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>Measure Words</strong>
+              <p style="color: var(--text-secondary); font-size: 0.9rem;">个, 本, 张, 条 - Essential classifiers</p>
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>Tones in Mandarin</strong>
+              <p style="color: var(--text-secondary); font-size: 0.9rem;">4 main tones + neutral tone</p>
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>Aspect Particles</strong>
+              <p style="color: var(--text-secondary); font-size: 0.9rem;">了 (le), 过 (guo), 着 (zhe)</p>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Common Phrases -->
+        <div class="card">
+          <h3 style="color: var(--accent); margin-bottom: 15px;">💬 Essential Phrases</h3>
+          <ul style="list-style: none; padding: 0;">
+            <li style="margin-bottom: 10px;">
+              <strong>你好 (nǐ hǎo)</strong> - Hello
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>谢谢 (xiè xiè)</strong> - Thank you
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>对不起 (duì bu qǐ)</strong> - Sorry
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>多少钱? (duō shao qián?)</strong> - How much?
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>我不懂 (wǒ bù dǒng)</strong> - I don't understand
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>请再说一遍 (qǐng zài shuō yí biàn)</strong> - Please say again
+            </li>
+          </ul>
+        </div>
+
+        <!-- Cultural Notes -->
+        <div class="card">
+          <h3 style="color: var(--accent); margin-bottom: 15px;">🏮 Cultural Notes</h3>
+          <ul style="list-style: none; padding: 0;">
+            <li style="margin-bottom: 10px;">
+              <strong>Numbers & Superstitions</strong>
+              <p style="color: var(--text-secondary); font-size: 0.9rem;">8 is lucky (發), 4 is unlucky (sounds like death)</p>
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>Gift Giving</strong>
+              <p style="color: var(--text-secondary); font-size: 0.9rem;">Avoid clocks, white flowers, sharp objects</p>
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>Table Manners</strong>
+              <p style="color: var(--text-secondary); font-size: 0.9rem;">Don't stick chopsticks upright in rice</p>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Radicals Guide -->
+        <div class="card">
+          <h3 style="color: var(--accent); margin-bottom: 15px;">🔤 Common Radicals</h3>
+          <ul style="list-style: none; padding: 0;">
+            <li style="margin-bottom: 10px;"><strong>人 (rén)</strong> - person (亻when on left)</li>
+            <li style="margin-bottom: 10px;"><strong>心 (xīn)</strong> - heart (忄when on left)</li>
+            <li style="margin-bottom: 10px;"><strong>水 (shuǐ)</strong> - water (氵when on left)</li>
+            <li style="margin-bottom: 10px;"><strong>手 (shǒu)</strong> - hand (扌when on left)</li>
+            <li style="margin-bottom: 10px;"><strong>口 (kǒu)</strong> - mouth</li>
+            <li style="margin-bottom: 10px;"><strong>木 (mù)</strong> - wood/tree</li>
+          </ul>
+        </div>
+
+        <!-- Stroke Order Rules -->
+        <div class="card">
+          <h3 style="color: var(--accent); margin-bottom: 15px;">✍️ Stroke Order Rules</h3>
+          <ol style="padding-left: 20px;">
+            <li style="margin-bottom: 10px;">Top to bottom</li>
+            <li style="margin-bottom: 10px;">Left to right</li>
+            <li style="margin-bottom: 10px;">Horizontal before vertical</li>
+            <li style="margin-bottom: 10px;">Outside before inside</li>
+            <li style="margin-bottom: 10px;">Center before sides (symmetrical)</li>
+            <li style="margin-bottom: 10px;">Enclosing strokes last</li>
+          </ol>
+        </div>
+
+        <!-- Learning Tips -->
+        <div class="card">
+          <h3 style="color: var(--accent); margin-bottom: 15px;">💡 Study Tips</h3>
+          <ul style="list-style: none; padding: 0;">
+            <li style="margin-bottom: 10px;">
+              <strong>Practice Daily</strong>
+              <p style="color: var(--text-secondary); font-size: 0.9rem;">15-30 minutes every day is better than long sessions</p>
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>Use Spaced Repetition</strong>
+              <p style="color: var(--text-secondary); font-size: 0.9rem;">Review at increasing intervals</p>
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>Listen Actively</strong>
+              <p style="color: var(--text-secondary); font-size: 0.9rem;">Watch Chinese content with subtitles</p>
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>Practice Speaking</strong>
+              <p style="color: var(--text-secondary); font-size: 0.9rem;">Use language exchange apps</p>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Recommended External Resources -->
+      <div style="margin-top: 40px;">
+        <h3 style="margin-bottom: 20px;">🌐 Recommended External Resources</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+          <a href="https://www.mdbg.net/chinese/dictionary" target="_blank" class="btn btn-secondary">MDBG Dictionary</a>
+          <a href="https://www.archchinese.com/" target="_blank" class="btn btn-secondary">Arch Chinese</a>
+          <a href="https://chinese.yabla.com/" target="_blank" class="btn btn-secondary">Yabla Chinese</a>
+          <a href="https://www.chinesepod.com/" target="_blank" class="btn btn-secondary">ChinesePod</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 Chinese Language Tutor. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script src="quizzes.js"></script>
+  <script>
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobileMenu');
+      menu.classList.toggle('active');
+    }
+
+    function closeMobileMenu() {
+      const menu = document.getElementById('mobileMenu');
+      menu.classList.remove('active');
+    }
+  </script>
+
+</body>
+</html>

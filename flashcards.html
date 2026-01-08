@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Chinese Flashcards - Interactive Vocabulary Practice">
+  <title>Flashcards - Chinese Language Tutor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-wrapper">
+        <div class="logo">LangTutor</div>
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+          ☰
+        </button>
+        <ul class="nav-links" id="mobileMenu">
+          <li><a href="index.html#home" class="nav-link" onclick="closeMobileMenu()">Home</a></li>
+          <li><a href="quiz-select.html" class="nav-link">Quizzes</a></li>
+          <li><a href="test-select.html" class="nav-link">Tests</a></li>
+          <li><a href="flashcards.html" class="nav-link">Flashcards</a></li>
+          <li><a href="progress.html" class="nav-link">Progress</a></li>
+          <li><a href="resources.html" class="nav-link">Resources</a></li>
+        </ul>
+        <button id="darkModeToggle" class="dark-mode-toggle" onclick="DarkMode.toggle()" aria-label="Toggle dark mode">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="practice" style="padding: 60px 0; min-height: 80vh;">
+    <div class="container">
+      <h2>Chinese Flashcards</h2>
+      <p class="section-subtitle">Click card to flip • Swipe or use arrows to navigate</p>
+
+      <!-- Selection -->
+      <div style="text-align: center; margin-bottom: 30px;">
+        <select id="languageSelect" class="btn btn-secondary" onchange="loadFlashcards()" style="margin-right: 10px;">
+          <option value="mandarin">Mandarin</option>
+        </select>
+        <select id="levelSelect" class="btn btn-secondary" onchange="loadFlashcards()">
+          <option value="newbie">Newbie</option>
+          <option value="level1">Level 1</option>
+          <option value="level2">Level 2</option>
+          <option value="level3">Level 3</option>
+          <option value="level4" disabled>Level 4 🔒</option>
+          <option value="level5" disabled>Level 5 🔒</option>
+          <option value="level6" disabled>Level 6 🔒</option>
+          <option value="sjkc">SJKC</option>
+        </select>
+      </div>
+
+      <!-- Progress Indicator -->
+      <div style="text-align: center; margin-bottom: 20px;">
+        <span id="cardProgress" style="font-size: 1.2rem; color: var(--accent); font-weight: 600;">1 / 10</span>
+      </div>
+
+      <!-- Flashcard -->
+      <div class="flashcard-container">
+        <div class="flashcard" id="flashcard" onclick="flipCard()">
+          <div class="flashcard-face flashcard-front">
+            <div class="flashcard-text" id="frontText">你好</div>
+          </div>
+          <div class="flashcard-face flashcard-back">
+            <div class="flashcard-pinyin" id="backPinyin">nǐ hǎo</div>
+            <div class="flashcard-meaning" id="backMeaning">Hello</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div style="text-align: center; margin-top: 30px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+        <button class="btn btn-secondary" onclick="previousCard()">← Previous</button>
+        <button class="btn btn-primary" onclick="nextCard()">Next →</button>
+        <button class="btn btn-secondary" onclick="shuffleCards()">🔀 Shuffle</button>
+      </div>
+
+      <div style="text-align: center; margin-top: 20px;">
+        <p style="color: var(--text-secondary); font-size: 0.9rem;">
+          Keyboard shortcuts: Space to flip, Arrow keys to navigate
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 Chinese Language Tutor. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script src="quizzes.js"></script>
+  <script>
+    let currentDeck = [];
+    let currentCardIndex = 0;
+    let isFlipped = false;
+
+    function loadFlashcards() {
+      const language = document.getElementById('languageSelect').value;
+      const level = document.getElementById('levelSelect').value;
+      
+      currentDeck = FlashcardData[language][level] || [];
+      currentCardIndex = 0;
+      isFlipped = false;
+      
+      displayCard();
+    }
+
+    function displayCard() {
+      if (currentDeck.length === 0) return;
+      
+      const card = currentDeck[currentCardIndex];
+      const flashcard = document.getElementById('flashcard');
+      
+      // Reset flip state
+      flashcard.classList.remove('flipped');
+      isFlipped = false;
+      
+      // Update content
+      document.getElementById('frontText').textContent = card.front;
+      document.getElementById('backPinyin').textContent = card.back.split(' - ')[0];
+      document.getElementById('backMeaning').textContent = card.back.split(' - ')[1] || card.back;
+      
+      // Update progress
+      document.getElementById('cardProgress').textContent = `${currentCardIndex + 1} / ${currentDeck.length}`;
+    }
+
+    function flipCard() {
+      const flashcard = document.getElementById('flashcard');
+      flashcard.classList.toggle('flipped');
+      isFlipped = !isFlipped;
+    }
+
+    function nextCard() {
+      if (currentDeck.length === 0) return;
+      currentCardIndex = (currentCardIndex + 1) % currentDeck.length;
+      displayCard();
+    }
+
+    function previousCard() {
+      if (currentDeck.length === 0) return;
+      currentCardIndex = (currentCardIndex - 1 + currentDeck.length) % currentDeck.length;
+      displayCard();
+    }
+
+    function shuffleCards() {
+      for (let i = currentDeck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [currentDeck[i], currentDeck[j]] = [currentDeck[j], currentDeck[i]];
+      }
+      currentCardIndex = 0;
+      displayCard();
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === ' ') {
+        e.preventDefault();
+        flipCard();
+      } else if (e.key === 'ArrowRight') {
+        nextCard();
+      } else if (e.key === 'ArrowLeft') {
+        previousCard();
+      }
+    });
+
+    // Touch swipe support
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    document.getElementById('flashcard').addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    });
+    
+    document.getElementById('flashcard').addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    });
+    
+    function handleSwipe() {
+      if (touchEndX < touchStartX - 50) {
+        nextCard();
+      }
+      if (touchEndX > touchStartX + 50) {
+        previousCard();
+      }
+    }
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobileMenu');
+      menu.classList.toggle('active');
+    }
+
+    function closeMobileMenu() {
+      const menu = document.getElementById('mobileMenu');
+      menu.classList.remove('active');
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadFlashcards();
+    });
+  </script>
+
+</body>
+</html>
