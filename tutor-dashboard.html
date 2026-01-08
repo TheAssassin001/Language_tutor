@@ -395,6 +395,15 @@
               Last Active: ${new Date(student.lastActive).toLocaleDateString()}
             </p>
 
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+              <button class="btn" style="background: #e67e22; color: white;" onclick="resetStudentProgress('${student._id}', '${student.name}')">
+                🔄 Reset Progress
+              </button>
+              <button class="btn" style="background: #e74c3c; color: white;" onclick="deleteStudent('${student._id}', '${student.name}')">
+                🗑️ Delete Student
+              </button>
+            </div>
+
             <div class="progress-grid">
               <div class="progress-item">
                 <h4>🔥 Current Streak</h4>
@@ -467,6 +476,74 @@
 
     function closeModal() {
       document.getElementById('studentModal').classList.remove('show');
+    }
+
+    async function resetStudentProgress(studentId, studentName) {
+      if (!confirm(`⚠️ Reset Progress for ${studentName}?\n\nThis will delete ALL test and quiz results for this student.\n\nThis action CANNOT be undone.\n\nType "RESET" to confirm:`)) {
+        return;
+      }
+
+      const confirmation = prompt('Type "RESET" to confirm:');
+      if (confirmation !== 'RESET') {
+        alert('Reset cancelled.');
+        return;
+      }
+
+      try {
+        const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://language-tutor-efn5.onrender.com/api';
+        
+        const response = await fetch(`${API_URL}/tutor/students/${studentId}/reset-progress`, {
+          method: 'DELETE',
+          headers: AuthService.getAuthHeaders()
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alert(`✅ Progress reset successfully!\n\nDeleted ${data.deletedCount} records for ${studentName}`);
+          closeModal();
+          loadDashboard(); // Refresh the dashboard
+        } else {
+          alert(`❌ Failed to reset progress: ${data.message}`);
+        }
+      } catch (error) {
+        console.error('Error resetting progress:', error);
+        alert(`❌ Error: ${error.message}`);
+      }
+    }
+
+    async function deleteStudent(studentId, studentName) {
+      if (!confirm(`⚠️ DELETE STUDENT: ${studentName}?\n\nThis will:\n- Delete the student account\n- Delete ALL their progress data\n- Remove them from the system permanently\n\nThis action CANNOT be undone.\n\nAre you absolutely sure?`)) {
+        return;
+      }
+
+      const confirmation = prompt(`Type "${studentName}" to confirm deletion:`);
+      if (confirmation !== studentName) {
+        alert('Deletion cancelled.');
+        return;
+      }
+
+      try {
+        const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://language-tutor-efn5.onrender.com/api';
+        
+        const response = await fetch(`${API_URL}/tutor/students/${studentId}`, {
+          method: 'DELETE',
+          headers: AuthService.getAuthHeaders()
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alert(`✅ Student deleted successfully!\n\nDeleted:\n- Student account: ${studentName}\n- ${data.progressDeleted} progress records`);
+          closeModal();
+          loadDashboard(); // Refresh the dashboard
+        } else {
+          alert(`❌ Failed to delete student: ${data.message}`);
+        }
+      } catch (error) {
+        console.error('Error deleting student:', error);
+        alert(`❌ Error: ${error.message}`);
+      }
     }
 
     // Close modal on outside click

@@ -238,4 +238,91 @@ router.get('/analytics', protect, authorize('tutor'), async (req, res) => {
   }
 });
 
+/**
+ * @route   DELETE /api/tutor/students/:studentId/reset-progress
+ * @desc    Reset (delete) all progress for a specific student
+ * @access  Private (Tutor only)
+ */
+router.delete('/students/:studentId/reset-progress', protect, authorize('tutor'), async (req, res) => {
+  try {
+    const student = await User.findById(req.params.studentId);
+    
+    if (!student) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Student not found' 
+      });
+    }
+
+    if (student.role !== 'student') {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Cannot reset progress for non-student users' 
+      });
+    }
+
+    // Delete all progress for this student
+    const result = await Progress.deleteMany({ userId: student._id });
+
+    console.log(`✓ Tutor ${req.user.name} reset progress for student ${student.name} (${result.deletedCount} records deleted)`);
+
+    res.json({
+      success: true,
+      message: `Progress reset for ${student.name}`,
+      deletedCount: result.deletedCount
+    });
+  } catch (error) {
+    console.error('Reset progress error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error resetting student progress' 
+    });
+  }
+});
+
+/**
+ * @route   DELETE /api/tutor/students/:studentId
+ * @desc    Delete a student account and all their progress
+ * @access  Private (Tutor only)
+ */
+router.delete('/students/:studentId', protect, authorize('tutor'), async (req, res) => {
+  try {
+    const student = await User.findById(req.params.studentId);
+    
+    if (!student) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Student not found' 
+      });
+    }
+
+    if (student.role !== 'student') {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Cannot delete non-student users' 
+      });
+    }
+
+    // Delete all progress first
+    const progressResult = await Progress.deleteMany({ userId: student._id });
+
+    // Delete the user
+    await User.findByIdAndDelete(student._id);
+
+    console.log(`✓ Tutor ${req.user.name} deleted student ${student.name} (${progressResult.deletedCount} progress records deleted)`);
+
+    res.json({
+      success: true,
+      message: `Student ${student.name} deleted successfully`,
+      progressDeleted: progressResult.deletedCount
+    });
+  } catch (error) {
+    console.error('Delete student error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error deleting student' 
+    });
+  }
+});
+
 module.exports = router;
