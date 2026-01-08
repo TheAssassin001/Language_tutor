@@ -423,6 +423,13 @@
     }
 
     async function submitTest() {
+      console.log('═══════════════════════════════════════');
+      console.log('🚀 SUBMIT TEST CALLED');
+      console.log('═══════════════════════════════════════');
+      console.log('Current Language:', currentLanguage);
+      console.log('Current Level:', currentLevel);
+      console.log('User Answers:', userAnswers);
+      
       const tests = testData[currentLevel][currentLanguage];
       let correctCount = 0;
       let totalQuestions = tests.length;
@@ -430,8 +437,11 @@
       // Check if all questions are answered
       if (Object.keys(userAnswers).length < totalQuestions) {
         alert('Please answer all questions before submitting!');
+        console.log('❌ Not all questions answered');
         return;
       }
+      
+      console.log('✓ All questions answered:', totalQuestions);
 
       // Stop timer
       let timeSpent = 0;
