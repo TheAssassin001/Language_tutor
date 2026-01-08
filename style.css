@@ -1104,24 +1104,12 @@ p {
     /* Touch-friendly size */
     min-width: 44px;
     min-height: 44px;
-    order: 3;
   }
 
   /* Navigation - Mobile menu */
   .nav-wrapper {
     position: relative;
     padding: var(--spacing-sm) 0;
-    display: flex;
-  }
-
-  .logo {
-    order: 1;
-  }
-
-  .dark-mode-toggle {
-    order: 2;
-    margin-left: auto;
-    margin-right: var(--spacing-sm);
   }
 
   .nav-links {
