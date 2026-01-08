@@ -194,6 +194,13 @@ section {
   color: var(--accent);
 }
 
+/* Navigation controls wrapper */
+.nav-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
 /* Mobile menu toggle (hidden by default) */
 .mobile-menu-toggle {
   display: none;

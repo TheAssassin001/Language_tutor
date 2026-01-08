@@ -28,10 +28,12 @@
           <li><a href="resources.html" class="nav-link">Resources</a></li>
           <li><a href="writing.html" class="nav-link">Writing Practice</a></li>
         </ul>
-        <button id="darkModeToggle" class="dark-mode-toggle" onclick="DarkMode.toggle()" aria-label="Toggle dark mode">🌙</button>
-        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
-          ☰
-        </button>
+        <div class="nav-controls">
+          <button id="darkModeToggle" class="dark-mode-toggle" onclick="DarkMode.toggle()" aria-label="Toggle dark mode">🌙</button>
+          <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+            ☰
+          </button>
+        </div>
       </div>
     </div>
     <div class="nav-overlay" id="navOverlay" onclick="closeMobileMenu()"></div>
