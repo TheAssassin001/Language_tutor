@@ -179,6 +179,7 @@
     let selectedCategory = null;
 
     function selectLevel(level) {
+      console.log('selectLevel called with:', level);
       selectedLevel = level;
       selectedCategory = null; // Reset category when level changes
       
@@ -191,9 +192,14 @@
       const categoryGroup = document.getElementById('categoryGroup');
       const levelHint = document.getElementById('levelHint');
       
+      console.log('categoryGroup element:', categoryGroup);
+      console.log('Current display:', categoryGroup ? categoryGroup.style.display : 'not found');
+      
       if (level === 'level1' || level === 'level2') {
+        console.log('Showing category section for', level);
         categoryGroup.style.display = 'block';
         levelHint.style.display = 'block';
+        console.log('After setting - display:', categoryGroup.style.display);
         // Reset category buttons
         categoryGroup.querySelectorAll('.selector-btn').forEach(btn => {
           btn.classList.remove('selected');
@@ -203,6 +209,7 @@
           categoryGroup.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }, 100);
       } else {
+        console.log('Hiding category section for', level);
         categoryGroup.style.display = 'none';
         levelHint.style.display = 'none';
       }
