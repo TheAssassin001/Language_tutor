@@ -372,7 +372,7 @@
       userAnswers[testId] = optionIndex;
     }
 
-    function submitTest() {
+    async function submitTest() {
       const tests = testData[currentLevel][currentLanguage];
       let correctCount = 0;
       let totalQuestions = tests.length;
@@ -384,8 +384,9 @@
       }
 
       // Stop timer
+      let timeSpent = 0;
       if (typeof Timer !== 'undefined') {
-        Timer.stop();
+        timeSpent = Timer.stop() || 0;
         if (timerInterval) {
           clearInterval(timerInterval);
           timerInterval = null;
@@ -403,26 +404,51 @@
 
         // Show feedback for each question
         const resultDiv = document.getElementById(`result-${test.id}`);
-        resultDiv.style.display = 'block';
-        
-        if (isCorrect) {
-          resultDiv.className = 'feedback success';
-          resultDiv.textContent = '✓ Correct!';
-        } else {
-          resultDiv.className = 'feedback error';
-          resultDiv.textContent = `✗ Incorrect. Correct answer: ${test.options[test.correctAnswer]}`;
+        if (resultDiv) {
+          resultDiv.style.display = 'block';
+          
+          if (isCorrect) {
+            resultDiv.className = 'feedback success';
+            resultDiv.textContent = '✓ Correct!';
+          } else {
+            resultDiv.className = 'feedback error';
+            resultDiv.textContent = `✗ Incorrect. Correct answer: ${test.options[test.correctAnswer]}`;
+          }
         }
       });
 
       // Calculate percentage
       const percentage = Math.round((correctCount / totalQuestions) * 100);
 
-      // Save to progress tracker and API
-      const timeSpent = typeof Timer !== 'undefined' ? Timer.getElapsed() : 0;
-      if (typeof ProgressTracker !== 'undefined' && typeof ProgressTracker.saveTestScore === 'function') {
-        ProgressTracker.saveTestScore(currentLanguage, currentLevel, correctCount, totalQuestions, timeSpent).catch(err => {
-          console.error('Error saving test score:', err);
-        });
+      // Save to progress - try multiple methods
+      try {
+        // Try using ProgressAPI directly
+        if (typeof ProgressAPI !== 'undefined' && typeof ProgressAPI.saveScore === 'function') {
+          console.log('Saving via ProgressAPI...');
+          await ProgressAPI.saveScore('test', currentLanguage, currentLevel, correctCount, totalQuestions, timeSpent);
+        }
+        // Fallback to ProgressTracker
+        else if (typeof ProgressTracker !== 'undefined' && typeof ProgressTracker.saveTestScore === 'function') {
+          console.log('Saving via ProgressTracker...');
+          await ProgressTracker.saveTestScore(currentLanguage, currentLevel, correctCount, totalQuestions, timeSpent);
+        }
+        // Final fallback - use old method
+        else if (typeof ProgressTracker !== 'undefined') {
+          console.log('Saving via old ProgressTracker method...');
+          const key = `test_${currentLanguage}_${currentLevel}`;
+          const history = JSON.parse(localStorage.getItem(key) || '[]');
+          history.push({
+            date: new Date().toISOString(),
+            score: correctCount,
+            total: totalQuestions,
+            percentage: percentage
+          });
+          localStorage.setItem(key, JSON.stringify(history));
+        }
+        console.log('Test score saved successfully');
+      } catch (error) {
+        console.error('Error saving test score:', error);
+        alert('Score calculated but there was an issue saving your progress. Your score: ' + percentage + '%');
       }
 
       // Show overall results
@@ -430,25 +456,41 @@
       const scoreDisplay = document.getElementById('scoreDisplay');
       const feedbackMessage = document.getElementById('feedbackMessage');
 
-      scoreDisplay.textContent = `Score: ${correctCount}/${totalQuestions} (${percentage}%)`;
+      console.log('Displaying results:', { correctCount, totalQuestions, percentage });
+
+      if (scoreDisplay) {
+        scoreDisplay.textContent = `Score: ${correctCount}/${totalQuestions} (${percentage}%)`;
+      }
       
-      if (percentage >= 90) {
-        feedbackMessage.textContent = '🎉 Excellent! You have mastered this level!';
-        feedbackMessage.style.color = 'var(--success)';
-      } else if (percentage >= 70) {
-        feedbackMessage.textContent = '👍 Good job! Keep practicing to improve.';
-        feedbackMessage.style.color = 'var(--accent)';
-      } else if (percentage >= 50) {
-        feedbackMessage.textContent = '📚 Not bad, but you need more practice.';
-        feedbackMessage.style.color = 'var(--warning)';
-      } else {
-        feedbackMessage.textContent = '💪 Keep studying! You\'ll improve with practice.';
-        feedbackMessage.style.color = 'var(--error)';
+      if (feedbackMessage) {
+        if (percentage >= 90) {
+          feedbackMessage.textContent = '🎉 Excellent! You have mastered this level!';
+          feedbackMessage.style.color = 'var(--success)';
+        } else if (percentage >= 70) {
+          feedbackMessage.textContent = '👍 Good job! Keep practicing to improve.';
+          feedbackMessage.style.color = 'var(--accent)';
+        } else if (percentage >= 50) {
+          feedbackMessage.textContent = '📚 Not bad, but you need more practice.';
+          feedbackMessage.style.color = 'var(--warning)';
+        } else {
+          feedbackMessage.textContent = '💪 Keep studying! You\'ll improve with practice.';
+          feedbackMessage.style.color = 'var(--error)';
+        }
       }
 
-      resultsDiv.style.display = 'block';
-      document.getElementById('submitTest').style.display = 'none';
-      document.getElementById('shareBtn').style.display = 'inline-block';
+      if (resultsDiv) {
+        resultsDiv.style.display = 'block';
+      }
+      
+      const submitBtn = document.getElementById('submitTest');
+      if (submitBtn) {
+        submitBtn.style.display = 'none';
+      }
+      
+      const shareBtn = document.getElementById('shareBtn');
+      if (shareBtn) {
+        shareBtn.style.display = 'inline-block';
+      }
 
       // Disable all option buttons
       document.querySelectorAll('.option-btn').forEach(btn => {
