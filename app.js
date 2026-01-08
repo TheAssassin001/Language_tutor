@@ -286,7 +286,7 @@ const SocialShare = {
   shareScore(language, level, score, total, type = 'test') {
     const percentage = Math.round((score / total) * 100);
     const text = `I just scored ${percentage}% on a ${language} ${level} ${type} at Chinese Language Tutor! 🎉`;
-    const url = window.location.origin;
+    const url = `${window.location.origin}/progress.html`;
     
     if (navigator.share) {
       navigator.share({
