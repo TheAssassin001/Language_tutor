@@ -264,11 +264,23 @@
         authStatusDiv.style.color = '#155724';
         authStatusDiv.style.display = 'block';
       } else {
-        authStatusDiv.innerHTML = '⚠️ Not logged in - Progress will only be saved locally. <a href="login.html" style="color: #004085; text-decoration: underline;">Login here</a>';
-        authStatusDiv.style.background = '#fff3cd';
-        authStatusDiv.style.border = '2px solid #ffeeba';
-        authStatusDiv.style.color = '#856404';
+        // Not logged in - show prominent warning and require login
+        authStatusDiv.innerHTML = `
+          <h3 style="margin: 0 0 10px 0;">⚠️ Login Required</h3>
+          <p style="margin: 0 0 10px 0;">You must be logged in to take tests and save your progress to the database.</p>
+          <a href="login.html?redirect=tests.html${window.location.search}" style="color: white; background: #004085; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block; margin: 5px;">Login Now</a>
+          <a href="signup.html?redirect=tests.html${window.location.search}" style="color: white; background: #28a745; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block; margin: 5px;">Sign Up</a>
+        `;
+        authStatusDiv.style.background = '#f8d7da';
+        authStatusDiv.style.border = '2px solid #f5c6cb';
+        authStatusDiv.style.color = '#721c24';
         authStatusDiv.style.display = 'block';
+        
+        // Hide the test content and submit button
+        document.getElementById('testContainer').innerHTML = '<p style="text-align: center; padding: 40px;">Please login to take tests.</p>';
+        const submitBtn = document.getElementById('submitTest');
+        if (submitBtn) submitBtn.style.display = 'none';
+        return;
       }
 
       const params = new URLSearchParams(window.location.search);
