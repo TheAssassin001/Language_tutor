@@ -260,7 +260,8 @@
 
     async function loadAnalytics() {
       try {
-        const response = await fetch('http://localhost:5000/api/tutor/analytics', {
+        const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://chinese-tutor-api.onrender.com/api';
+        const response = await fetch(`${API_URL}/tutor/analytics`, {
           headers: AuthAPI.getAuthHeaders()
         });
         const data = await response.json();
@@ -295,7 +296,8 @@
 
     async function loadStudents() {
       try {
-        const response = await fetch('http://localhost:5000/api/tutor/students', {
+        const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://chinese-tutor-api.onrender.com/api';
+        const response = await fetch(`${API_URL}/tutor/students`, {
           headers: AuthAPI.getAuthHeaders()
         });
         const data = await response.json();
@@ -345,7 +347,8 @@
       document.getElementById('modalContent').innerHTML = '<div class="loading">Loading student details...</div>';
 
       try {
-        const response = await fetch(`http://localhost:5000/api/tutor/students/${studentId}`, {
+        const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://chinese-tutor-api.onrender.com/api';
+        const response = await fetch(`${API_URL}/tutor/students/${studentId}`, {
           headers: AuthAPI.getAuthHeaders()
         });
         const data = await response.json();

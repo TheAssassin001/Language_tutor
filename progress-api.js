@@ -3,7 +3,10 @@
  * Handles all progress-related API calls
  */
 
-const API_BASE_URL = 'http://localhost:5000/api';
+// Use environment-based API URL (for deployment)
+const API_BASE_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:5000/api' 
+  : 'https://chinese-tutor-api.onrender.com/api'; // Replace with your Render URL
 
 const ProgressAPI = {
   /**
