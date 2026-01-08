@@ -59,10 +59,23 @@
     </div>
   </footer>
 
-  <script src="app.js"></script>
+  <!-- Load dependencies in correct order -->
   <script src="auth-service.js"></script>
   <script src="progress-service.js"></script>
+  <script src="app.js"></script>
   <script src="quizzes.js"></script>
+  <script>
+    // Verify all required services are loaded
+    if (typeof AuthService === 'undefined') {
+      alert('ERROR: AuthService not loaded. Please refresh the page.');
+      throw new Error('AuthService not loaded');
+    }
+    if (typeof ProgressService === 'undefined') {
+      alert('ERROR: ProgressService not loaded. Please refresh the page.');
+      throw new Error('ProgressService not loaded');
+    }
+    console.log('✓ All services loaded successfully');
+  </script>
   <script>
     // Test data structure
     const testData = {
@@ -254,9 +267,34 @@
 
     // Load test based on URL parameters
     document.addEventListener('DOMContentLoaded', function() {
+      // CRITICAL: Verify all required services are loaded
+      if (typeof AuthService === 'undefined') {
+        document.getElementById('testContainer').innerHTML = `
+          <div class="card">
+            <h3 style="color: #dc3545;">❌ System Error</h3>
+            <p>Authentication service failed to load. Please refresh the page.</p>
+            <p>If the problem persists, clear your browser cache (Ctrl+Shift+R).</p>
+          </div>
+        `;
+        return;
+      }
+
+      if (typeof ProgressService === 'undefined') {
+        document.getElementById('testContainer').innerHTML = `
+          <div class="card">
+            <h3 style="color: #dc3545;">❌ System Error</h3>
+            <p>Progress service failed to load. Please refresh the page.</p>
+            <p>If the problem persists, clear your browser cache (Ctrl+Shift+R).</p>
+          </div>
+        `;
+        return;
+      }
+
+      console.log('✓ All services verified and ready');
+      
       // Check and display authentication status
       const authStatusDiv = document.getElementById('authStatus');
-      if (typeof AuthService !== 'undefined' && AuthService.isAuthenticated()) {
+      if (AuthService.isAuthenticated()) {
         const user = AuthService.getCurrentUser();
         authStatusDiv.innerHTML = '✅ Logged in as: <strong>' + (user?.name || user?.email || 'User') + '</strong> - Your progress will be saved!';
         authStatusDiv.style.background = '#d4edda';
@@ -432,16 +470,25 @@
       // Calculate percentage
       const percentage = Math.round((correctCount / totalQuestions) * 100);
 
-      // Save to database using ProgressService (NEW - DATABASE ONLY)
+      // CRITICAL: Save progress to database ONLY (NO localStorage fallback)
       try {
-        // Check if ProgressService is loaded
-        if (typeof ProgressService === 'undefined') {
-          throw new Error('ProgressService not loaded. Please refresh the page.');
-        }
+        console.log('═══════════════════════════════════════');
+        console.log('💾 SAVING PROGRESS TO DATABASE');
+        console.log('═══════════════════════════════════════');
+        console.log('Test Details:', {
+          type: 'test',
+          language: currentLanguage,
+          level: currentLevel,
+          score: `${correctCount}/${totalQuestions}`,
+          percentage: `${percentage}%`,
+          timeSpent: `${timeSpent}s`
+        });
         
-        console.log('💾 Saving test score to database...');
-        
-        await ProgressService.saveScore(
+        // CRITICAL: ProgressService.saveScore will throw error if:
+        // - Not authenticated
+        // - API request fails
+        // - Token is invalid/expired
+        const result = await ProgressService.saveScore(
           'test',
           currentLanguage,
           currentLevel,
@@ -450,21 +497,33 @@
           timeSpent
         );
         
-        console.log('✅ Test score saved successfully!');
+        console.log('═══════════════════════════════════════');
+        console.log('✅ SUCCESS: Progress saved to database');
+        console.log('═══════════════════════════════════════');
+        console.log('Result:', result);
         
       } catch (error) {
-        console.error('❌ Failed to save test score:', error);
+        console.log('═══════════════════════════════════════');
+        console.error('❌ FAILED: Could not save progress');
+        console.log('═══════════════════════════════════════');
+        console.error('Error:', error.message);
+        console.error('Full error:', error);
         
-        // Show visible error to user
+        // Show clear, actionable error to user
+        const errorMessage = error.message || 'Unknown error';
         alert(
-          `⚠️ Failed to save your progress!\n\n` +
-          `Error: ${error.message}\n\n` +
-          `Your score (${percentage}%) was calculated but NOT saved to the database.\n\n` +
-          `Please check:\n` +
-          `1. You are logged in\n` +
-          `2. You have internet connection\n` +
-          `3. Try refreshing the page and logging in again`
+          `⚠️ FAILED TO SAVE YOUR PROGRESS\n\n` +
+          `Your test score: ${percentage}%\n\n` +
+          `Error: ${errorMessage}\n\n` +
+          `❌ Your progress was NOT saved to the database.\n\n` +
+          `Please:\n` +
+          `1. Check that you are logged in\n` +
+          `2. Check your internet connection\n` +
+          `3. Refresh the page and try again\n\n` +
+          `If you see this repeatedly, contact support.`
         );
+        
+        // Still show the score even if save failed
       }
 
       // Show overall results
