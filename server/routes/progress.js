@@ -6,7 +6,7 @@ const { protect } = require('../middleware/auth');
 
 /**
  * @route   POST /api/progress
- * @desc    Save quiz or test score
+ * @desc    Save quiz or test score (students only)
  * @access  Private
  */
 router.post('/', protect, [
@@ -21,24 +21,38 @@ router.post('/', protect, [
   if (!errors.isEmpty()) {
     return res.status(400).json({ 
       success: false, 
+      message: 'Validation error',
       errors: errors.array() 
     });
   }
 
   try {
+    // Ensure only students can submit progress
+    if (req.user.role !== 'student') {
+      return res.status(403).json({
+        success: false,
+        message: 'Only students can submit quiz/test progress'
+      });
+    }
+
     const { type, language, level, score, total, timeSpent } = req.body;
     const percentage = Math.round((score / total) * 100);
 
+    // Create progress entry with user info
     const progress = await Progress.create({
       userId: req.user._id,
+      userName: req.user.name,  // Store student name for easy retrieval
       type,
       language,
       level,
       score,
       total,
       percentage,
-      timeSpent: timeSpent || 0
+      timeSpent: timeSpent || 0,
+      completedAt: new Date()
     });
+
+    console.log(`✓ Progress saved: ${req.user.name} - ${type} ${level} ${percentage}%`);
 
     res.status(201).json({
       success: true,
@@ -49,7 +63,7 @@ router.post('/', protect, [
     console.error('Save progress error:', error);
     res.status(500).json({ 
       success: false, 
-      message: 'Error saving progress' 
+      message: 'Error saving progress to database'
     });
   }
 });
