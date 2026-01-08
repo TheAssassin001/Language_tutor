@@ -13,11 +13,17 @@ const ProgressAPI = {
    * Save quiz or test score to backend
    */
   async saveScore(type, language, level, score, total, timeSpent = 0) {
+    console.log('ProgressAPI.saveScore called:', { type, language, level, score, total, timeSpent });
+    
     // If not authenticated, use localStorage as fallback
     if (!AuthAPI.isAuthenticated()) {
+      console.log('Not authenticated - saving to localStorage only');
       return ProgressTracker.saveToLocalStorage(type, language, level, score, total);
     }
 
+    console.log('User is authenticated - saving to database');
+    console.log('API URL:', API_BASE_URL);
+    
     try {
       const response = await fetch(`${API_BASE_URL}/progress`, {
         method: 'POST',
@@ -32,11 +38,19 @@ const ProgressAPI = {
         })
       });
 
+      console.log('API response status:', response.status);
       const data = await response.json();
+      console.log('API response data:', data);
+      
+      if (!data.success) {
+        console.error('API returned success=false:', data);
+      }
+      
       return data;
     } catch (error) {
-      console.error('Error saving progress:', error);
+      console.error('Error saving progress to API:', error);
       // Fallback to localStorage
+      console.log('Falling back to localStorage due to error');
       return ProgressTracker.saveToLocalStorage(type, language, level, score, total);
     }
   },

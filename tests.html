@@ -433,20 +433,27 @@
       const percentage = Math.round((correctCount / totalQuestions) * 100);
 
       // Save to progress - try multiple methods
+      console.log('=== SAVING TEST SCORE ===');
+      console.log('Authenticated:', typeof AuthAPI !== 'undefined' ? AuthAPI.isAuthenticated() : 'AuthAPI not loaded');
+      console.log('User:', typeof AuthAPI !== 'undefined' ? AuthAPI.getCurrentUser() : 'N/A');
+      console.log('Test data:', { type: 'test', currentLanguage, currentLevel, correctCount, totalQuestions, timeSpent });
+      
       try {
         // Try using ProgressAPI directly
         if (typeof ProgressAPI !== 'undefined' && typeof ProgressAPI.saveScore === 'function') {
           console.log('Saving via ProgressAPI...');
-          await ProgressAPI.saveScore('test', currentLanguage, currentLevel, correctCount, totalQuestions, timeSpent);
+          const result = await ProgressAPI.saveScore('test', currentLanguage, currentLevel, correctCount, totalQuestions, timeSpent);
+          console.log('ProgressAPI save result:', result);
         }
         // Fallback to ProgressTracker
         else if (typeof ProgressTracker !== 'undefined' && typeof ProgressTracker.saveTestScore === 'function') {
           console.log('Saving via ProgressTracker...');
-          await ProgressTracker.saveTestScore(currentLanguage, currentLevel, correctCount, totalQuestions, timeSpent);
+          const result = await ProgressTracker.saveTestScore(currentLanguage, currentLevel, correctCount, totalQuestions, timeSpent);
+          console.log('ProgressTracker save result:', result);
         }
         // Final fallback - use old method
         else if (typeof ProgressTracker !== 'undefined') {
-          console.log('Saving via old ProgressTracker method...');
+          console.log('Saving via old ProgressTracker method (localStorage only)...');
           const key = `test_${currentLanguage}_${currentLevel}`;
           const history = JSON.parse(localStorage.getItem(key) || '[]');
           history.push({
