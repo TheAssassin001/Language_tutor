@@ -47,18 +47,52 @@
     </div>
   </footer>
 
-  <script src="auth-client.js"></script>
-  <script src="progress-api.js"></script>
+  <!-- Load dependencies in correct order -->
+  <script src="auth-service.js"></script>
+  <script src="progress-service.js"></script>
+  <script src="app.js"></script>
   <script src="quizzes.js"></script>
   <script>
+    // Verify all required services are loaded
+    if (typeof AuthService === 'undefined') {
+      alert('ERROR: AuthService not loaded. Please refresh the page.');
+      throw new Error('AuthService not loaded');
+    }
+    if (typeof ProgressService === 'undefined') {
+      alert('ERROR: ProgressService not loaded. Please refresh the page.');
+      throw new Error('ProgressService not loaded');
+    }
+    console.log('✓ All services loaded successfully');
+  </script>
+  <script>
+    let currentLanguage = '';
+    let currentLevel = '';
+    let quizAnswers = {}; // Track which quizzes were answered correctly
+    let startTime = Date.now();
+
     // Load quiz data based on URL parameters
     document.addEventListener('DOMContentLoaded', function() {
+      // Check authentication
+      if (!AuthService.isAuthenticated()) {
+        document.getElementById('quizContainer').innerHTML = `
+          <div class="card" style="text-align: center; padding: 40px;">
+            <h3>⚠️ Login Required</h3>
+            <p>You must be logged in to take quizzes and save your progress.</p>
+            <a href="login.html?redirect=quizzes.html${window.location.search}" class="btn btn-primary" style="margin-top: 20px;">Login Now</a>
+          </div>
+        `;
+        return;
+      }
+
+      const user = AuthService.getCurrentUser();
+      console.log('✓ User authenticated:', user.name);
+
       const params = new URLSearchParams(window.location.search);
-      const language = params.get('language');
-      const level = params.get('level');
+      currentLanguage = params.get('language');
+      currentLevel = params.get('level');
       
-      if (language && level) {
-        loadQuiz(language, level);
+      if (currentLanguage && currentLevel) {
+        loadQuiz(currentLanguage, currentLevel);
       } else {
         document.getElementById('quizContainer').innerHTML = '<p>No quiz selected. <a href="quiz-select.html">Go back to selection</a></p>';
       }
@@ -184,15 +218,86 @@
             <p class="question">${quiz.question}</p>
             <div class="options">
               ${quiz.options.map((opt, idx) => `
-                <button class="option-btn" onclick="checkAnswer('${level}',${quiz.id},'${opt.correct ? 'right' : 'wrong'}')">${opt.text}</button>
+                <button class="option-btn" onclick="answerQuiz(${quiz.id}, ${opt.correct})">${opt.text}</button>
               `).join('')}
             </div>
-            <p id="result-${level}-${quiz.id}" class="feedback"></p>
+            <p id="result-${quiz.id}" class="feedback"></p>
           </div>
         `;
       });
       html += '</div>';
+      html += '<div style="text-align: center; margin-top: 30px;"><button id="submitQuizzes" class="btn btn-primary" onclick="submitAllQuizzes()" style="display: none;">Submit All Quizzes</button></div>';
       document.getElementById('quizContainer').innerHTML = html;
+    }
+
+    async function answerQuiz(quizId, isCorrect) {
+      const resultElement = document.getElementById(`result-${quizId}`);
+      if (!resultElement) return;
+      
+      // Store answer
+      quizAnswers[quizId] = isCorrect;
+      
+      if (isCorrect) {
+        resultElement.textContent = '✅ Correct! Great job!';
+        resultElement.className = 'feedback success';
+      } else {
+        resultElement.textContent = '❌ Not quite right. Try again!';
+        resultElement.className = 'feedback error';
+      }
+      
+      // Check if all quizzes answered
+      const totalQuizzes = quizData[currentLevel]?.[currentLanguage]?.length || 0;
+      if (Object.keys(quizAnswers).length === totalQuizzes) {
+        document.getElementById('submitQuizzes').style.display = 'inline-block';
+      }
+    }
+
+    async function submitAllQuizzes() {
+      const totalQuizzes = Object.keys(quizAnswers).length;
+      const correctCount = Object.values(quizAnswers).filter(answer => answer === true).length;
+      const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+      
+      console.log('═══════════════════════════════════════');
+      console.log('💾 SAVING QUIZ RESULTS TO DATABASE');
+      console.log('═══════════════════════════════════════');
+      console.log('Quiz Details:', {
+        type: 'quiz',
+        language: currentLanguage,
+        level: currentLevel,
+        score: `${correctCount}/${totalQuizzes}`,
+        percentage: `${Math.round((correctCount/totalQuizzes)*100)}%`,
+        timeSpent: `${timeSpent}s`
+      });
+
+      try {
+        const result = await ProgressService.saveScore(
+          'quiz',
+          currentLanguage,
+          currentLevel,
+          correctCount,
+          totalQuizzes,
+          timeSpent
+        );
+        
+        console.log('✅ SUCCESS: Quiz results saved to database');
+        console.log('Result:', result);
+        
+        alert(`Quiz Complete! 🎉\n\nScore: ${correctCount}/${totalQuizzes} (${Math.round((correctCount/totalQuizzes)*100)}%)\n\nYour progress has been saved to the database.`);
+        
+        // Disable submit button
+        document.getElementById('submitQuizzes').style.display = 'none';
+        
+      } catch (error) {
+        console.error('❌ FAILED: Could not save quiz results');
+        console.error('Error:', error.message);
+        
+        alert(
+          `⚠️ FAILED TO SAVE YOUR QUIZ RESULTS\n\n` +
+          `Your score: ${Math.round((correctCount/totalQuizzes)*100)}%\n\n` +
+          `Error: ${error.message}\n\n` +
+          `Please check your internet connection and try again.`
+        );
+      }
     }
 
     function toggleMobileMenu() {
