@@ -589,12 +589,14 @@
 
     function shareScore() {
       const tests = testData[currentLevel][currentLanguage];
-      const percentage = Math.round((Object.keys(userAnswers).filter(id => 
+      const correctAnswers = Object.keys(userAnswers).filter(id => 
         userAnswers[id] === tests.find(t => t.id == id).correctAnswer
-      ).length / tests.length) * 100);
+      ).length;
+      const totalQuestions = tests.length;
+      const percentage = Math.round((correctAnswers / totalQuestions) * 100);
       
       if (typeof SocialShare !== 'undefined') {
-        SocialShare.shareScore(`Chinese ${currentLanguage.charAt(0).toUpperCase() + currentLanguage.slice(1)} Test`, currentLevel, percentage, 'test');
+        SocialShare.shareScore(`Chinese ${currentLanguage.charAt(0).toUpperCase() + currentLanguage.slice(1)} Test`, currentLevel, correctAnswers, totalQuestions, 'test');
       }
     }
 
