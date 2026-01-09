@@ -314,9 +314,8 @@ const FlashcardData = {
       { front: 'gāngbǐ', back: 'pen', audio: '钢笔' },
       { front: 'qiángbì', back: 'wall', audio: '墙壁' }
     ],
-    level1: {
-      text: [
-        { front: 'shùzì', back: 'digit', audio: '数字' },
+    level1: [
+      { front: 'shùzì', back: 'digit', audio: '数字' },
         { front: 'shù', back: 'maths', audio: '数' },
         { front: 'zì', back: 'word', audio: '字' },
         { front: 'yī', back: 'one', audio: '一' },
@@ -389,10 +388,8 @@ const FlashcardData = {
         { front: 'páshān', back: 'hiking', audio: '爬山' },
         { front: 'yǒu shíhòu', back: 'sometimes', audio: '有时候' },
         { front: 'jǐshí', back: 'when ( question particle)', audio: '几时' },
-        { front: 'yǒu shí', back: 'sometimes', audio: '有时' }
-      ],
-      hanyupinyin: [
-        { front: 'duōshǎo', back: 'how many/how much', audio: '多少' },
+        { front: 'yǒu shí', back: 'sometimes', audio: '有时' },
+      { front: 'duōshǎo', back: 'how many/how much', audio: '多少' },
         { front: 'duō', back: 'a lot', audio: '多' },
         { front: 'shǎo', back: 'little', audio: '少' },
         { front: 'qián', back: 'money', audio: '钱' },
@@ -439,10 +436,8 @@ const FlashcardData = {
         { front: 'táng', back: 'dad side cousin tag', audio: '堂' },
         { front: 'biǎo', back: 'mom side cousin tag', audio: '表' },
         { front: 'yuèfù', back: 'father in law', audio: '岳父' },
-        { front: 'yuèmǔ', back: 'mother in law', audio: '岳母' }
-      ],
-      extravocab: [
-        { front: 'yīshēng', back: 'doctor', audio: '医生' },
+        { front: 'yuèmǔ', back: 'mother in law', audio: '岳母' },
+      { front: 'yīshēng', back: 'doctor', audio: '医生' },
         { front: 'yī', back: 'to treat', audio: '医' },
         { front: 'shēng', back: 'a person who/birth', audio: '生' },
         { front: 'xuéshēng', back: 'student', audio: '学生' },
@@ -505,23 +500,16 @@ const FlashcardData = {
         { front: 'dāngrán', back: 'of course', audio: '当然' },
         { front: 'bāngzhù', back: 'help', audio: '帮助' },
         { front: 'xūyào', back: 'need', audio: '需要' }
-      ]
-    },
-    level2: {
-      text: [
-        { front: '学校', back: 'xué xiào - School', audio: '学校' },
-        { front: '图书馆', back: 'tú shū guǎn - Library', audio: '图书馆' }
-      ],
-      hanyupinyin: [
-        { front: '昨天', back: 'zuó tiān - Yesterday', audio: '昨天' },
+    ],
+    level2: [
+      { front: '学校', back: 'xué xiào - School', audio: '学校' },
+        { front: '图书馆', back: 'tú shū guǎn - Library', audio: '图书馆' },
+      { front: '昨天', back: 'zuó tiān - Yesterday', audio: '昨天' },
         { front: '今天', back: 'jīn tiān - Today', audio: '今天' },
-        { front: '明天', back: 'míng tiān - Tomorrow', audio: '明天' }
-      ],
-      extravocab: [
-        { front: '老师', back: 'lǎo shī - Teacher', audio: '老师' },
+        { front: '明天', back: 'míng tiān - Tomorrow', audio: '明天' },
+      { front: '老师', back: 'lǎo shī - Teacher', audio: '老师' },
         { front: '学生', back: 'xué sheng - Student', audio: '学生' }
-      ]
-    },
+    ],
     level3: [
       { front: '画蛇添足', back: 'huà shé tiān zú - To ruin something by adding unnecessary details', audio: '画蛇添足' },
       { front: '一举两得', back: 'yī jǔ liǎng dé - Kill two birds with one stone', audio: '一举两得' },
