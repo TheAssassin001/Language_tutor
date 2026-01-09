@@ -1,8 +1,9 @@
 // Service Worker for Chinese Language Tutor PWA
-const CACHE_NAME = 'chinese-tutor-v1';
+const CACHE_NAME = 'chinese-tutor-v2';
 const urlsToCache = [
   '/',
   '/index.html',
+  '/flashcard-select.html',
   '/style.css',
   '/app.js',
   '/quizzes.html',
