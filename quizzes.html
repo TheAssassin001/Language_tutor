@@ -107,6 +107,14 @@
       } else {
         document.getElementById('quizContainer').innerHTML = '<p>No quiz selected. <a href="quiz-select.html">Go back to selection</a></p>';
       }
+      
+      // Add keyboard navigation for quiz buttons
+      document.addEventListener('keydown', function(e) {
+        if (e.target.classList.contains('quiz-option-btn') && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          e.target.click();
+        }
+      });
     });
 
     // Utility function to shuffle array
@@ -136,8 +144,8 @@
         return [];
       }
       
-      // Shuffle flashcards and select 10-15 for quiz
-      const numQuestions = Math.min(15, flashcards.length);
+      // Shuffle flashcards and select exactly 10 for quiz
+      const numQuestions = Math.min(10, flashcards.length);
       const selectedCards = shuffleArray(flashcards).slice(0, numQuestions);
       
       // Generate questions
@@ -156,6 +164,8 @@
         
         return {
           id: index + 1,
+          pinyin: card.front,
+          chinese: card.audio,
           question: `What does "${card.front}" mean?`,
           options: allOptions
         };
@@ -206,53 +216,117 @@
         return;
       }
 
-      let html = '<div class="quiz-grid">';
-      quizzes.forEach(quiz => {
+      let html = '<div class="quiz-list">';
+      quizzes.forEach((quiz, index) => {
         html += `
-          <div class="card">
-            <p class="question">${quiz.question}</p>
-            <div class="options">
+          <div class="quiz-card" id="quiz-card-${quiz.id}">
+            <div class="quiz-header">
+              <div class="quiz-progress-label">Question ${index + 1} / ${quizzes.length}</div>
+              <div class="quiz-progress-bar">
+                <div class="quiz-progress-fill" style="width: ${((index + 1) / quizzes.length) * 100}%"></div>
+              </div>
+            </div>
+            
+            <div class="quiz-question-area">
+              <div class="quiz-pinyin">${quiz.pinyin}</div>
+              <div class="quiz-chinese">${quiz.chinese}</div>
+              <p class="quiz-prompt">Select the correct translation:</p>
+            </div>
+            
+            <div class="quiz-options" role="group" aria-label="Answer options">
               ${quiz.options.map((opt, idx) => `
-                <button class="option-btn" onclick="answerQuiz(${quiz.id}, ${opt.correct})">${opt.text}</button>
+                <button 
+                  class="quiz-option-btn" 
+                  onclick="answerQuiz(${quiz.id}, ${opt.correct}, '${opt.text}', ${index + 1}, ${quizzes.length})" 
+                  data-quiz-id="${quiz.id}"
+                  data-correct="${opt.correct}"
+                  data-answer="${opt.text}"
+                  aria-label="Option ${String.fromCharCode(65 + idx)}: ${opt.text}"
+                  tabindex="0">
+                  <span class="option-letter" aria-hidden="true">${String.fromCharCode(65 + idx)}</span>
+                  <span class="option-text">${opt.text}</span>
+                </button>
               `).join('')}
             </div>
-            <p id="result-${quiz.id}" class="feedback"></p>
+            
+            <div id="feedback-${quiz.id}" class="quiz-feedback"></div>
           </div>
         `;
       });
       html += '</div>';
-      html += '<div style="text-align: center; margin-top: 30px;"><button id="submitQuizzes" class="btn btn-primary" onclick="submitAllQuizzes()" style="display: none;">Submit All Quizzes</button></div>';
+      html += '<div class="quiz-submit-container"><button id="submitQuizzes" class="btn btn-primary btn-large" onclick="submitAllQuizzes()" style="display: none;">Submit Quiz</button></div>';
       document.getElementById('quizContainer').innerHTML = html;
     }
 
-    async function answerQuiz(quizId, isCorrect) {
-      const resultElement = document.getElementById(`result-${quizId}`);
-      if (!resultElement) return;
+    async function answerQuiz(quizId, isCorrect, selectedAnswer, currentQuestion, totalQuestions) {
+      const feedbackElement = document.getElementById(`feedback-${quizId}`);
+      const quizCard = document.getElementById(`quiz-card-${quizId}`);
+      if (!feedbackElement || !quizCard) return;
+      
+      // Prevent multiple answers
+      if (quizAnswers[quizId] !== undefined) return;
       
       // Store answer
       quizAnswers[quizId] = isCorrect;
       
+      // Find correct answer for display
+      const buttons = quizCard.querySelectorAll('.quiz-option-btn');
+      let correctAnswer = '';
+      
+      buttons.forEach(btn => {
+        const isCorrectBtn = btn.getAttribute('data-correct') === 'true';
+        btn.disabled = true;
+        btn.setAttribute('aria-disabled', 'true');
+        
+        // Highlight correct answer
+        if (isCorrectBtn) {
+          correctAnswer = btn.getAttribute('data-answer');
+          btn.classList.add('correct');
+          btn.setAttribute('aria-label', btn.getAttribute('aria-label') + ' - Correct answer');
+        }
+        
+        // Mark user's incorrect selection
+        if (!isCorrect && btn.getAttribute('data-answer') === selectedAnswer) {
+          btn.classList.add('incorrect');
+          btn.setAttribute('aria-label', btn.getAttribute('aria-label') + ' - Your selection (incorrect)');
+        }
+      });
+      
+      // Show feedback with correct answer for incorrect responses
       if (isCorrect) {
-        resultElement.textContent = '✅ Correct! Great job!';
-        resultElement.className = 'feedback success';
+        feedbackElement.innerHTML = `
+          <span class="feedback-icon" aria-hidden="true">✓</span> 
+          <span class="feedback-text">Correct!</span>
+        `;
+        feedbackElement.className = 'quiz-feedback success';
+        feedbackElement.setAttribute('role', 'alert');
+        feedbackElement.setAttribute('aria-live', 'polite');
+        quizCard.classList.add('answered-correct');
       } else {
-        resultElement.textContent = '❌ Not quite right. Try again!';
-        resultElement.className = 'feedback error';
+        feedbackElement.innerHTML = `
+          <span class="feedback-icon" aria-hidden="true">✗</span> 
+          <span class="feedback-text">Incorrect</span>
+          <span class="correct-answer-display">
+            <span class="correct-answer-label">Correct answer:</span> 
+            <strong>${correctAnswer}</strong>
+          </span>
+        `;
+        feedbackElement.className = 'quiz-feedback error';
+        feedbackElement.setAttribute('role', 'alert');
+        feedbackElement.setAttribute('aria-live', 'assertive');
+        quizCard.classList.add('answered-incorrect');
       }
+      feedbackElement.style.display = 'block';
       
       // Check if all quizzes answered
-      let quizzes = quizData[currentLevel]?.[currentLanguage] || [];
-      
-      // Handle category structure for level1 and level2
-      if ((currentLevel === 'level1' || currentLevel === 'level2') && currentCategory) {
-        if (typeof quizzes === 'object' && !Array.isArray(quizzes)) {
-          quizzes = quizzes[currentCategory] || [];
-        }
-      }
-      
-      const totalQuizzes = quizzes.length;
+      const totalQuizzes = getQuizData(currentLevel, currentCategory).length;
       if (Object.keys(quizAnswers).length === totalQuizzes) {
         document.getElementById('submitQuizzes').style.display = 'inline-block';
+        
+        // Smooth scroll to submit button
+        setTimeout(() => {
+          document.getElementById('submitQuizzes').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
       }
     }
 
@@ -288,20 +362,66 @@
         
         // Show results on the page
         const percentage = Math.round((correctCount/totalQuizzes)*100);
+        const minutes = Math.floor(timeSpent / 60);
+        const seconds = timeSpent % 60;
+        
+        // Determine encouraging message based on performance
+        let message = '';
+        let emoji = '';
+        if (percentage === 100) {
+          message = 'Perfect score!';
+          emoji = '🌟';
+        } else if (percentage >= 90) {
+          message = 'Excellent work!';
+          emoji = '🎉';
+        } else if (percentage >= 80) {
+          message = 'Great progress!';
+          emoji = '👏';
+        } else if (percentage >= 70) {
+          message = 'Good effort!';
+          emoji = '👍';
+        } else if (percentage >= 50) {
+          message = 'Keep practicing!';
+          emoji = '💪';
+        } else {
+          message = 'Keep going!';
+          emoji = '📚';
+        }
+        
         document.getElementById('quizContainer').innerHTML = `
-          <div class="card" style="text-align: center; padding: 40px; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: var(--accent); margin-bottom: 20px;">🎉 Quiz Complete!</h2>
-            <div style="font-size: 48px; font-weight: bold; color: ${percentage >= 70 ? 'var(--success)' : 'var(--error)'}; margin: 20px 0;">
-              ${percentage}%
+          <div class="quiz-results">
+            <div class="results-header">
+              <div class="results-emoji">${emoji}</div>
+              <h2 class="results-title">${message}</h2>
             </div>
-            <p style="font-size: 20px; margin: 15px 0;">Score: ${correctCount} out of ${totalQuizzes}</p>
-            <p style="font-size: 16px; color: #666; margin: 10px 0;">Time: ${Math.floor(timeSpent / 60)}m ${timeSpent % 60}s</p>
-            <p style="margin-top: 30px; padding: 15px; background: #d4edda; border-radius: 8px; color: #155724;">
-              ✅ Your progress has been saved!
-            </p>
-            <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-              <a href="quiz-select.html" class="btn btn-primary" style="display: inline-block !important; padding: 12px 24px !important; text-decoration: none !important; cursor: pointer !important; position: relative !important; z-index: 999 !important;">Take Another Quiz</a>
-              <a href="progress.html" class="btn btn-secondary" style="display: inline-block !important; padding: 12px 24px !important; text-decoration: none !important; cursor: pointer !important; position: relative !important; z-index: 999 !important;">View Progress</a>
+            
+            <div class="results-stats">
+              <div class="stat-card stat-primary">
+                <div class="stat-value" style="color: ${percentage >= 70 ? 'var(--success)' : 'var(--error)'};">${percentage}%</div>
+                <div class="stat-label">Score</div>
+              </div>
+              
+              <div class="stat-card">
+                <div class="stat-value">${correctCount}/${totalQuizzes}</div>
+                <div class="stat-label">Correct Answers</div>
+              </div>
+              
+              <div class="stat-card">
+                <div class="stat-value">${minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`}</div>
+                <div class="stat-label">Time Taken</div>
+              </div>
+            </div>
+            
+            <div class="results-actions">
+              <button onclick="location.href='quizzes.html?language=${currentLanguage}&level=${currentLevel}${currentCategory ? '&category=' + currentCategory : ''}'" class="btn btn-primary btn-large">
+                Retry Quiz
+              </button>
+              <a href="quiz-select.html" class="btn btn-secondary btn-large">
+                Back to Levels
+              </a>
+              <a href="progress.html" class="btn btn-outline btn-large">
+                View Progress
+              </a>
             </div>
           </div>
         `;
@@ -312,20 +432,67 @@
         
         // Show error results on the page
         const percentage = Math.round((correctCount/totalQuizzes)*100);
+        const minutes = Math.floor(timeSpent / 60);
+        const seconds = timeSpent % 60;
+        
+        // Determine encouraging message based on performance
+        let message = '';
+        let emoji = '';
+        if (percentage === 100) {
+          message = 'Perfect score!';
+          emoji = '🌟';
+        } else if (percentage >= 90) {
+          message = 'Excellent work!';
+          emoji = '🎉';
+        } else if (percentage >= 80) {
+          message = 'Great progress!';
+          emoji = '👏';
+        } else if (percentage >= 70) {
+          message = 'Good effort!';
+          emoji = '👍';
+        } else if (percentage >= 50) {
+          message = 'Keep practicing!';
+          emoji = '💪';
+        } else {
+          message = 'Keep going!';
+          emoji = '📚';
+        }
+        
         document.getElementById('quizContainer').innerHTML = `
-          <div class="card" style="text-align: center; padding: 40px; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: var(--error); margin-bottom: 20px;">⚠️ Quiz Complete (Not Saved)</h2>
-            <div style="font-size: 48px; font-weight: bold; color: ${percentage >= 70 ? 'var(--success)' : 'var(--error)'}; margin: 20px 0;">
-              ${percentage}%
+          <div class="quiz-results">
+            <div class="results-header">
+              <div class="results-emoji">${emoji}</div>
+              <h2 class="results-title">${message}</h2>
+              <p class="results-note">Unable to save progress - please check your connection</p>
             </div>
-            <p style="font-size: 20px; margin: 15px 0;">Score: ${correctCount} out of ${totalQuizzes}</p>
-            <p style="font-size: 16px; color: #666; margin: 10px 0;">Time: ${Math.floor(timeSpent / 60)}m ${timeSpent % 60}s</p>
-            <p style="margin-top: 30px; padding: 15px; background: #f8d7da; border-radius: 8px; color: #721c24;">
-              ❌ Failed to save: ${error.message}
-            </p>
-            <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-              <a href="quiz-select.html" class="btn btn-primary" style="display: inline-block !important; padding: 12px 24px !important; text-decoration: none !important; cursor: pointer !important; position: relative !important; z-index: 999 !important;">Take Another Quiz</a>
-              <a href="progress.html" class="btn btn-secondary" style="display: inline-block !important; padding: 12px 24px !important; text-decoration: none !important; cursor: pointer !important; position: relative !important; z-index: 999 !important;">View Progress</a>
+            
+            <div class="results-stats">
+              <div class="stat-card stat-primary">
+                <div class="stat-value" style="color: ${percentage >= 70 ? 'var(--success)' : 'var(--error)'};">${percentage}%</div>
+                <div class="stat-label">Score</div>
+              </div>
+              
+              <div class="stat-card">
+                <div class="stat-value">${correctCount}/${totalQuizzes}</div>
+                <div class="stat-label">Correct Answers</div>
+              </div>
+              
+              <div class="stat-card">
+                <div class="stat-value">${minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`}</div>
+                <div class="stat-label">Time Taken</div>
+              </div>
+            </div>
+            
+            <div class="results-actions">
+              <button onclick="location.href='quizzes.html?language=${currentLanguage}&level=${currentLevel}${currentCategory ? '&category=' + currentCategory : ''}'" class="btn btn-primary btn-large">
+                Retry Quiz
+              </button>
+              <a href="quiz-select.html" class="btn btn-secondary btn-large">
+                Back to Levels
+              </a>
+              <a href="progress.html" class="btn btn-outline btn-large">
+                View Progress
+              </a>
             </div>
           </div>
         `;

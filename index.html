@@ -2,8 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <!-- Viewport optimized for mobile-first responsive design -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-  <meta name="description" content="Practice Mandarin Chinese online with interactive tools. Quizzes, flashcards, and tests to reinforce your learning.">
+  
+  <!-- SEO & Social Meta -->
+  <meta name="description" content="Professional Chinese language tutoring platform. Practice Mandarin with interactive quizzes, flashcards, and personalized progress tracking.">
+  <meta name="keywords" content="Chinese learning, Mandarin practice, language tutoring, pinyin, HSK preparation">
+  
+  <!-- PWA Configuration -->
   <meta name="theme-color" content="#4a9d6f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -11,127 +17,242 @@
   <meta name="format-detection" content="telephone=no">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <title>Chinese Practice Platform - Learn • Practice • Improve</title>
+  
+  <title>Chinese Learning Platform - Professional Language Tutoring</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- Navigation -->
-  <nav class="navbar">
+  <!-- 
+    NAVIGATION BAR
+    Responsive navigation with mobile hamburger menu
+    Auth state determines displayed links (student vs tutor)
+  -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
     <div class="container">
       <div class="nav-wrapper">
-        <div class="logo">中文练习</div>
-        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
-          ☰
+        <!-- Brand Logo -->
+        <div class="logo" aria-label="Chinese Learning Platform">中文练习</div>
+        
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-toggle" 
+                onclick="toggleMobileMenu()" 
+                aria-label="Toggle navigation menu"
+                aria-expanded="false"
+                aria-controls="mobileMenu">
+          <span class="menu-icon">☰</span>
         </button>
-        <ul class="nav-links" id="mobileMenu">
-          <li><a href="#home" class="nav-link" onclick="closeMobileMenu()">Home</a></li>
-          <li><a href="quiz-select.html" class="nav-link">Quizzes</a></li>
-          <li><a href="test-select.html" class="nav-link">Tests</a></li>
-          <li><a href="flashcard-select.html" class="nav-link">Flashcards</a></li>
-          <li><a href="progress.html" class="nav-link">Progress</a></li>
-          <li><a href="resources.html" class="nav-link">Resources</a></li>
-          <li><a href="writing.html" class="nav-link">Writing Practice</a></li>
-          <li id="tutorDashboardLink" style="display: none;"><a href="tutor-dashboard.html" class="nav-link">Dashboard</a></li>
-          <li id="authLinks">
-            <a href="login.html" class="nav-link">Login</a>
+        
+        <!-- Navigation Links -->
+        <ul class="nav-links" id="mobileMenu" role="menubar">
+          <li role="none"><a href="#home" class="nav-link" onclick="closeMobileMenu()" role="menuitem">Home</a></li>
+          <li role="none"><a href="quiz-select.html" class="nav-link" role="menuitem">Quizzes</a></li>
+          <li role="none"><a href="test-select.html" class="nav-link" role="menuitem">Tests</a></li>
+          <li role="none"><a href="flashcard-select.html" class="nav-link" role="menuitem">Flashcards</a></li>
+          <li role="none"><a href="progress.html" class="nav-link" role="menuitem">Progress</a></li>
+          <li role="none"><a href="resources.html" class="nav-link" role="menuitem">Resources</a></li>
+          <li role="none"><a href="writing.html" class="nav-link" role="menuitem">Writing</a></li>
+          
+          <!-- Tutor-only link (conditionally displayed) -->
+          <li id="tutorDashboardLink" style="display: none;" role="none">
+            <a href="tutor-dashboard.html" class="nav-link" role="menuitem">Dashboard</a>
+          </li>
+          
+          <!-- Auth Links (dynamic based on login state) -->
+          <li id="authLinks" role="none">
+            <a href="login.html" class="nav-link" role="menuitem">Login</a>
           </li>
         </ul>
-        <button id="darkModeToggle" class="dark-mode-toggle" onclick="DarkMode.toggle()" aria-label="Toggle dark mode">🌙</button>
+        
+        <!-- Dark Mode Toggle -->
+        <button id="darkModeToggle" 
+                class="dark-mode-toggle" 
+                onclick="DarkMode.toggle()" 
+                aria-label="Toggle dark mode"
+                title="Switch color scheme">
+          🌙
+        </button>
       </div>
     </div>
   </nav>
 
-  <!-- Hero Section -->
-  <section class="hero" id="home">
+  <!-- 
+    HERO SECTION
+    Clear value proposition for tutor-guided students
+  -->
+  <section class="hero" id="home" role="banner">
     <div class="container">
       <div class="hero-content">
-        <h1>Practice Chinese with Confidence</h1>
-        <p class="hero-subtitle">Your dedicated practice companion for Mandarin Chinese. Reinforce what you learn, build confidence, and track your progress through interactive practice tools.</p>
-        <p class="hero-tagline">Learn • Practice • Improve</p>
-        <div id="heroButtons" style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-          <!-- Buttons will be updated based on login status -->
-          <a href="login.html" class="btn btn-primary">Login</a>
-          <a href="signup.html" class="btn btn-secondary">Sign Up</a>
+        <h1 class="hero-title">
+          Practice the Chinese your tutor teaches you
+        </h1>
+        
+        <p class="hero-subtitle">
+          Reinforce your lessons with quizzes, flashcards, and writing practice designed to help you remember what you're learning.
+        </p>
+        
+        <div class="hero-actions" role="group" aria-label="Get started">
+          <a href="quiz-select.html" class="btn btn-primary btn-large">Start Practice</a>
+          <a href="progress.html" class="btn btn-secondary btn-large">View Progress</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Practice & Improve Section -->
-  <section class="practice-section" id="practice">
+  <!-- 
+    LEARNING PATH
+    Visual progression through Mandarin levels
+  -->
+  <section class="learning-path" id="levels">
     <div class="container">
-      <h2>Practice & Improve</h2>
-      <p class="section-subtitle">Reinforce what you learn in class or with your tutor</p>
-      
-      <div class="practice-grid">
-        <div class="practice-card">
-          <div class="practice-icon">📝</div>
-          <h3>Interactive Quizzes</h3>
-          <p>Test your knowledge of vocabulary, grammar, and characters with instant feedback</p>
-        </div>
-        <div class="practice-card">
-          <div class="practice-icon">🎴</div>
-          <h3>Digital Flashcards</h3>
-          <p>Review and memorize characters, tones, and meanings at your own pace</p>
-        </div>
-        <div class="practice-card">
-          <div class="practice-icon">✍️</div>
-          <h3>Writing Practice</h3>
-          <p>Practice stroke order and character writing with guided exercises</p>
-        </div>
-        <div class="practice-card">
-          <div class="practice-icon">📊</div>
-          <h3>Track Progress</h3>
-          <p>Monitor your improvement and see how far you've come</p>
-        </div>
+      <div class="section-header">
+        <h2 class="section-title">Your Learning Journey</h2>
+        <p class="section-subtitle">
+          Start at your level and work your way up
+        </p>
       </div>
       
-      <div class="practice-note">
-        <p><strong>Practice makes progress.</strong> This platform is designed to support your Chinese learning journey, whether you're studying in a classroom or working with a tutor. Use these tools to reinforce lessons, build confidence, and improve your skills.</p>
+      <div class="path-grid">
+        <!-- Newbie Level -->
+        <article class="level-card level-newbie">
+          <div class="level-badge">
+            <span class="level-number">1</span>
+          </div>
+          <h3 class="level-title">Newbie</h3>
+          <p class="level-description">
+            Basic greetings, numbers, and everyday phrases
+          </p>
+          <div class="level-stats">
+            <span class="stat">87 flashcards</span>
+          </div>
+          <a href="quiz-select.html?level=newbie" class="level-link">Practice →</a>
+        </article>
+
+        <!-- Level 1 -->
+        <article class="level-card level-beginner">
+          <div class="level-badge">
+            <span class="level-number">2</span>
+          </div>
+          <h3 class="level-title">Level 1</h3>
+          <p class="level-description">
+            Family, time, daily activities, and simple conversations
+          </p>
+          <div class="level-stats">
+            <span class="stat">475 flashcards</span>
+            <span class="stat">3 categories</span>
+          </div>
+          <a href="quiz-select.html?level=level1" class="level-link">Practice →</a>
+        </article>
+
+        <!-- Level 2 -->
+        <article class="level-card level-intermediate">
+          <div class="level-badge">
+            <span class="level-number">3</span>
+          </div>
+          <h3 class="level-title">Level 2</h3>
+          <p class="level-description">
+            More complex sentences and character reading
+          </p>
+          <div class="level-stats">
+            <span class="stat">7 flashcards</span>
+          </div>
+          <a href="quiz-select.html?level=level2" class="level-link">Practice →</a>
+        </article>
+
+        <!-- Level 3 -->
+        <article class="level-card level-advanced">
+          <div class="level-badge">
+            <span class="level-number">4</span>
+          </div>
+          <h3 class="level-title">Level 3</h3>
+          <p class="level-description">
+            Coming soon - Advanced expressions and idioms
+          </p>
+          <div class="level-stats">
+            <span class="stat-locked">🔒 Locked</span>
+          </div>
+        </article>
       </div>
     </div>
   </section>
 
-  <!-- Languages Section -->
-  <section class="languages" id="languages">
+  <!-- 
+    PRACTICE TOOLS
+    Three main ways to practice
+  -->
+  <section class="tools-section" id="practice">
     <div class="container">
-      <h2>Mandarin Chinese</h2>
-      <p class="section-subtitle">Practice resources for Mandarin learners</p>
+      <div class="section-header">
+        <h2 class="section-title">Three Ways to Practice</h2>
+      </div>
       
-      <div class="languages-grid" style="max-width: 500px; margin: 0 auto;">
-        <div class="language-card">
-          <div class="language-emoji">🇨🇳</div>
-          <h3>Mandarin Chinese</h3>
-          <p>Practice pinyin, characters, tones, and vocabulary at all levels</p>
-        </div>
+      <div class="tools-grid">
+        <article class="tool-card">
+          <div class="tool-icon">📝</div>
+          <h3>Quizzes</h3>
+          <p>Test yourself with multiple choice questions</p>
+          <a href="quiz-select.html" class="tool-link">Start Quiz →</a>
+        </article>
+        
+        <article class="tool-card">
+          <div class="tool-icon">🎴</div>
+          <h3>Flashcards</h3>
+          <p>Review vocabulary at your own pace</p>
+          <a href="flashcard-select.html" class="tool-link">Browse Cards →</a>
+        </article>
+        
+        <article class="tool-card">
+          <div class="tool-icon">✍️</div>
+          <h3>Writing</h3>
+          <p>Practice character stroke order</p>
+          <a href="writing.html" class="tool-link">Start Writing →</a>
+        </article>
       </div>
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer class="footer">
+  <!-- 
+    FOOTER
+  -->
+  <footer class="footer" role="contentinfo">
     <div class="container">
-      <div class="footer-note">
-        <p>This platform is designed as a practice companion for Chinese language students.</p>
+      <div class="footer-content">
+        <p class="footer-text">
+          中文练习 - Practice companion for Chinese language students
+        </p>
+        <p class="footer-copyright">
+          &copy; 2026 Chinese Learning Platform
+        </p>
       </div>
-      <p class="footer-copyright">&copy; 2026 Chinese Practice Platform. All rights reserved.</p>
     </div>
   </footer>
 
+  <!-- 
+    SCRIPTS
+    Load order: Quiz logic → Auth → Progress API → App core
+  -->
   <script src="quizzes.js"></script>
   <script src="auth-client.js"></script>
   <script src="progress-api.js"></script>
   <script>
+    // ============================================
+    // MOBILE NAVIGATION
+    // ============================================
+    
     function toggleMobileMenu() {
-      document.getElementById('mobileMenu').classList.toggle('active');
+      const menu = document.getElementById('mobileMenu');
+      const toggle = document.querySelector('.mobile-menu-toggle');
+      const isExpanded = menu.classList.toggle('active');
+      toggle.setAttribute('aria-expanded', isExpanded);
     }
     
     function closeMobileMenu() {
-      document.getElementById('mobileMenu').classList.remove('active');
+      const menu = document.getElementById('mobileMenu');
+      const toggle = document.querySelector('.mobile-menu-toggle');
+      menu.classList.remove('active');
+      toggle.setAttribute('aria-expanded', 'false');
     }
     
-    // Close menu when clicking outside
     document.addEventListener('click', function(event) {
       const menu = document.getElementById('mobileMenu');
       const toggle = document.querySelector('.mobile-menu-toggle');
@@ -140,7 +261,10 @@
       }
     });
 
-    // Update navigation based on auth status
+    // ============================================
+    // AUTHENTICATION STATE (for nav only)
+    // ============================================
+    
     function updateNavigation() {
       const authLinks = document.getElementById('authLinks');
       const tutorLink = document.getElementById('tutorDashboardLink');
@@ -151,8 +275,6 @@
           <span class="nav-link" style="color: var(--accent); font-weight: 600;">${user.name}</span> | 
           <a href="#" onclick="AuthAPI.logout(); return false;" class="nav-link">Logout</a>
         `;
-        
-        // Show tutor dashboard link if user is tutor
         if (user.role === 'tutor' && tutorLink) {
           tutorLink.style.display = 'block';
         }
@@ -162,28 +284,7 @@
       }
     }
 
-    // Update nav on page load
     document.addEventListener('DOMContentLoaded', updateNavigation);
-
-    // Update hero buttons based on auth status
-    document.addEventListener('DOMContentLoaded', function() {
-      const heroButtons = document.getElementById('heroButtons');
-      if (AuthAPI.isAuthenticated()) {
-        const user = AuthAPI.getCurrentUser();
-        if (user.role === 'tutor') {
-          heroButtons.innerHTML = `
-            <a href="tutor-dashboard.html" class="btn btn-primary">Go to Dashboard</a>
-            <a href="quiz-select.html" class="btn btn-secondary">Browse Content</a>
-          `;
-        } else {
-          heroButtons.innerHTML = `
-            <a href="quiz-select.html" class="btn btn-primary">Start Quizzes</a>
-            <a href="test-select.html" class="btn btn-primary">Take Tests</a>
-            <a href="progress.html" class="btn btn-secondary">View Progress</a>
-          `;
-        }
-      }
-    });
   </script>
   <script src="app.js"></script>
 </body>

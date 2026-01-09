@@ -6,93 +6,6 @@
   <meta name="description" content="Test Selection - Chinese Language Tutor">
   <title>Select Test - Chinese Language Tutor</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    .selector-container {
-      max-width: 600px;
-      margin: 40px auto;
-      text-align: center;
-    }
-    .selector-group {
-      margin: 30px 0;
-    }
-    .selector-group h3 {
-      margin-bottom: 15px;
-      font-size: 1.3em;
-      color: var(--text-primary);
-    }
-    .selector-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-    }
-    .selector-btn {
-      padding: 12px 20px;
-      font-size: 1em;
-      border: 2px solid var(--accent);
-      background: var(--bg-secondary);
-      color: var(--accent);
-      border-radius: 5px;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .selector-btn:hover {
-      background: var(--accent);
-      color: white;
-    }
-    .selector-btn.selected {
-      background: var(--accent);
-      color: white;
-    }
-    .selector-btn.locked {
-      opacity: 0.5;
-      cursor: not-allowed;
-      position: relative;
-      background: var(--bg-tertiary);
-      color: var(--text-tertiary);
-      border-color: var(--text-tertiary);
-    }
-    .selector-btn.locked::after {
-      content: " 🔒";
-    }
-    .selector-btn.locked:hover {
-      background: var(--bg-tertiary);
-      color: var(--text-tertiary);
-      transform: none;
-    }
-    .category-separator {
-      margin: 40px 0 20px 0;
-      padding-top: 20px;
-      border-top: 2px dashed var(--text-tertiary);
-    }
-    .category-note {
-      color: var(--text-secondary);
-      font-size: 0.9em;
-      font-style: italic;
-      margin-top: 10px;
-    }
-    .proceed-btn {
-      margin-top: 40px;
-      padding: 15px 40px;
-      font-size: 1.1em;
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .proceed-btn:hover {
-      background: var(--accent-hover);
-      transform: translateY(-2px);
-    }
-    .proceed-btn:disabled {
-      background: var(--bg-tertiary);
-      color: var(--text-secondary);
-      cursor: not-allowed;
-      transform: none;
-    }
-  </style>
 </head>
 <body>
 
@@ -117,36 +30,80 @@
     </div>
   </nav>
 
-  <section class="practice" style="padding: 60px 0;">
+  <section class="practice">
     <div class="container">
-      <div class="selector-container">
-        <h2>Select Your Test</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 30px;">Choose your difficulty level for Mandarin Chinese</p>
+      <div class="section-header">
+        <h2 class="section-title">Choose Your Test</h2>
+        <p class="section-subtitle">Select a level for comprehensive testing</p>
+      </div>
 
-        <div class="selector-group">
-          <h3>Select Level:</h3>
-          <div class="selector-buttons">
-            <button class="selector-btn" onclick="selectLevel('newbie')">Newbie</button>
-            <button class="selector-btn" onclick="selectLevel('level1')">Level 1</button>
-            <button class="selector-btn" onclick="selectLevel('level2')">Level 2</button>
-            <button class="selector-btn locked" onclick="showLockedMessage()">Level 3</button>
-            <button class="selector-btn locked" onclick="showLockedMessage()">Level 4</button>
-            <button class="selector-btn locked" onclick="showLockedMessage()">Level 5</button>
-            <button class="selector-btn locked" onclick="showLockedMessage()">Level 6</button>
+      <div class="selection-container">
+        <!-- Level Selection -->
+        <div class="selection-step">
+          <h3 class="step-title">
+            <span class="step-number">1</span>
+            Select Your Level
+          </h3>
+          
+          <div class="level-selection-grid">
+            <!-- Newbie -->
+            <div class="selection-card" onclick="selectLevel('newbie')" data-level="newbie">
+              <div class="card-icon">🌱</div>
+              <h4 class="card-title">Newbie</h4>
+              <p class="card-description">Comprehensive beginner test</p>
+              <div class="card-stats">
+                <span class="stat-badge">87 words</span>
+              </div>
+            </div>
+
+            <!-- Level 1 -->
+            <div class="selection-card" onclick="selectLevel('level1')" data-level="level1">
+              <div class="card-icon">📘</div>
+              <h4 class="card-title">Level 1</h4>
+              <p class="card-description">Intermediate mastery test</p>
+              <div class="card-stats">
+                <span class="stat-badge">475 words</span>
+              </div>
+            </div>
+
+            <!-- Level 2 -->
+            <div class="selection-card" onclick="selectLevel('level2')" data-level="level2">
+              <div class="card-icon">📗</div>
+              <h4 class="card-title">Level 2</h4>
+              <p class="card-description">Advanced proficiency test</p>
+              <div class="card-stats">
+                <span class="stat-badge">7 words</span>
+              </div>
+            </div>
+
+            <!-- Level 3 (Locked) -->
+            <div class="selection-card locked" onclick="showLockedMessage('Level 3')">
+              <div class="lock-overlay">
+                <div class="lock-icon">🔒</div>
+              </div>
+              <div class="card-icon">📙</div>
+              <h4 class="card-title">Level 3</h4>
+              <p class="card-description">Coming soon</p>
+            </div>
+
+            <!-- SJKC -->
+            <div class="selection-card special" onclick="selectLevel('sjkc')" data-level="sjkc">
+              <div class="card-icon">🏫</div>
+              <h4 class="card-title">SJKC</h4>
+              <p class="card-description">School curriculum test</p>
+            </div>
           </div>
         </div>
 
-        <div class="selector-group category-separator">
-          <h3>Special Category</h3>
-          <p class="category-note">For SJKC students (Chinese medium school curriculum)</p>
-          <div class="selector-buttons">
-            <button class="selector-btn" onclick="selectLevel('sjkc')">SJKC</button>
-          </div>
-        </div>
+        <!-- Status Message -->
+        <div class="selection-status" id="statusMessage"></div>
 
-        <button class="proceed-btn" id="proceedBtn" disabled onclick="proceedToTest()">Start Test</button>
-        <br><br>
-        <a href="index.html" class="btn btn-secondary" style="display: inline-block; margin-top: 20px;">Back to Home</a>
+        <!-- Proceed Button -->
+        <div class="selection-actions">
+          <button class="btn btn-primary btn-large" onclick="proceedToTest()" id="proceedBtn" disabled>
+            Start Test
+          </button>
+        </div>
       </div>
     </div>
   </section>
@@ -164,23 +121,45 @@
 
     function selectLevel(level) {
       selectedLevel = level;
-      document.querySelectorAll('.selector-btn:not(.locked)').forEach(btn => {
-        btn.classList.remove('selected');
+      updateUI();
+    }
+
+    function showLockedMessage(levelName) {
+      const statusMsg = document.getElementById('statusMessage');
+      statusMsg.innerHTML = `🔒 ${levelName} will be unlocked soon! Keep practicing current levels.`;
+      statusMsg.className = 'selection-status locked-message';
+      setTimeout(() => {
+        statusMsg.innerHTML = '';
+        statusMsg.className = 'selection-status';
+      }, 3000);
+    }
+
+    function updateUI() {
+      // Update selected states for level cards
+      document.querySelectorAll('.selection-card[data-level]').forEach(card => {
+        const level = card.getAttribute('data-level');
+        card.classList.toggle('selected', level === selectedLevel);
       });
-      event.target.classList.add('selected');
-      checkProceedBtn();
-    }
-
-    function showLockedMessage() {
-      alert('🔒 This level will be unlocked soon! Keep practicing the current levels.');
-    }
-
-    function checkProceedBtn() {
+      
+      // Enable/disable proceed button
       const proceedBtn = document.getElementById('proceedBtn');
-      if (selectedLanguage && selectedLevel) {
-        proceedBtn.disabled = false;
+      proceedBtn.disabled = !selectedLevel;
+      
+      // Update status message
+      const statusMsg = document.getElementById('statusMessage');
+      if (selectedLevel) {
+        const levelNames = {
+          'newbie': 'Newbie',
+          'level1': 'Level 1',
+          'level2': 'Level 2',
+          'sjkc': 'SJKC'
+        };
+        let message = `<span class="status-icon">✓</span> ${levelNames[selectedLevel] || selectedLevel} Test Ready`;
+        statusMsg.innerHTML = message;
+        statusMsg.className = 'selection-status active';
       } else {
-        proceedBtn.disabled = true;
+        statusMsg.innerHTML = '';
+        statusMsg.className = 'selection-status';
       }
     }
 
