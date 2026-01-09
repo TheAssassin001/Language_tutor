@@ -120,15 +120,29 @@
 
       <div class="selector-container">
         <div class="selector-group">
-          <h3>Level</h3>
+          <h3>Step 1: Select Level</h3>
           <div class="selector-buttons">
             <button class="selector-btn" onclick="selectLevel('newbie')">Newbie</button>
             <button class="selector-btn" onclick="selectLevel('level1')">Level 1</button>
             <button class="selector-btn" onclick="selectLevel('level2')">Level 2</button>
-            <button class="selector-btn" onclick="selectLevel('level3')">Level 3</button>
+            <button class="selector-btn locked" onclick="showLockedMessage()">Level 3</button>
             <button class="selector-btn locked" onclick="showLockedMessage()">Level 4</button>
             <button class="selector-btn locked" onclick="showLockedMessage()">Level 5</button>
             <button class="selector-btn locked" onclick="showLockedMessage()">Level 6</button>
+          </div>
+          <p id="levelHint" class="category-note" style="display: none; margin-top: 15px; color: var(--accent); font-weight: bold;">
+            ⬇️ Now select a category below to continue
+          </p>
+        </div>
+
+        <!-- Category selection for Level 1 and Level 2 -->
+        <div class="selector-group" id="categoryGroup" style="display: none;">
+          <div class="category-separator" style="margin: 20px 0; padding-top: 20px; border-top: 2px solid var(--accent);"></div>
+          <h3>Step 2: Select Category</h3>
+          <div class="selector-buttons">
+            <button class="selector-btn" onclick="selectCategory('text')">📖 Text</button>
+            <button class="selector-btn" onclick="selectCategory('hanyupinyin')">🔤 Hanyu Pinyin</button>
+            <button class="selector-btn" onclick="selectCategory('extravocab')">📚 Extra Vocab</button>
           </div>
         </div>
 
@@ -155,9 +169,44 @@
   <script>
     let selectedLanguage = 'mandarin'; // Auto-select Mandarin since it's the only option
     let selectedLevel = null;
+    let selectedCategory = null;
 
     function selectLevel(level) {
       selectedLevel = level;
+      selectedCategory = null; // Reset category when level changes
+      
+      // Show category selection for level1 and level2
+      const categoryGroup = document.getElementById('categoryGroup');
+      const levelHint = document.getElementById('levelHint');
+      
+      if (level === 'level1' || level === 'level2') {
+        categoryGroup.style.display = 'block';
+        levelHint.style.display = 'block';
+        // Reset category buttons
+        categoryGroup.querySelectorAll('.selector-btn').forEach(btn => {
+          btn.classList.remove('selected');
+        });
+        // Scroll to category section
+        setTimeout(() => {
+          categoryGroup.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+      } else {
+        categoryGroup.style.display = 'none';
+        levelHint.style.display = 'none';
+      }
+      
+      updateUI();
+    }
+
+    function selectCategory(category) {
+      selectedCategory = category;
+      
+      // Remove selection from all category buttons
+      document.getElementById('categoryGroup').querySelectorAll('.selector-btn').forEach(btn => {
+        btn.classList.remove('selected');
+      });
+      event.target.classList.add('selected');
+      
       updateUI();
     }
 
@@ -171,7 +220,14 @@
         const btnText = btn.textContent.toLowerCase().replace(' ', '');
         btn.classList.toggle('selected', btnText === selectedLevel);
       });
-      document.getElementById('proceedBtn').disabled = !selectedLevel;
+      
+      // For level1 and level2, both level and category must be selected
+      if (selectedLevel === 'level1' || selectedLevel === 'level2') {
+        document.getElementById('proceedBtn').disabled = !(selectedLevel && selectedCategory);
+      } else {
+        document.getElementById('proceedBtn').disabled = !selectedLevel;
+      }
+      
       if (selectedLevel) {
         const levelNames = {
           'newbie': 'Newbie',
@@ -180,7 +236,17 @@
           'level3': 'Level 3',
           'sjkc': 'SJKC'
         };
-        document.getElementById('message').textContent = `Ready to start Mandarin ${levelNames[selectedLevel] || selectedLevel}?`;
+        const categoryNames = {
+          'text': 'Text',
+          'hanyupinyin': 'Hanyu Pinyin',
+          'extravocab': 'Extra Vocab'
+        };
+        let message = `Ready to start Mandarin ${levelNames[selectedLevel] || selectedLevel}`;
+        if (selectedCategory) {
+          message += ` - ${categoryNames[selectedCategory]}`;
+        }
+        message += '?';
+        document.getElementById('message').textContent = message;
         document.getElementById('message').style.color = '#666';
       } else {
         document.getElementById('message').textContent = 'Please select a level';
@@ -190,7 +256,11 @@
 
     function proceedToQuiz() {
       if (selectedLanguage && selectedLevel) {
-        window.location.href = `quizzes.html?language=${selectedLanguage}&level=${selectedLevel}`;
+        let url = `quizzes.html?language=${selectedLanguage}&level=${selectedLevel}`;
+        if (selectedCategory) {
+          url += `&category=${selectedCategory}`;
+        }
+        window.location.href = url;
       }
     }
   </script>

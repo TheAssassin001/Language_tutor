@@ -76,6 +76,7 @@
   <script>
     let currentLanguage = '';
     let currentLevel = '';
+    let currentCategory = '';
     let quizAnswers = {}; // Track which quizzes were answered correctly
     let startTime = Date.now();
 
@@ -99,6 +100,7 @@
       const params = new URLSearchParams(window.location.search);
       currentLanguage = params.get('language');
       currentLevel = params.get('level');
+      currentCategory = params.get('category') || '';
       
       if (currentLanguage && currentLevel) {
         loadQuiz(currentLanguage, currentLevel);
@@ -107,100 +109,75 @@
       }
     });
 
-    const quizData = {
-      newbie: {
-        mandarin: [
-          {
-            id: 1,
-            title: 'Mandarin Basics',
-            question: 'What is the pinyin for "你"?',
-            options: [{ text: 'nǐ', correct: true }, { text: 'wǒ', correct: false }, { text: 'tā', correct: false }]
-          },
-          {
-            id: 2,
-            title: 'Numbers',
-            question: 'Which character means "one"?',
-            options: [{ text: '一', correct: true }, { text: '二', correct: false }, { text: '三', correct: false }]
-          }
-        ]
-      },
-      level1: {
-        mandarin: [
-          {
-            id: 1,
-            title: 'Mandarin Characters',
-            question: 'Which pinyin corresponds to the character "一"?',
-            options: [{ text: 'yi', correct: true }, { text: 'er', correct: false }, { text: 'san', correct: false }]
-          },
-          {
-            id: 2,
-            title: 'Common Phrases',
-            question: 'What does "谢谢" mean?',
-            options: [{ text: 'Thank you', correct: true }, { text: 'Hello', correct: false }, { text: 'Goodbye', correct: false }]
-          }
-        ]
-      },
-      level2: {
-        mandarin: [
-          {
-            id: 1,
-            title: 'Intermediate Vocabulary',
-            question: 'What does "学校" mean?',
-            options: [{ text: 'School', correct: true }, { text: 'Hospital', correct: false }, { text: 'Library', correct: false }]
-          },
-          {
-            id: 2,
-            title: 'Sentence Structure',
-            question: 'Which word order is correct in Mandarin?',
-            options: [{ text: 'Subject + Verb + Object', correct: true }, { text: 'Verb + Subject + Object', correct: false }, { text: 'Object + Verb + Subject', correct: false }]
-          }
-        ]
-      },
-      level3: {
-        mandarin: [
-          {
-            id: 1,
-            title: 'Advanced Pinyin',
-            question: 'Which pinyin (with tones) is correct for "你好"?',
-            options: [{ text: 'nǐhǎo', correct: true }, { text: 'nìhào', correct: false }, { text: 'níhāo', correct: false }]
-          },
-          {
-            id: 2,
-            title: 'Complex Characters',
-            question: 'What is the correct stroke order principle?',
-            options: [{ text: 'Top to bottom, left to right', correct: true }, { text: 'Right to left, bottom to top', correct: false }]
-          }
-        ]
-      },
-      level4: {
-        mandarin: []
-      },
-      level5: {
-        mandarin: []
-      },
-      level6: {
-        mandarin: []
-      },
-      sjkc: {
-        mandarin: [
-          {
-            id: 1,
-            title: 'SJKC - Advanced Characters',
-            question: 'What is the meaning of "华文"?',
-            options: [{ text: 'Chinese language', correct: true }, { text: 'English language', correct: false }, { text: 'Mathematics', correct: false }]
-          },
-          {
-            id: 2,
-            title: 'SJKC - Idioms',
-            question: 'What does the idiom "一石二鸟" mean?',
-            options: [{ text: 'Kill two birds with one stone', correct: true }, { text: 'Birds of a feather', correct: false }, { text: 'Early bird', correct: false }]
-          }
-        ]
+    // Utility function to shuffle array
+    function shuffleArray(array) {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
       }
-    };
+      return shuffled;
+    }
+
+    // Auto-generate quiz questions from FlashcardData
+    function generateQuizQuestions(level, category = null) {
+      let flashcards = [];
+      
+      // Get flashcards based on level and category
+      if (level === 'newbie') {
+        flashcards = FlashcardData.mandarin.newbie || [];
+      } else if (level === 'level1' && category) {
+        flashcards = FlashcardData.mandarin.level1?.[category] || [];
+      } else if (level === 'level2' && category) {
+        flashcards = FlashcardData.mandarin.level2?.[category] || [];
+      }
+      
+      if (flashcards.length === 0) {
+        return [];
+      }
+      
+      // Shuffle flashcards and select 10-15 for quiz
+      const numQuestions = Math.min(15, flashcards.length);
+      const selectedCards = shuffleArray(flashcards).slice(0, numQuestions);
+      
+      // Generate questions
+      const questions = selectedCards.map((card, index) => {
+        // Get wrong answer options from other flashcards
+        const otherCards = flashcards.filter(c => c.front !== card.front && c.back !== card.back);
+        const wrongAnswers = shuffleArray(otherCards)
+          .slice(0, 3)
+          .map(c => ({ text: c.back, correct: false }));
+        
+        // Add correct answer
+        const correctAnswer = { text: card.back, correct: true };
+        
+        // Shuffle all options
+        const allOptions = shuffleArray([correctAnswer, ...wrongAnswers]).slice(0, 4);
+        
+        return {
+          id: index + 1,
+          question: `What does "${card.front}" mean?`,
+          options: allOptions
+        };
+      });
+      
+      return questions;
+    }
+
+    // Generate quizData on-the-fly
+    function getQuizData(level, category = null) {
+      if (level === 'newbie') {
+        return generateQuizQuestions('newbie');
+      } else if ((level === 'level1' || level === 'level2') && category) {
+        return generateQuizQuestions(level, category);
+      }
+      return [];
+    }
 
     function loadQuiz(language, level) {
-      const quizzes = quizData[level]?.[language] || [];
+      // Auto-generate quiz questions from FlashcardData
+      let quizzes = getQuizData(level, currentCategory);
+      
       const levelNames = {
         'newbie': 'Newbie',
         'level1': 'Level 1',
@@ -211,8 +188,18 @@
         'level6': 'Level 6',
         'sjkc': 'SJKC'
       };
+      const categoryNames = {
+        'text': 'Text',
+        'hanyupinyin': 'Hanyu Pinyin',
+        'extravocab': 'Extra Vocab'
+      };
+      
       const levelName = levelNames[level] || level;
-      document.getElementById('subtitle').textContent = `${language.charAt(0).toUpperCase() + language.slice(1)} - ${levelName}`;
+      let subtitleText = `${language.charAt(0).toUpperCase() + language.slice(1)} - ${levelName}`;
+      if (currentCategory) {
+        subtitleText += ` - ${categoryNames[currentCategory]}`;
+      }
+      document.getElementById('subtitle').textContent = subtitleText;
       
       if (quizzes.length === 0) {
         document.getElementById('quizContainer').innerHTML = '<p>No quizzes available for this selection yet. More content coming soon! <a href="quiz-select.html">Try another selection</a></p>';
@@ -223,7 +210,6 @@
       quizzes.forEach(quiz => {
         html += `
           <div class="card">
-            <h3>${quiz.title} (${levelName})</h3>
             <p class="question">${quiz.question}</p>
             <div class="options">
               ${quiz.options.map((opt, idx) => `
@@ -255,7 +241,16 @@
       }
       
       // Check if all quizzes answered
-      const totalQuizzes = quizData[currentLevel]?.[currentLanguage]?.length || 0;
+      let quizzes = quizData[currentLevel]?.[currentLanguage] || [];
+      
+      // Handle category structure for level1 and level2
+      if ((currentLevel === 'level1' || currentLevel === 'level2') && currentCategory) {
+        if (typeof quizzes === 'object' && !Array.isArray(quizzes)) {
+          quizzes = quizzes[currentCategory] || [];
+        }
+      }
+      
+      const totalQuizzes = quizzes.length;
       if (Object.keys(quizAnswers).length === totalQuizzes) {
         document.getElementById('submitQuizzes').style.display = 'inline-block';
       }
@@ -291,21 +286,49 @@
         console.log('✅ SUCCESS: Quiz results saved to database');
         console.log('Result:', result);
         
-        alert(`Quiz Complete! 🎉\n\nScore: ${correctCount}/${totalQuizzes} (${Math.round((correctCount/totalQuizzes)*100)}%)\n\nYour progress has been saved to the database.`);
-        
-        // Disable submit button
-        document.getElementById('submitQuizzes').style.display = 'none';
+        // Show results on the page
+        const percentage = Math.round((correctCount/totalQuizzes)*100);
+        document.getElementById('quizContainer').innerHTML = `
+          <div class="card" style="text-align: center; padding: 40px; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: var(--accent); margin-bottom: 20px;">🎉 Quiz Complete!</h2>
+            <div style="font-size: 48px; font-weight: bold; color: ${percentage >= 70 ? 'var(--success)' : 'var(--error)'}; margin: 20px 0;">
+              ${percentage}%
+            </div>
+            <p style="font-size: 20px; margin: 15px 0;">Score: ${correctCount} out of ${totalQuizzes}</p>
+            <p style="font-size: 16px; color: #666; margin: 10px 0;">Time: ${Math.floor(timeSpent / 60)}m ${timeSpent % 60}s</p>
+            <p style="margin-top: 30px; padding: 15px; background: #d4edda; border-radius: 8px; color: #155724;">
+              ✅ Your progress has been saved!
+            </p>
+            <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+              <a href="quiz-select.html" class="btn btn-primary" style="display: inline-block !important; padding: 12px 24px !important; text-decoration: none !important; cursor: pointer !important; position: relative !important; z-index: 999 !important;">Take Another Quiz</a>
+              <a href="progress.html" class="btn btn-secondary" style="display: inline-block !important; padding: 12px 24px !important; text-decoration: none !important; cursor: pointer !important; position: relative !important; z-index: 999 !important;">View Progress</a>
+            </div>
+          </div>
+        `;
         
       } catch (error) {
         console.error('❌ FAILED: Could not save quiz results');
         console.error('Error:', error.message);
         
-        alert(
-          `⚠️ FAILED TO SAVE YOUR QUIZ RESULTS\n\n` +
-          `Your score: ${Math.round((correctCount/totalQuizzes)*100)}%\n\n` +
-          `Error: ${error.message}\n\n` +
-          `Please check your internet connection and try again.`
-        );
+        // Show error results on the page
+        const percentage = Math.round((correctCount/totalQuizzes)*100);
+        document.getElementById('quizContainer').innerHTML = `
+          <div class="card" style="text-align: center; padding: 40px; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: var(--error); margin-bottom: 20px;">⚠️ Quiz Complete (Not Saved)</h2>
+            <div style="font-size: 48px; font-weight: bold; color: ${percentage >= 70 ? 'var(--success)' : 'var(--error)'}; margin: 20px 0;">
+              ${percentage}%
+            </div>
+            <p style="font-size: 20px; margin: 15px 0;">Score: ${correctCount} out of ${totalQuizzes}</p>
+            <p style="font-size: 16px; color: #666; margin: 10px 0;">Time: ${Math.floor(timeSpent / 60)}m ${timeSpent % 60}s</p>
+            <p style="margin-top: 30px; padding: 15px; background: #f8d7da; border-radius: 8px; color: #721c24;">
+              ❌ Failed to save: ${error.message}
+            </p>
+            <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+              <a href="quiz-select.html" class="btn btn-primary" style="display: inline-block !important; padding: 12px 24px !important; text-decoration: none !important; cursor: pointer !important; position: relative !important; z-index: 999 !important;">Take Another Quiz</a>
+              <a href="progress.html" class="btn btn-secondary" style="display: inline-block !important; padding: 12px 24px !important; text-decoration: none !important; cursor: pointer !important; position: relative !important; z-index: 999 !important;">View Progress</a>
+            </div>
+          </div>
+        `;
       }
     }
 
