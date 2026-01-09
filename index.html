@@ -2,297 +2,458 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- Viewport optimized for mobile-first responsive design -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-  
-  <!-- SEO & Social Meta -->
-  <meta name="description" content="Professional Chinese language tutoring platform. Practice Mandarin with interactive quizzes, flashcards, and personalized progress tracking.">
-  <meta name="keywords" content="Chinese learning, Mandarin practice, language tutoring, pinyin, HSK preparation">
-  
-  <!-- PWA Configuration -->
-  <meta name="theme-color" content="#4a9d6f">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="中文练习">
-  <meta name="format-detection" content="telephone=no">
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon-192.png">
-  
-  <title>Chinese Learning Platform - Professional Language Tutoring</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn Mandarin Chinese with experienced tutor Pushpavalli, M.Ed. Professional language instruction with 15 years of teaching experience.">
+  <title>Welcome to Your Chinese Learning Space</title>
   <link rel="stylesheet" href="style.css">
-  <script src="auth-client.js"></script>
-  <script>
-    // Redirect non-authenticated users to welcome page
-    if (!AuthService.isAuthenticated()) {
-      window.location.href = 'welcome.html';
+  <style>
+    /* Welcome Page Specific Styles */
+    .welcome-page {
+      min-height: 100vh;
+      background: var(--bg-primary);
     }
-  </script>
+
+    .welcome-header {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+      padding: var(--spacing-md) 0;
+      box-shadow: var(--shadow-md);
+    }
+
+    .welcome-nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 var(--spacing-lg);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .welcome-logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+      letter-spacing: 1px;
+    }
+
+    .welcome-nav-links {
+      display: flex;
+      gap: var(--spacing-md);
+    }
+
+    .welcome-nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-md);
+      transition: all var(--transition-base);
+    }
+
+    .welcome-nav-links a:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Hero Section */
+    .hero-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--spacing-2xl) var(--spacing-lg);
+      text-align: center;
+      animation: fadeInUp 0.8s ease;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-title {
+      font-size: 3rem;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-lg);
+      line-height: 1.2;
+      font-weight: 700;
+    }
+
+    .hero-subtitle {
+      font-size: 1.4rem;
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-xl);
+      line-height: 1.6;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: var(--spacing-md);
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: var(--spacing-xl);
+    }
+
+    .hero-cta .btn {
+      min-width: 180px;
+    }
+
+    /* About Section */
+    .about-section {
+      background: var(--bg-secondary);
+      padding: var(--spacing-2xl) var(--spacing-lg);
+      margin-top: var(--spacing-2xl);
+    }
+
+    .about-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-size: 2.5rem;
+      color: var(--text-primary);
+      text-align: center;
+      margin-bottom: var(--spacing-xl);
+      font-weight: 700;
+    }
+
+    .tutor-profile {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-2xl);
+      box-shadow: var(--shadow-lg);
+      border: 2px solid var(--bg-tertiary);
+    }
+
+    .tutor-header {
+      text-align: center;
+      margin-bottom: var(--spacing-xl);
+      padding-bottom: var(--spacing-lg);
+      border-bottom: 2px solid var(--bg-tertiary);
+    }
+
+    .tutor-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      margin: 0 auto var(--spacing-md);
+      box-shadow: var(--shadow-accent);
+    }
+
+    .tutor-name {
+      font-size: 2rem;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-xs);
+      font-weight: 700;
+    }
+
+    .tutor-credentials {
+      font-size: 1.2rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .tutor-bio {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-xl);
+      text-align: center;
+    }
+
+    .experience-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--spacing-lg);
+      margin-top: var(--spacing-xl);
+    }
+
+    .experience-card {
+      background: var(--bg-secondary);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      border: 2px solid var(--bg-tertiary);
+      transition: all var(--transition-base);
+    }
+
+    .experience-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .experience-icon {
+      font-size: 2.5rem;
+      margin-bottom: var(--spacing-sm);
+      display: block;
+    }
+
+    .experience-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .experience-text {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Features Section */
+    .features-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--spacing-2xl) var(--spacing-lg);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--spacing-lg);
+      margin-top: var(--spacing-xl);
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      padding: var(--spacing-xl);
+      border-radius: var(--radius-lg);
+      border: 2px solid var(--bg-tertiary);
+      text-align: center;
+      transition: all var(--transition-base);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .feature-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .feature-icon {
+      font-size: 3rem;
+      margin-bottom: var(--spacing-md);
+      display: block;
+    }
+
+    .feature-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .feature-description {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Footer */
+    .welcome-footer {
+      background: var(--bg-tertiary);
+      padding: var(--spacing-xl) var(--spacing-lg);
+      text-align: center;
+      color: var(--text-secondary);
+      margin-top: var(--spacing-2xl);
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 2rem;
+      }
+
+      .hero-subtitle {
+        font-size: 1.1rem;
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+      }
+
+      .tutor-name {
+        font-size: 1.6rem;
+      }
+
+      .experience-grid,
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .welcome-nav-links {
+        gap: var(--spacing-sm);
+      }
+
+      .welcome-nav-links a {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
 </head>
-<body>
+<body class="welcome-page">
 
-  <!-- 
-    NAVIGATION BAR
-    Responsive navigation with mobile hamburger menu
-    Auth state determines displayed links (student vs tutor)
-  -->
-  <nav class="navbar" role="navigation" aria-label="Main navigation">
-    <div class="container">
-      <div class="nav-wrapper">
-        <!-- Brand Logo -->
-        <div class="logo" aria-label="Chinese Learning Platform">中文练习</div>
-        
-        <!-- Mobile Menu Toggle -->
-        <button class="mobile-menu-toggle" 
-                onclick="toggleMobileMenu()" 
-                aria-label="Toggle navigation menu"
-                aria-expanded="false"
-                aria-controls="mobileMenu">
-          <span class="menu-icon">☰</span>
-        </button>
-        
-        <!-- Navigation Links -->
-        <ul class="nav-links" id="mobileMenu" role="menubar">
-          <li role="none"><a href="#home" class="nav-link" onclick="closeMobileMenu()" role="menuitem">Home</a></li>
-          <li role="none"><a href="quiz-select.html" class="nav-link" role="menuitem">Quizzes</a></li>
-          <li role="none"><a href="test-select.html" class="nav-link" role="menuitem">Tests</a></li>
-          <li role="none"><a href="flashcard-select.html" class="nav-link" role="menuitem">Flashcards</a></li>
-          <li role="none"><a href="progress.html" class="nav-link" role="menuitem">Progress</a></li>
-          <li role="none"><a href="resources.html" class="nav-link" role="menuitem">Resources</a></li>
-          <li role="none"><a href="writing.html" class="nav-link" role="menuitem">Writing</a></li>
-          
-          <!-- Tutor-only link (conditionally displayed) -->
-          <li id="tutorDashboardLink" style="display: none;" role="none">
-            <a href="tutor-dashboard.html" class="nav-link" role="menuitem">Dashboard</a>
-          </li>
-          
-          <!-- Auth Links (dynamic based on login state) -->
-          <li id="authLinks" role="none">
-            <a href="login.html" class="nav-link" role="menuitem">Login</a>
-          </li>
-        </ul>
-        
-        <!-- Dark Mode Toggle -->
-        <button id="darkModeToggle" 
-                class="dark-mode-toggle" 
-                onclick="DarkMode.toggle()" 
-                aria-label="Toggle dark mode"
-                title="Switch color scheme">
-          🌙
-        </button>
+  <!-- Header Navigation -->
+  <header class="welcome-header">
+    <nav class="welcome-nav">
+      <div class="welcome-logo">中文练习</div>
+      <div class="welcome-nav-links">
+        <a href="#about">About</a>
+        <a href="login.html">Login</a>
+        <a href="signup.html" class="btn btn-primary" style="background: white; color: var(--accent); padding: 0.5rem 1.2rem;">Get Started</a>
       </div>
-    </div>
-  </nav>
+    </nav>
+  </header>
 
-  <!-- 
-    HERO SECTION
-    Clear value proposition for tutor-guided students
-  -->
-  <section class="hero" id="home" role="banner">
-    <div class="container">
-      <div class="hero-content">
-        <h1 class="hero-title">
-          Practice the Chinese your tutor teaches you
-        </h1>
-        
-        <p class="hero-subtitle">
-          Reinforce your lessons with quizzes, flashcards, and writing practice designed to help you remember what you're learning.
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <h1 class="hero-title">Welcome to Your Chinese Learning Space</h1>
+    <p class="hero-subtitle">
+      Build confidence in Mandarin through structured practice and personalized guidance. Whether you're beginning your journey or advancing your skills, you'll find the support and resources you need to succeed.
+    </p>
+    <div class="hero-cta">
+      <a href="signup.html" class="btn btn-primary btn-large">Start Learning Today</a>
+      <a href="#about" class="btn btn-outline btn-large">Meet Your Tutor</a>
+    </div>
+  </section>
+
+  <!-- About the Tutor Section -->
+  <section class="about-section" id="about">
+    <div class="about-container">
+      <h2 class="section-title">About Your Tutor</h2>
+      
+      <div class="tutor-profile">
+        <div class="tutor-header">
+          <div class="tutor-avatar">👩‍🏫</div>
+          <h3 class="tutor-name">Pushpavalli</h3>
+          <p class="tutor-credentials">Master of Education (M.Ed)</p>
+        </div>
+
+        <p class="tutor-bio">
+          With a deep-rooted passion for languages and multilingual education, I bring authentic experience and professional expertise to every lesson. My journey with Mandarin began in primary school, where I completed my education in a Chinese medium school in Malaysia. This foundation has shaped my understanding of both the language and the cultural richness it carries.
         </p>
-        
-        <div class="hero-actions" role="group" aria-label="Get started">
-          <a href="quiz-select.html" class="btn btn-primary btn-large">Start Practice</a>
-          <a href="progress.html" class="btn btn-secondary btn-large">View Progress</a>
+
+        <div style="text-align: center; margin-bottom: var(--spacing-xl); padding: var(--spacing-lg); background: var(--bg-secondary); border-radius: var(--radius-md); border: 2px solid var(--accent);">
+          <p style="font-size: 1rem; color: var(--text-secondary); margin-bottom: var(--spacing-xs);">Get in touch for personalized lessons</p>
+          <a href="tel:+601126271077" style="font-size: 1.3rem; font-weight: 600; color: var(--accent); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 1.5rem;">📞</span>
+            +6011-26271077
+          </a>
+        </div>
+
+        <div class="experience-grid">
+          <div class="experience-card">
+            <span class="experience-icon">🎓</span>
+            <h4 class="experience-title">Academic Background</h4>
+            <p class="experience-text">Master of Education (M.Ed) degree with specialized focus on language instruction and pedagogical methods</p>
+          </div>
+
+          <div class="experience-card">
+            <span class="experience-icon">🏫</span>
+            <h4 class="experience-title">Early Foundation</h4>
+            <p class="experience-text">Completed primary schooling in a Chinese medium school in Malaysia, developing strong Mandarin skills from an early age</p>
+          </div>
+
+          <div class="experience-card">
+            <span class="experience-icon">📚</span>
+            <h4 class="experience-title">15 Years Experience</h4>
+            <p class="experience-text">Extensive teaching experience across diverse learning environments, working with students of all ages and skill levels</p>
+          </div>
+
+          <div class="experience-card">
+            <span class="experience-icon">🌏</span>
+            <h4 class="experience-title">Multilingual Expertise</h4>
+            <p class="experience-text">Passionate about languages and multilingual learning, bringing cultural context and authentic communication to lessons</p>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 
-    LEARNING PATH
-    Visual progression through Mandarin levels
-  -->
-  <section class="learning-path" id="levels">
-    <div class="container">
-      <div class="section-header">
-        <h2 class="section-title">Your Learning Journey</h2>
-        <p class="section-subtitle">
-          Start at your level and work your way up
-        </p>
+  <!-- Learning Features Section -->
+  <section class="features-section">
+    <h2 class="section-title">How You'll Learn</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feature-icon">📝</span>
+        <h3 class="feature-title">Interactive Quizzes</h3>
+        <p class="feature-description">Test your understanding with carefully designed quizzes that reinforce what you've learned in class</p>
       </div>
-      
-      <div class="path-grid">
-        <!-- Newbie Level -->
-        <article class="level-card level-newbie">
-          <div class="level-badge">
-            <span class="level-number">1</span>
-          </div>
-          <h3 class="level-title">Newbie</h3>
-          <p class="level-description">
-            Basic greetings, numbers, and everyday phrases
-          </p>
-          <div class="level-stats">
-            <span class="stat">87 flashcards</span>
-          </div>
-          <a href="quiz-select.html?level=newbie" class="level-link">Practice →</a>
-        </article>
 
-        <!-- Level 1 -->
-        <article class="level-card level-beginner">
-          <div class="level-badge">
-            <span class="level-number">2</span>
-          </div>
-          <h3 class="level-title">Level 1</h3>
-          <p class="level-description">
-            Family, time, daily activities, and simple conversations
-          </p>
-          <div class="level-stats">
-            <span class="stat">475 flashcards</span>
-            <span class="stat">3 categories</span>
-          </div>
-          <a href="quiz-select.html?level=level1" class="level-link">Practice →</a>
-        </article>
-
-        <!-- Level 2 -->
-        <article class="level-card level-intermediate">
-          <div class="level-badge">
-            <span class="level-number">3</span>
-          </div>
-          <h3 class="level-title">Level 2</h3>
-          <p class="level-description">
-            More complex sentences and character reading
-          </p>
-          <div class="level-stats">
-            <span class="stat">7 flashcards</span>
-          </div>
-          <a href="quiz-select.html?level=level2" class="level-link">Practice →</a>
-        </article>
-
-        <!-- Level 3 -->
-        <article class="level-card level-advanced">
-          <div class="level-badge">
-            <span class="level-number">4</span>
-          </div>
-          <h3 class="level-title">Level 3</h3>
-          <p class="level-description">
-            Coming soon - Advanced expressions and idioms
-          </p>
-          <div class="level-stats">
-            <span class="stat-locked">🔒 Locked</span>
-          </div>
-        </article>
+      <div class="feature-card">
+        <span class="feature-icon">🎴</span>
+        <h3 class="feature-title">Digital Flashcards</h3>
+        <p class="feature-description">Review vocabulary and characters at your own pace with smart flashcard exercises</p>
       </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">✍️</span>
+        <h3 class="feature-title">Writing Practice</h3>
+        <p class="feature-description">Develop your character writing skills with guided exercises and immediate feedback</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">📊</span>
+        <h3 class="feature-title">Progress Tracking</h3>
+        <p class="feature-description">Monitor your improvement over time and identify areas where you need more practice</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">🎯</span>
+        <h3 class="feature-title">Structured Levels</h3>
+        <p class="feature-description">Learn at your own pace through clearly defined levels, from beginner to advanced</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="feature-icon">💡</span>
+        <h3 class="feature-title">Personalized Support</h3>
+        <p class="feature-description">Receive guidance tailored to your learning style and goals</p>
+      </div>
+    </div>
+
+    <div class="hero-cta" style="margin-top: var(--spacing-2xl);">
+      <a href="signup.html" class="btn btn-primary btn-large">Begin Your Journey</a>
+      <a href="login.html" class="btn btn-secondary btn-large">Student Login</a>
     </div>
   </section>
 
-  <!-- 
-    PRACTICE TOOLS
-    Three main ways to practice
-  -->
-  <section class="tools-section" id="practice">
-    <div class="container">
-      <div class="section-header">
-        <h2 class="section-title">Three Ways to Practice</h2>
-      </div>
-      
-      <div class="tools-grid">
-        <article class="tool-card">
-          <div class="tool-icon">📝</div>
-          <h3>Quizzes</h3>
-          <p>Test yourself with multiple choice questions</p>
-          <a href="quiz-select.html" class="tool-link">Start Quiz →</a>
-        </article>
-        
-        <article class="tool-card">
-          <div class="tool-icon">🎴</div>
-          <h3>Flashcards</h3>
-          <p>Review vocabulary at your own pace</p>
-          <a href="flashcard-select.html" class="tool-link">Browse Cards →</a>
-        </article>
-        
-        <article class="tool-card">
-          <div class="tool-icon">✍️</div>
-          <h3>Writing</h3>
-          <p>Practice character stroke order</p>
-          <a href="writing.html" class="tool-link">Start Writing →</a>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- 
-    FOOTER
-  -->
-  <footer class="footer" role="contentinfo">
-    <div class="container">
-      <div class="footer-content">
-        <p class="footer-text">
-          中文练习 - Practice companion for Chinese language students
-        </p>
-        <p class="footer-copyright">
-          &copy; 2026 Chinese Learning Platform
-        </p>
-      </div>
-    </div>
+  <!-- Footer -->
+  <footer class="welcome-footer">
+    <p>&copy; 2026 Chinese Learning Platform. All rights reserved.</p>
+    <p style="margin-top: var(--spacing-sm); font-size: 0.9rem;">Professional Mandarin instruction with Pushpavalli, M.Ed</p>
   </footer>
 
-  <!-- 
-    SCRIPTS
-    Load order: Quiz logic → Auth → Progress API → App core
-  -->
-  <script src="quizzes.js"></script>
   <script src="auth-client.js"></script>
-  <script src="progress-api.js"></script>
   <script>
-    // ============================================
-    // MOBILE NAVIGATION
-    // ============================================
-    
-    function toggleMobileMenu() {
-      const menu = document.getElementById('mobileMenu');
-      const toggle = document.querySelector('.mobile-menu-toggle');
-      const isExpanded = menu.classList.toggle('active');
-      toggle.setAttribute('aria-expanded', isExpanded);
+    // Redirect if already logged in
+    if (AuthService.isAuthenticated()) {
+      window.location.href = 'home.html';
     }
-    
-    function closeMobileMenu() {
-      const menu = document.getElementById('mobileMenu');
-      const toggle = document.querySelector('.mobile-menu-toggle');
-      menu.classList.remove('active');
-      toggle.setAttribute('aria-expanded', 'false');
-    }
-    
-    document.addEventListener('click', function(event) {
-      const menu = document.getElementById('mobileMenu');
-      const toggle = document.querySelector('.mobile-menu-toggle');
-      if (menu && !menu.contains(event.target) && !toggle.contains(event.target)) {
-        closeMobileMenu();
-      }
-    });
 
-    // ============================================
-    // AUTHENTICATION STATE (for nav only)
-    // ============================================
-    
-    function updateNavigation() {
-      const authLinks = document.getElementById('authLinks');
-      const tutorLink = document.getElementById('tutorDashboardLink');
-      
-      if (AuthAPI.isAuthenticated()) {
-        const user = AuthAPI.getCurrentUser();
-        authLinks.innerHTML = `
-          <span class="nav-link" style="color: var(--accent); font-weight: 600;">${user.name}</span> | 
-          <a href="#" onclick="AuthAPI.logout(); return false;" class="nav-link">Logout</a>
-        `;
-        if (user.role === 'tutor' && tutorLink) {
-          tutorLink.style.display = 'block';
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-      } else {
-        authLinks.innerHTML = '<a href="login.html" class="nav-link">Login</a> | <a href="signup.html" class="nav-link">Sign Up</a>';
-        if (tutorLink) tutorLink.style.display = 'none';
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', updateNavigation);
+      });
+    });
   </script>
-  <script src="app.js"></script>
+
 </body>
 </html>
