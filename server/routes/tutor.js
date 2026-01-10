@@ -5,6 +5,121 @@ const Progress = require('../models/Progress');
 const { protect, authorize } = require('../middleware/auth');
 
 /**
+ * @route   GET /api/tutor/pending-students
+ * @desc    Get all students pending approval
+ * @access  Private (Tutor only)
+ */
+router.get('/pending-students', protect, authorize('tutor'), async (req, res) => {
+  try {
+    const pendingStudents = await User.find({ role: 'student', status: 'pending' })
+      .select('name email createdAt')
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      count: pendingStudents.length,
+      data: pendingStudents
+    });
+  } catch (error) {
+    console.error('Get pending students error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error fetching pending students' 
+    });
+  }
+});
+
+/**
+ * @route   PUT /api/tutor/approve-student/:studentId
+ * @desc    Approve a pending student
+ * @access  Private (Tutor only)
+ */
+router.put('/approve-student/:studentId', protect, authorize('tutor'), async (req, res) => {
+  try {
+    const student = await User.findById(req.params.studentId);
+    
+    if (!student) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Student not found' 
+      });
+    }
+
+    if (student.role !== 'student') {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'User is not a student' 
+      });
+    }
+
+    student.status = 'active';
+    await student.save();
+
+    res.json({
+      success: true,
+      message: 'Student approved successfully',
+      data: {
+        id: student._id,
+        name: student.name,
+        email: student.email,
+        status: student.status
+      }
+    });
+  } catch (error) {
+    console.error('Approve student error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error approving student' 
+    });
+  }
+});
+
+/**
+ * @route   PUT /api/tutor/reject-student/:studentId
+ * @desc    Reject a pending student
+ * @access  Private (Tutor only)
+ */
+router.put('/reject-student/:studentId', protect, authorize('tutor'), async (req, res) => {
+  try {
+    const student = await User.findById(req.params.studentId);
+    
+    if (!student) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Student not found' 
+      });
+    }
+
+    if (student.role !== 'student') {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'User is not a student' 
+      });
+    }
+
+    student.status = 'rejected';
+    await student.save();
+
+    res.json({
+      success: true,
+      message: 'Student rejected',
+      data: {
+        id: student._id,
+        name: student.name,
+        email: student.email,
+        status: student.status
+      }
+    });
+  } catch (error) {
+    console.error('Reject student error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error rejecting student' 
+    });
+  }
+});
+
+/**
  * @route   GET /api/tutor/students
  * @desc    Get all students with basic info
  * @access  Private (Tutor only)
@@ -12,7 +127,7 @@ const { protect, authorize } = require('../middleware/auth');
 router.get('/students', protect, authorize('tutor'), async (req, res) => {
   try {
     const students = await User.find({ role: 'student' })
-      .select('name email createdAt lastActive')
+      .select('name email createdAt lastActive status')
       .sort({ lastActive: -1 });
 
     // Get progress count for each student
@@ -320,8 +435,7 @@ router.delete('/students/:studentId', protect, authorize('tutor'), async (req, r
     console.error('Delete student error:', error);
     res.status(500).json({ 
       success: false, 
-      message: 'Error deleting student',
-      error: error.message || error.toString()
+      message: 'Error deleting student' 
     });
   }
 });

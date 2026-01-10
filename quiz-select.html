@@ -90,29 +90,36 @@
           </div>
         </div>
 
-        <!-- Step 2: Category Selection (for Level 1 & 2) -->
+
+        <!-- Step 2: Category Selection (for Level 1 only) -->
         <div class="selection-step" id="categoryStep" style="display: none;">
           <h3 class="step-title">
             <span class="step-number">2</span>
             Choose Category
           </h3>
-          
           <div class="category-selection-grid">
             <div class="selection-card category-card" onclick="selectCategory('text')" data-category="text">
               <div class="card-icon">📖</div>
               <h4 class="card-title">Text</h4>
             </div>
-
             <div class="selection-card category-card" onclick="selectCategory('hanyupinyin')" data-category="hanyupinyin">
               <div class="card-icon">🔤</div>
               <h4 class="card-title">Hanyu Pinyin</h4>
             </div>
-
             <div class="selection-card category-card" onclick="selectCategory('extravocab')" data-category="extravocab">
               <div class="card-icon">📚</div>
               <h4 class="card-title">Extra Vocab</h4>
             </div>
           </div>
+        </div>
+
+        <!-- Step 3: Subcategory Selection (for Newbie and Level 1) -->
+        <div class="selection-step" id="subcategoryStep" style="display: none;">
+          <h3 class="step-title">
+            <span class="step-number">3</span>
+            Choose Subcategory
+          </h3>
+          <div class="subcategory-selection-grid" id="subcategoryGrid"></div>
         </div>
 
         <!-- Status Message -->
@@ -135,32 +142,58 @@
   </footer>
 
   <script>
+
     let selectedLanguage = 'mandarin'; // Auto-select Mandarin since it's the only option
     let selectedLevel = null;
     let selectedCategory = null;
+    let selectedSubcategory = null;
 
     function selectLevel(level) {
       selectedLevel = level;
-      selectedCategory = null; // Reset category when level changes
-      
-      // Show category selection for level1 and level2
+      selectedCategory = null;
+      selectedSubcategory = null;
       const categoryStep = document.getElementById('categoryStep');
-      
-      if (level === 'level1' || level === 'level2') {
+      const subcategoryStep = document.getElementById('subcategoryStep');
+      // Show category step for level1 only
+      if (level === 'level1') {
         categoryStep.style.display = 'block';
-        // Scroll to category section
+        subcategoryStep.style.display = 'none';
         setTimeout(() => {
           categoryStep.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }, 100);
+      } else if (level === 'newbie') {
+        categoryStep.style.display = 'none';
+        subcategoryStep.style.display = 'block';
+        renderSubcategories();
+        setTimeout(() => {
+          subcategoryStep.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
       } else {
         categoryStep.style.display = 'none';
+        subcategoryStep.style.display = 'none';
       }
-      
       updateUI();
     }
 
     function selectCategory(category) {
       selectedCategory = category;
+      selectedSubcategory = null;
+      const subcategoryStep = document.getElementById('subcategoryStep');
+      if (selectedLevel === 'level1') {
+        subcategoryStep.style.display = 'block';
+        renderSubcategories();
+        setTimeout(() => {
+          subcategoryStep.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+      } else {
+        subcategoryStep.style.display = 'none';
+      }
+      updateUI();
+    }
+
+    function selectSubcategory(subcat, disabled) {
+      if (disabled) return;
+      selectedSubcategory = subcat;
       updateUI();
     }
 
@@ -180,20 +213,26 @@
         const level = card.getAttribute('data-level');
         card.classList.toggle('selected', level === selectedLevel);
       });
-      
       // Update selected states for category cards
       document.querySelectorAll('.selection-card[data-category]').forEach(card => {
         const category = card.getAttribute('data-category');
         card.classList.toggle('selected', category === selectedCategory);
       });
-      
+      // Update selected states for subcategory cards
+      document.querySelectorAll('.subcategory-card').forEach(card => {
+        const subcat = card.getAttribute('data-subcategory');
+        card.classList.toggle('selected', subcat === selectedSubcategory);
+      });
       // Enable/disable proceed button
-      if (selectedLevel === 'level1' || selectedLevel === 'level2') {
-        document.getElementById('proceedBtn').disabled = !(selectedLevel && selectedCategory);
+      let enableProceed = false;
+      if (selectedLevel === 'newbie') {
+        enableProceed = !!selectedSubcategory;
+      } else if (selectedLevel === 'level1') {
+        enableProceed = !!(selectedCategory && selectedSubcategory);
       } else {
-        document.getElementById('proceedBtn').disabled = !selectedLevel;
+        enableProceed = !!selectedLevel;
       }
-      
+      document.getElementById('proceedBtn').disabled = !enableProceed;
       // Update status message
       const statusMsg = document.getElementById('statusMessage');
       if (selectedLevel) {
@@ -212,6 +251,9 @@
         if (selectedCategory) {
           message += ` - ${categoryNames[selectedCategory]}`;
         }
+        if (selectedSubcategory) {
+          message += ` - ${capitalize(selectedSubcategory)}`;
+        }
         statusMsg.innerHTML = message;
         statusMsg.className = 'selection-status active';
       } else {
@@ -220,11 +262,43 @@
       }
     }
 
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function renderSubcategories() {
+      const grid = document.getElementById('subcategoryGrid');
+      grid.innerHTML = '';
+      let subcats = [];
+      let enabled = {};
+      if (selectedLevel === 'newbie') {
+        subcats = ['novice', 'rookie'];
+        // Only enable if vocab exists (hardcoded for now)
+        enabled = { novice: true, rookie: true };
+      } else if (selectedLevel === 'level1') {
+        subcats = ['novice', 'apprentice', 'adept', 'virtuoso', 'maestro'];
+        // Only enable if vocab exists (hardcoded for now)
+        enabled = { novice: true, apprentice: true, adept: true, virtuoso: false, maestro: false };
+      }
+      subcats.forEach(subcat => {
+        const isEnabled = enabled[subcat];
+        const card = document.createElement('div');
+        card.className = 'subcategory-card selection-card' + (isEnabled ? '' : ' locked');
+        card.setAttribute('data-subcategory', subcat);
+        card.onclick = () => selectSubcategory(subcat, !isEnabled);
+        card.innerHTML = `<div class="card-icon">🎯</div><h4 class="card-title">${capitalize(subcat)}</h4>` + (!isEnabled ? '<div class="lock-overlay"><div class="lock-icon">🔒</div></div>' : '');
+        grid.appendChild(card);
+      });
+    }
+
     function proceedToQuiz() {
       if (selectedLanguage && selectedLevel) {
         let url = `quizzes.html?language=${selectedLanguage}&level=${selectedLevel}`;
         if (selectedCategory) {
           url += `&category=${selectedCategory}`;
+        }
+        if (selectedSubcategory) {
+          url += `&subcategory=${selectedSubcategory}`;
         }
         window.location.href = url;
       }

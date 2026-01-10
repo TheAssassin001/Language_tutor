@@ -175,6 +175,94 @@
     .empty-state h3 {
       margin: 20px 0;
     }
+    .pending-approvals {
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 40px;
+    }
+    .pending-approvals h2 {
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .pending-badge {
+      background: #ff6b6b;
+      color: white;
+      font-size: 0.9rem;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 700;
+    }
+    .pending-list {
+      display: grid;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .pending-card {
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+    }
+    .pending-info {
+      flex: 1;
+    }
+    .pending-info h4 {
+      margin: 0 0 5px 0;
+      color: var(--primary);
+    }
+    .pending-info p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    .pending-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-approve {
+      background: #27ae60;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .btn-approve:hover {
+      background: #229954;
+    }
+    .btn-reject {
+      background: #e74c3c;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .btn-reject:hover {
+      background: #c0392b;
+    }
+    @media (max-width: 768px) {
+      .pending-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .pending-actions {
+        width: 100%;
+      }
+      .btn-approve, .btn-reject {
+        flex: 1;
+      }
+    }
   </style>
 </head>
 <body>
@@ -207,6 +295,9 @@
   <section class="dashboard-container">
     <div class="container">
       
+      <!-- Pending Approvals -->
+      <div id="pendingApprovalsSection"></div>
+
       <!-- Overall Analytics -->
       <h2>Overall Analytics</h2>
       <div class="stats-grid" id="analyticsStats">
@@ -253,9 +344,117 @@
       }
 
       await Promise.all([
+        loadPendingApprovals(),
         loadAnalytics(),
         loadStudents()
       ]);
+    }
+
+    async function loadPendingApprovals() {
+      try {
+        const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://language-tutor-efn5.onrender.com/api';
+        
+        const response = await fetch(`${API_URL}/tutor/pending-students`, {
+          headers: AuthService.getAuthHeaders()
+        });
+        
+        const data = await response.json();
+        console.log('Pending students:', data);
+
+        if (data.success && data.data && data.data.length > 0) {
+          const html = `
+            <div class="pending-approvals">
+              <h2>
+                ⏳ Pending Approvals 
+                <span class="pending-badge">${data.data.length}</span>
+              </h2>
+              <p style="margin: 10px 0; color: #856404;">New students waiting for your approval to access the platform</p>
+              <div class="pending-list">
+                ${data.data.map(student => `
+                  <div class="pending-card">
+                    <div class="pending-info">
+                      <h4>${student.name}</h4>
+                      <p>${student.email}</p>
+                      <p style="font-size: 0.85rem; margin-top: 5px;">
+                        Registered: ${new Date(student.createdAt).toLocaleDateString()} at ${new Date(student.createdAt).toLocaleTimeString()}
+                      </p>
+                    </div>
+                    <div class="pending-actions">
+                      <button class="btn-approve" onclick="approveStudent('${student._id}', '${student.name}')">
+                        ✓ Approve
+                      </button>
+                      <button class="btn-reject" onclick="rejectStudent('${student._id}', '${student.name}')">
+                        ✗ Reject
+                      </button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+          document.getElementById('pendingApprovalsSection').innerHTML = html;
+        } else {
+          // No pending approvals - show nothing or a minimal message
+          document.getElementById('pendingApprovalsSection').innerHTML = '';
+        }
+      } catch (error) {
+        console.error('Error loading pending approvals:', error);
+        document.getElementById('pendingApprovalsSection').innerHTML = '';
+      }
+    }
+
+    async function approveStudent(studentId, studentName) {
+      if (!confirm(`Approve ${studentName}?\n\nThis will allow them to access the platform and start learning.`)) {
+        return;
+      }
+
+      try {
+        const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://language-tutor-efn5.onrender.com/api';
+        
+        const response = await fetch(`${API_URL}/tutor/approve-student/${studentId}`, {
+          method: 'PUT',
+          headers: AuthService.getAuthHeaders()
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alert(`✅ ${studentName} has been approved!\n\nThey can now log in and access the platform.`);
+          loadDashboard(); // Refresh the dashboard
+        } else {
+          alert(`❌ Failed to approve student: ${data.message}`);
+        }
+      } catch (error) {
+        console.error('Error approving student:', error);
+        alert(`❌ Error: ${error.message}`);
+      }
+    }
+
+    async function rejectStudent(studentId, studentName) {
+      if (!confirm(`Reject ${studentName}?\n\nThey will not be able to access the platform and will see an error message when trying to log in.`)) {
+        return;
+      }
+
+      try {
+        const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://language-tutor-efn5.onrender.com/api';
+        
+        const response = await fetch(`${API_URL}/tutor/reject-student/${studentId}`, {
+          method: 'PUT',
+          headers: AuthService.getAuthHeaders()
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alert(`❌ ${studentName} has been rejected.\n\nThey will see an error message when trying to log in.`);
+          loadDashboard(); // Refresh the dashboard
+        } else {
+          alert(`❌ Failed to reject student: ${data.message}`);
+        }
+      } catch (error) {
+        console.error('Error rejecting student:', error);
+        alert(`❌ Error: ${error.message}`);
+      }
     }
 
     async function loadAnalytics() {
@@ -396,10 +595,10 @@
             </p>
 
             <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-              <button class="btn" style="background: #e67e22; color: white;" onclick="resetStudentProgress('${student.id}', '${student.name}')">
+              <button class="btn" style="background: #e67e22; color: white;" onclick="resetStudentProgress('${student._id}', '${student.name}')">
                 🔄 Reset Progress
               </button>
-              <button class="btn" style="background: #e74c3c; color: white;" onclick="deleteStudent('${student.id}', '${student.name}')">
+              <button class="btn" style="background: #e74c3c; color: white;" onclick="deleteStudent('${student._id}', '${student.name}')">
                 🗑️ Delete Student
               </button>
             </div>
@@ -538,9 +737,7 @@
           closeModal();
           loadDashboard(); // Refresh the dashboard
         } else {
-          let errorMsg = `❌ Failed to delete student: ${data.message}`;
-          if (data.error) errorMsg += `\nDetails: ${data.error}`;
-          alert(errorMsg);
+          alert(`❌ Failed to delete student: ${data.message}`);
         }
       } catch (error) {
         console.error('Error deleting student:', error);

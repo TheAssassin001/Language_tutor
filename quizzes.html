@@ -77,6 +77,7 @@
     let currentLanguage = '';
     let currentLevel = '';
     let currentCategory = '';
+    let currentSubcategory = '';
     let quizAnswers = {}; // Track which quizzes were answered correctly
     let startTime = Date.now();
 
@@ -101,7 +102,7 @@
       currentLanguage = params.get('language');
       currentLevel = params.get('level');
       currentCategory = params.get('category') || '';
-      
+      currentSubcategory = params.get('subcategory') || '';
       if (currentLanguage && currentLevel) {
         loadQuiz(currentLanguage, currentLevel);
       } else {
@@ -128,26 +129,26 @@
     }
 
     // Auto-generate quiz questions from FlashcardData
-    function generateQuizQuestions(level, category = null) {
+    function generateQuizQuestions(level, category = null, subcategory = null) {
       let flashcards = [];
-      
-      // Get flashcards based on level and category
+      // Get flashcards based on level, category, and subcategory
       if (level === 'newbie') {
-        flashcards = FlashcardData.mandarin.newbie || [];
-      } else if (level === 'level1' && category) {
-        flashcards = FlashcardData.mandarin.level1?.[category] || [];
+        if (subcategory && FlashcardData.mandarin.newbie[subcategory]) {
+          flashcards = FlashcardData.mandarin.newbie[subcategory];
+        }
+      } else if (level === 'level1' && category && subcategory) {
+        if (FlashcardData.mandarin.level1[category] && FlashcardData.mandarin.level1[category][subcategory]) {
+          flashcards = FlashcardData.mandarin.level1[category][subcategory];
+        }
       } else if (level === 'level2' && category) {
         flashcards = FlashcardData.mandarin.level2?.[category] || [];
       }
-      
-      if (flashcards.length === 0) {
+      if (!Array.isArray(flashcards) || flashcards.length === 0) {
         return [];
       }
-      
       // Shuffle flashcards and select exactly 10 for quiz
       const numQuestions = Math.min(10, flashcards.length);
       const selectedCards = shuffleArray(flashcards).slice(0, numQuestions);
-      
       // Generate questions
       const questions = selectedCards.map((card, index) => {
         // Get wrong answer options from other flashcards
@@ -155,13 +156,10 @@
         const wrongAnswers = shuffleArray(otherCards)
           .slice(0, 3)
           .map(c => ({ text: c.back, correct: false }));
-        
         // Add correct answer
         const correctAnswer = { text: card.back, correct: true };
-        
         // Shuffle all options
         const allOptions = shuffleArray([correctAnswer, ...wrongAnswers]).slice(0, 4);
-        
         return {
           id: index + 1,
           pinyin: card.front,
@@ -170,24 +168,24 @@
           options: allOptions
         };
       });
-      
       return questions;
     }
 
     // Generate quizData on-the-fly
-    function getQuizData(level, category = null) {
+    function getQuizData(level, category = null, subcategory = null) {
       if (level === 'newbie') {
-        return generateQuizQuestions('newbie');
-      } else if ((level === 'level1' || level === 'level2') && category) {
-        return generateQuizQuestions(level, category);
+        return generateQuizQuestions('newbie', null, currentSubcategory);
+      } else if (level === 'level1' && category && subcategory) {
+        return generateQuizQuestions('level1', category, subcategory);
+      } else if (level === 'level2' && category) {
+        return generateQuizQuestions('level2', category);
       }
       return [];
     }
 
     function loadQuiz(language, level) {
       // Auto-generate quiz questions from FlashcardData
-      let quizzes = getQuizData(level, currentCategory);
-      
+      let quizzes = getQuizData(level, currentCategory, currentSubcategory);
       const levelNames = {
         'newbie': 'Newbie',
         'level1': 'Level 1',
@@ -203,14 +201,23 @@
         'hanyupinyin': 'Hanyu Pinyin',
         'extravocab': 'Extra Vocab'
       };
-      
+      const subcategoryNames = {
+        'novice': 'Novice',
+        'rookie': 'Rookie',
+        'apprentice': 'Apprentice',
+        'adept': 'Adept',
+        'virtuoso': 'Virtuoso',
+        'maestro': 'Maestro'
+      };
       const levelName = levelNames[level] || level;
       let subtitleText = `${language.charAt(0).toUpperCase() + language.slice(1)} - ${levelName}`;
       if (currentCategory) {
         subtitleText += ` - ${categoryNames[currentCategory]}`;
       }
+      if (currentSubcategory) {
+        subtitleText += ` - ${subcategoryNames[currentSubcategory] || currentSubcategory}`;
+      }
       document.getElementById('subtitle').textContent = subtitleText;
-      
       if (quizzes.length === 0) {
         document.getElementById('quizContainer').innerHTML = '<p>No quizzes available for this selection yet. More content coming soon! <a href="quiz-select.html">Try another selection</a></p>';
         return;
