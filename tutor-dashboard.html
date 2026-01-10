@@ -396,10 +396,10 @@
             </p>
 
             <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-              <button class="btn" style="background: #e67e22; color: white;" onclick="resetStudentProgress('${student._id}', '${student.name}')">
+              <button class="btn" style="background: #e67e22; color: white;" onclick="resetStudentProgress('${student.id}', '${student.name}')">
                 🔄 Reset Progress
               </button>
-              <button class="btn" style="background: #e74c3c; color: white;" onclick="deleteStudent('${student._id}', '${student.name}')">
+              <button class="btn" style="background: #e74c3c; color: white;" onclick="deleteStudent('${student.id}', '${student.name}')">
                 🗑️ Delete Student
               </button>
             </div>
@@ -538,7 +538,9 @@
           closeModal();
           loadDashboard(); // Refresh the dashboard
         } else {
-          alert(`❌ Failed to delete student: ${data.message}`);
+          let errorMsg = `❌ Failed to delete student: ${data.message}`;
+          if (data.error) errorMsg += `\nDetails: ${data.error}`;
+          alert(errorMsg);
         }
       } catch (error) {
         console.error('Error deleting student:', error);
