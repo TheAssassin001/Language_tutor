@@ -435,7 +435,8 @@ router.delete('/students/:studentId', protect, authorize('tutor'), async (req, r
     console.error('Delete student error:', error);
     res.status(500).json({ 
       success: false, 
-      message: 'Error deleting student' 
+      message: 'Error deleting student',
+      error: error.message
     });
   }
 });

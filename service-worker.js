@@ -1,6 +1,5 @@
-<<<<<<< HEAD
 // Service Worker for Chinese Language Tutor PWA
-const CACHE_NAME = 'chinese-tutor-v2';
+const CACHE_NAME = 'chinese-tutor-v3';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -26,6 +25,8 @@ self.addEventListener('install', event => {
         console.log('Cache installation failed:', err);
       })
   );
+  // Activate new service worker immediately
+  self.skipWaiting();
 });
 
 // Fetch from cache or network
@@ -50,10 +51,13 @@ self.addEventListener('fetch', event => {
           // Clone the response
           const responseToCache = response.clone();
           
-          caches.open(CACHE_NAME)
-            .then(cache => {
-              cache.put(event.request, responseToCache);
-            });
+          // Only cache http(s) requests
+          if (event.request.url.startsWith('http://') || event.request.url.startsWith('https://')) {
+            caches.open(CACHE_NAME)
+              .then(cache => {
+                cache.put(event.request, responseToCache);
+              });
+          }
           
           return response;
         });
@@ -73,84 +77,9 @@ self.addEventListener('activate', event => {
           }
         })
       );
+    }).then(() => {
+      // Take control of uncontrolled clients as soon as the new SW activates
+      return self.clients.claim();
     })
   );
 });
-=======
-// Service Worker for Chinese Language Tutor PWA
-const CACHE_NAME = 'chinese-tutor-v1';
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/app.js',
-  '/quizzes.html',
-  '/flashcards.html',
-  '/progress.html',
-  '/login.html',
-  '/signup.html'
-];
-
-// Install service worker
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
-      .catch(err => {
-        console.log('Cache installation failed:', err);
-      })
-  );
-});
-
-// Fetch from cache or network
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
-        
-        // Clone the request
-        const fetchRequest = event.request.clone();
-        
-        return fetch(fetchRequest).then(response => {
-          // Check if valid response
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-          
-          // Clone the response
-          const responseToCache = response.clone();
-          
-          caches.open(CACHE_NAME)
-            .then(cache => {
-              cache.put(event.request, responseToCache);
-            });
-          
-          return response;
-        });
-      })
-  );
-});
-
-// Update service worker
-self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
-  );
-});
->>>>>>> 7f8e90cd5e3d9ecba73f14ac7b3f11a53cca94aa

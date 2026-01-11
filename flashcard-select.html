@@ -21,11 +21,12 @@
           <li><a href="quiz-select.html" class="nav-link">Quizzes</a></li>
           <li><a href="test-select.html" class="nav-link">Tests</a></li>
           <li><a href="flashcard-select.html" class="nav-link">Flashcards</a></li>
-          <li><a href="progress.html" class="nav-link">Progress</a></li>
+          <!-- Progress link removed -->
           <li><a href="resources.html" class="nav-link">Resources</a></li>
           <li><a href="writing.html" class="nav-link">Writing Practice</a></li>
         </ul>
         <button id="darkModeToggle" class="dark-mode-toggle" onclick="DarkMode.toggle()" aria-label="Toggle dark mode">🌙</button>
+        <!-- Install button removed -->
       </div>
     </div>
   </nav>
@@ -120,6 +121,17 @@
           </div>
         </div>
 
+        <!-- Step 2.1: Sublevel Selection (for categories that have novice/apprentice/etc.) -->
+        <div class="selection-step" id="sublevelStep" style="display: none;">
+          <h3 class="step-title">
+            <span class="step-number">2.1</span>
+            Choose Sublevel
+          </h3>
+          <div class="sublevel-selection-grid" id="sublevelGrid">
+            <!-- dynamically filled -->
+          </div>
+        </div>
+
         <!-- Status Message -->
         <div class="selection-status" id="statusMessage"></div>
 
@@ -144,10 +156,12 @@
     let selectedLanguage = 'mandarin'; // Auto-select Mandarin since it's the only option
     let selectedLevel = null;
     let selectedCategory = null;
+    let selectedSublevel = null;
 
     function selectLevel(level) {
       selectedLevel = level;
       selectedCategory = null; // Reset category when level changes
+      selectedSublevel = null;
       
       // Show category selection for level1 and level2
       const categoryStep = document.getElementById('categoryStep');
@@ -162,11 +176,14 @@
         categoryStep.style.display = 'none';
       }
       
+      updateSublevelOptions();
       updateUI();
     }
 
     function selectCategory(category) {
       selectedCategory = category;
+      selectedSublevel = null;
+      updateSublevelOptions();
       updateUI();
     }
 
@@ -178,6 +195,37 @@
         statusMsg.innerHTML = '';
         statusMsg.className = 'selection-status';
       }, 3000);
+    }
+
+    function updateSublevelOptions() {
+      const sublevelStep = document.getElementById('sublevelStep');
+      const sublevelGrid = document.getElementById('sublevelGrid');
+      sublevelGrid.innerHTML = '';
+      selectedSublevel = null;
+
+      const levelData = FlashcardData[selectedLanguage]?.[selectedLevel];
+      const catData = levelData?.[selectedCategory];
+
+      // If the chosen category contains nested sublevels (novice, apprentice etc.), show them
+      if (catData && typeof catData === 'object' && !Array.isArray(catData)) {
+        sublevelStep.style.display = 'block';
+        Object.keys(catData).forEach(sl => {
+          const div = document.createElement('div');
+          div.className = 'selection-card sublevel-card';
+          div.setAttribute('data-sublevel', sl);
+          div.onclick = () => selectSublevel(sl);
+          div.innerHTML = `<div class="card-icon">🔹</div><h4 class="card-title">${sl.charAt(0).toUpperCase()+sl.slice(1)}</h4>`;
+          sublevelGrid.appendChild(div);
+        });
+        setTimeout(() => sublevelStep.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+      } else {
+        sublevelStep.style.display = 'none';
+      }
+    }
+
+    function selectSublevel(sublevel) {
+      selectedSublevel = sublevel;
+      updateUI();
     }
 
     function updateUI() {
@@ -192,11 +240,22 @@
         const category = card.getAttribute('data-category');
         card.classList.toggle('selected', category === selectedCategory);
       });
+
+      // Update selected states for sublevel cards
+      document.querySelectorAll('.selection-card[data-sublevel]').forEach(card => {
+        const sub = card.getAttribute('data-sublevel');
+        card.classList.toggle('selected', sub === selectedSublevel);
+      });
       
       // Enable/disable proceed button
       const proceedBtn = document.getElementById('proceedBtn');
       if (selectedLevel === 'level1' || selectedLevel === 'level2') {
-        proceedBtn.disabled = !(selectedLevel && selectedCategory);
+        const levelData = FlashcardData[selectedLanguage]?.[selectedLevel];
+        let sublevelRequired = false;
+        if (selectedCategory && levelData && typeof levelData[selectedCategory] === 'object' && !Array.isArray(levelData[selectedCategory])) {
+          sublevelRequired = true;
+        }
+        proceedBtn.disabled = !(selectedLevel && selectedCategory && (!sublevelRequired || selectedSublevel));
       } else {
         proceedBtn.disabled = !selectedLevel;
       }
@@ -238,10 +297,13 @@
         };
         const levelName = levelNames[selectedLevel] || selectedLevel;
         
-        // Build URL with category if applicable
+        // Build URL with category and sublevel if applicable
         let url = `flashcards.html?language=${selectedLanguage}&level=${selectedLevel}`;
         if (selectedCategory) {
           url += `&category=${selectedCategory}`;
+        }
+        if (selectedSublevel) {
+          url += `&sublevel=${selectedSublevel}`;
         }
         
         window.location.href = url;

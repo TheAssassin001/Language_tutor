@@ -5,10 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <meta name="theme-color" content="#4a9d6f">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="format-detection" content="telephone=no">
+  <link rel="icon" href="/icon-192.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon-192.svg">
   <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="/icon-192.svg">
   <meta name="description" content="Quizzes - Chinese Language Tutor">
   <title>Quizzes - Chinese Language Tutor</title>
   <link rel="stylesheet" href="style.css">
@@ -24,12 +28,13 @@
           <li><a href="quiz-select.html" class="nav-link">Quizzes</a></li>
           <li><a href="test-select.html" class="nav-link">Tests</a></li>
           <li><a href="flashcard-select.html" class="nav-link">Flashcards</a></li>
-          <li><a href="progress.html" class="nav-link">Progress</a></li>
+          <!-- Progress link removed -->
           <li><a href="resources.html" class="nav-link">Resources</a></li>
           <li><a href="writing.html" class="nav-link">Writing Practice</a></li>
         </ul>
         <div class="nav-controls">
           <button id="darkModeToggle" class="dark-mode-toggle" onclick="DarkMode.toggle()" aria-label="Toggle dark mode">🌙</button>
+          <!-- Install button removed -->
           <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
             ☰
           </button>
@@ -59,7 +64,7 @@
   <!-- Load dependencies in correct order -->
   <script src="auth-service.js"></script>
   <script src="progress-service.js"></script>
-  <script src="app.js"></script>
+  <!-- <script src="app.js"></script> -->
   <script src="quizzes.js"></script>
   <script>
     // Verify all required services are loaded
@@ -215,6 +220,8 @@
       }
 
       let html = '<div class="quiz-list">';
+      // Debug info: show number of questions and answers
+      html += `<div id="quiz-debug" style="background:#ffeeba;color:#856404;padding:8px 12px;margin-bottom:10px;border-radius:6px;font-size:0.95em;">Debug: <span id='debug-answered'>0</span> / <span id='debug-total'>${quizzes.length}</span> answered</div>`;
       quizzes.forEach((quiz, index) => {
         html += `
           <div class="quiz-card" id="quiz-card-${quiz.id}">
@@ -252,20 +259,42 @@
         `;
       });
       html += '</div>';
-      html += '<div class="quiz-submit-container"><button id="submitQuizzes" class="btn btn-primary btn-large" onclick="submitAllQuizzes()" style="display: none;">Submit Quiz</button></div>';
+      // Add submit button container (hidden/disabled until all questions are answered)
+      html += '<div class="quiz-submit-container"><button id="submitQuizzes" class="btn btn-primary btn-large" disabled aria-disabled="true" style="opacity:0.6;pointer-events:none;">Submit Quiz</button></div>';
       document.getElementById('quizContainer').innerHTML = html;
+      // Attach click handler to the submit button after it is in the DOM
+      setTimeout(function() {
+        const submitBtn = document.getElementById('submitQuizzes');
+        if (submitBtn) {
+          // Ensure only one listener
+          submitBtn.removeEventListener('click', submitAllQuizzes);
+          submitBtn.addEventListener('click', function(e) {
+            // Prevent accidental clicks when disabled
+            if (submitBtn.disabled) {
+              e.preventDefault();
+              return;
+            }
+            submitAllQuizzes();
+          });
+        }
+      }, 0);
     }
 
     async function answerQuiz(quizId, isCorrect, selectedAnswer, currentQuestion, totalQuestions) {
-      const feedbackElement = document.getElementById(`feedback-${quizId}`);
-      const quizCard = document.getElementById(`quiz-card-${quizId}`);
-      if (!feedbackElement || !quizCard) return;
-      
-      // Prevent multiple answers
-      if (quizAnswers[quizId] !== undefined) return;
-      
-      // Store answer
-      quizAnswers[quizId] = isCorrect;
+const feedbackElement = document.getElementById(`feedback-${quizId}`);
+    const quizCard = document.getElementById(`quiz-card-${quizId}`);
+    if (!feedbackElement || !quizCard) return;
+    
+    // Prevent multiple answers
+    if (quizAnswers[quizId] !== undefined) return;
+    
+    // Store answer
+    quizAnswers[quizId] = isCorrect;
+    console.log('DEBUG: answerQuiz stored', { quizId, isCorrect, selectedAnswer });
+    // Update debug info (after storing)
+    if (document.getElementById('debug-answered')) {
+      document.getElementById('debug-answered').textContent = Object.keys(quizAnswers).length;
+    }
       
       // Find correct answer for display
       const buttons = quizCard.querySelectorAll('.quiz-option-btn');
@@ -316,19 +345,46 @@
       }
       feedbackElement.style.display = 'block';
       
-      // Check if all quizzes answered
-      const totalQuizzes = getQuizData(currentLevel, currentCategory).length;
-      if (Object.keys(quizAnswers).length === totalQuizzes) {
-        document.getElementById('submitQuizzes').style.display = 'inline-block';
-        
-        // Smooth scroll to submit button
-        setTimeout(() => {
-          document.getElementById('submitQuizzes').scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 300);
+      // Check if all quizzes answered (include subcategory)
+      const totalQuizzes = getQuizData(currentLevel, currentCategory, currentSubcategory).length;
+      console.log('DEBUG: totalQuizzes=', totalQuizzes, 'answered=', Object.keys(quizAnswers).length);
+      if (document.getElementById('debug-answered')) {
+        document.getElementById('debug-answered').textContent = Object.keys(quizAnswers).length;
+      }
+      const submitBtn = document.getElementById('submitQuizzes');
+      if (submitBtn) {
+        if (Object.keys(quizAnswers).length === totalQuizzes) {
+          submitBtn.disabled = false;
+          submitBtn.style.opacity = 1;
+          submitBtn.removeAttribute('aria-disabled');
+          submitBtn.classList.remove('disabled');
+          submitBtn.style.pointerEvents = 'auto';
+          submitBtn.tabIndex = 0;
+          // Extra: bring to front in case of overlay
+          submitBtn.style.position = 'relative';
+          submitBtn.style.zIndex = 9999;
+          console.log('DEBUG: All questions answered, enabling submit button.');
+          submitBtn.focus();
+          // Extra debug: visually show if still disabled
+          setTimeout(() => {
+            if (submitBtn.disabled) {
+              submitBtn.insertAdjacentHTML('afterend', '<div style="color:red;font-weight:bold;">DEBUG: Submit button is still disabled after force-enable!</div>');
+            }
+            submitBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 300);
+        } else {
+          submitBtn.disabled = true;
+          submitBtn.setAttribute('aria-disabled', 'true');
+          submitBtn.classList.add('disabled');
+          submitBtn.style.opacity = 0.6;
+        }
+      } else {
+        console.log('DEBUG: Submit button not found in DOM.');
       }
     }
 
     async function submitAllQuizzes() {
+      console.log('DEBUG: submitAllQuizzes called');
       const totalQuizzes = Object.keys(quizAnswers).length;
       const correctCount = Object.values(quizAnswers).filter(answer => answer === true).length;
       const timeSpent = Math.floor((Date.now() - startTime) / 1000);
@@ -411,9 +467,7 @@
             </div>
             
             <div class="results-actions">
-              <button onclick="location.href='quizzes.html?language=${currentLanguage}&level=${currentLevel}${currentCategory ? '&category=' + currentCategory : ''}'" class="btn btn-primary btn-large">
-                Retry Quiz
-              </button>
+              <button id="retryQuizBtn" class="btn btn-primary btn-large">Retry Quiz</button>
               <a href="quiz-select.html" class="btn btn-secondary btn-large">
                 Back to Levels
               </a>
@@ -424,6 +478,16 @@
           </div>
         `;
         
+        // Set up Retry Quiz button handler
+        setTimeout(() => {
+          const retryBtn = document.getElementById('retryQuizBtn');
+          if (retryBtn) {
+            let url = 'quizzes.html?language=' + encodeURIComponent(currentLanguage) + '&level=' + encodeURIComponent(currentLevel);
+            if (currentCategory) { url += '&category=' + encodeURIComponent(currentCategory); }
+            if (currentSubcategory) { url += '&subcategory=' + encodeURIComponent(currentSubcategory); }
+            retryBtn.onclick = function() { location.href = url; };
+          }
+        }, 0);
       } catch (error) {
         console.error('❌ FAILED: Could not save quiz results');
         console.error('Error:', error.message);
@@ -482,9 +546,7 @@
             </div>
             
             <div class="results-actions">
-              <button onclick="location.href='quizzes.html?language=${currentLanguage}&level=${currentLevel}${currentCategory ? '&category=' + currentCategory : ''}'" class="btn btn-primary btn-large">
-                Retry Quiz
-              </button>
+              <button id="retryQuizBtn" class="btn btn-primary btn-large">Retry Quiz</button>
               <a href="quiz-select.html" class="btn btn-secondary btn-large">
                 Back to Levels
               </a>
@@ -494,6 +556,16 @@
             </div>
           </div>
         `;
+        // Set up Retry Quiz button handler (error case)
+        setTimeout(function() {
+          const retryBtn = document.getElementById('retryQuizBtn');
+          if (retryBtn) {
+            let url = 'quizzes.html?language=' + encodeURIComponent(currentLanguage) + '&level=' + encodeURIComponent(currentLevel);
+            if (currentCategory) { url += '&category=' + encodeURIComponent(currentCategory); }
+            if (currentSubcategory) { url += '&subcategory=' + encodeURIComponent(currentSubcategory); }
+            retryBtn.onclick = function() { location.href = url; };
+          }
+        }, 0);
       }
     }
 

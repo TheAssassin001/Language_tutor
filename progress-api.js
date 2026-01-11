@@ -117,9 +117,10 @@ const ProgressAPI = {
 };
 
 // Update ProgressTracker to use API with localStorage fallback
-const ProgressTrackerOriginal = ProgressTracker;
+// Use the global ProgressTracker defined in app.js
+const ProgressTrackerOriginal = window.ProgressTracker || ProgressTracker;
 
-Object.assign(ProgressTracker, {
+Object.assign(window.ProgressTracker || ProgressTracker, {
   /**
    * Save quiz score (uses API if authenticated, localStorage as fallback)
    */

@@ -1,333 +1,138 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-  <meta name="theme-color" content="#4a9d6f">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="format-detection" content="telephone=no">
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon-192.png">
-  <meta name="description" content="Track your Chinese learning progress">
-  <title>Progress Dashboard - Chinese Language Tutor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Track your Mandarin learning progress and achievements.">
+  <title>My Progress - Chinese Language Tutor</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
-
-  <nav class="navbar">
+<body class="welcome-page">
+  <!-- Header Navigation -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
     <div class="container">
       <div class="nav-wrapper">
-        <div class="logo">LangTutor</div>
-        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
-          ☰
+        <div class="logo" aria-label="Chinese Learning Platform">中文练习</div>
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobileMenu">
+          <span class="menu-icon">☰</span>
         </button>
-        <ul class="nav-links" id="mobileMenu">
-          <li><a href="index.html#home" class="nav-link" onclick="closeMobileMenu()">Home</a></li>
-          <li><a href="quiz-select.html" class="nav-link">Quizzes</a></li>
-          <li><a href="test-select.html" class="nav-link">Tests</a></li>
-          <li><a href="flashcard-select.html" class="nav-link">Flashcards</a></li>
-          <li><a href="progress.html" class="nav-link">Progress</a></li>
-          <li><a href="resources.html" class="nav-link">Resources</a></li>
+        <ul class="nav-links" id="mobileMenu" role="menubar">
+          <li role="none"><a href="index.html" class="nav-link" onclick="closeMobileMenu()" role="menuitem">Home</a></li>
+          <li role="none"><a href="quiz-select.html" class="nav-link" role="menuitem">Quizzes</a></li>
+          <li role="none"><a href="test-select.html" class="nav-link" role="menuitem">Tests</a></li>
+          <li role="none"><a href="flashcard-select.html" class="nav-link" role="menuitem">Flashcards</a></li>
+          <li role="none"><a href="progress.html" class="nav-link active" role="menuitem">Progress</a></li>
+          <li role="none"><a href="resources.html" class="nav-link" role="menuitem">Resources</a></li>
         </ul>
-        <button id="darkModeToggle" class="dark-mode-toggle" onclick="DarkMode.toggle()" aria-label="Toggle dark mode">🌙</button>
+        <button id="darkModeToggle" class="dark-mode-toggle" onclick="DarkMode.toggle()" aria-label="Toggle dark mode" title="Switch color scheme">🌙</button>
       </div>
     </div>
   </nav>
 
-  <section class="practice">
+
+
+
+  <!-- Dashboard Section -->
+  <section class="dashboard-section" id="dashboard">
     <div class="container">
-      <div class="progress-header">
-        <h2>Progress Dashboard</h2>
-        <p class="section-subtitle">Track learning progress by level and category</p>
+      <div class="section-header">
+        <h2 class="section-title">My Progress Dashboard</h2>
+        <p class="section-subtitle">Track your learning, streaks, and achievements below.</p>
       </div>
-
-      <!-- Summary Stats -->
-      <div class="progress-summary" id="summaryStats">
-        <div class="summary-card">
-          <div class="summary-icon">🎯</div>
-          <div class="summary-content">
-            <div class="summary-value" id="totalQuizzes">0</div>
-            <div class="summary-label">Quizzes Taken</div>
-          </div>
-        </div>
-        
-        <div class="summary-card">
-          <div class="summary-icon">📊</div>
-          <div class="summary-content">
-            <div class="summary-value" id="avgScore">0%</div>
-            <div class="summary-label">Average Score</div>
-          </div>
-        </div>
-        
-        <div class="summary-card">
-          <div class="summary-icon">⭐</div>
-          <div class="summary-content">
-            <div class="summary-value" id="bestScore">0%</div>
-            <div class="summary-label">Best Score</div>
-          </div>
-        </div>
-        
-        <div class="summary-card">
-          <div class="summary-icon">📅</div>
-          <div class="summary-content">
-            <div class="summary-value" id="lastActivity">Never</div>
-            <div class="summary-label">Last Practice</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Progress by Level -->
-      <div class="progress-levels" id="progressLevels">
-        <!-- Will be populated by JavaScript -->
+      <div id="progressContent">
+        <div class="loading">Loading your progress...</div>
       </div>
     </div>
   </section>
 
-  <footer class="footer">
-    <div class="container">
-      <p>&copy; 2026 Chinese Language Tutor. All rights reserved.</p>
-    </div>
+  <footer class="welcome-footer">
+    <p>&copy; 2026 Chinese Learning Platform. All rights reserved.</p>
+    <p style="margin-top: var(--spacing-sm); font-size: 0.9rem;">Professional Mandarin instruction with Pushpavalli, M.Ed</p>
   </footer>
 
   <script src="auth-service.js"></script>
   <script src="progress-service.js"></script>
   <script src="app.js"></script>
   <script>
-    async function loadProgress() {
-      console.log('Loading progress from database...');
-      
-      // Check authentication
+    async function renderProgress() {
+      const container = document.getElementById('progressContent');
       if (!AuthService.isAuthenticated()) {
-        document.querySelector('.practice').innerHTML = `
-          <div class="container">
-            <div class="card" style="text-align: center; padding: 40px;">
-              <h3>⚠️ Login Required</h3>
-              <p>You must be logged in to view your progress.</p>
-              <a href="login.html?redirect=progress.html" class="btn btn-primary" style="margin-top: 20px;">Login Now</a>
-            </div>
-          </div>
-        `;
+        container.innerHTML = `<div class="card"><h3>Login Required</h3><p>Please <a href='login.html?redirect=progress.html'>log in</a> to view your progress.</p></div>`;
         return;
       }
-
       try {
-        // Fetch progress from database
-        const result = await ProgressService.getProgress();
-        console.log('Progress data from database:', result);
-        
-        const progressData = result.data || [];
-        
-        if (progressData.length === 0) {
-          document.getElementById('progressLevels').innerHTML = `
-            <div class="empty-state">
-              <div class="empty-icon">📚</div>
-              <h3>No progress yet</h3>
-              <p>Start taking quizzes to see your progress here</p>
-              <a href="quiz-select.html" class="btn btn-primary" style="margin-top: 20px;">Take Your First Quiz</a>
+        const [progress, stats, streak] = await Promise.all([
+          ProgressService.getProgress(),
+          ProgressService.getStats(),
+          ProgressService.getStreak()
+        ]);
+        if (!progress.success) throw new Error(progress.message || 'Could not load progress');
+        const data = progress.data || [];
+        const stat = stats && stats.success ? stats.data : {};
+        const streakData = streak && streak.success ? streak.data : { current: 0, best: 0 };
+        let html = `<div class='student-detail'>`;
+        html += `<h2 style='text-align:center;'>Welcome, ${AuthService.getCurrentUser().name}</h2>`;
+        html += `<div class='progress-grid'>`;
+        html += `<div class='progress-item'><h4>🔥 Current Streak</h4><div class='value'>${streakData.current}</div></div>`;
+        html += `<div class='progress-item'><h4>🏆 Best Streak</h4><div class='value'>${streakData.best}</div></div>`;
+        html += `<div class='progress-item'><h4>📝 Total Tests</h4><div class='value'>${stat.totalTests || 0}</div></div>`;
+        html += `<div class='progress-item'><h4>🎯 Total Quizzes</h4><div class='value'>${stat.totalQuizzes || 0}</div></div>`;
+        html += `<div class='progress-item'><h4>⭐ Average Score</h4><div class='value'>${stat.averageScore || 0}%</div></div>`;
+        html += `<div class='progress-item'><h4>🎖️ Best Score</h4><div class='value'>${stat.bestScore || 0}%</div></div>`;
+        html += `</div>`;
+        if (stat.byLevel && Object.keys(stat.byLevel).length > 0) {
+          html += `<h3 style='margin-top:2rem;'>Progress by Level</h3><div class='progress-grid'>`;
+          html += Object.values(stat.byLevel).map(level => `
+            <div class='progress-item'>
+              <h4>${level.level.toUpperCase()}</h4>
+              <div class='value'>${level.averageScore}%</div>
+              <p style='font-size:0.8rem;color:var(--text-secondary);'>${level.tests + level.quizzes} activities</p>
             </div>
-          `;
-          return;
+          `).join('');
+          html += `</div>`;
         }
-        
-        // Calculate summary statistics
-        const quizzes = progressData.filter(p => p.type === 'quiz');
-        const totalQuizzes = quizzes.length;
-        const allScores = quizzes.map(p => p.percentage);
-        const avgScore = allScores.length > 0 ? Math.round(allScores.reduce((a, b) => a + b, 0) / allScores.length) : 0;
-        const bestScore = allScores.length > 0 ? Math.max(...allScores) : 0;
-        
-        // Get last activity date
-        const lastActivityDate = progressData.length > 0 ? 
-          new Date(Math.max(...progressData.map(p => new Date(p.completedAt).getTime()))) : null;
-        const lastActivity = lastActivityDate ? formatLastActivity(lastActivityDate) : 'Never';
-        
-        // Update summary cards
-        document.getElementById('totalQuizzes').textContent = totalQuizzes;
-        document.getElementById('avgScore').textContent = avgScore + '%';
-        document.getElementById('bestScore').textContent = bestScore + '%';
-        document.getElementById('lastActivity').textContent = lastActivity;
-        
-        // Color code average score
-        const avgScoreEl = document.getElementById('avgScore');
-        if (avgScore >= 80) {
-          avgScoreEl.style.color = 'var(--success)';
-        } else if (avgScore >= 60) {
-          avgScoreEl.style.color = 'var(--warning)';
-        } else if (avgScore > 0) {
-          avgScoreEl.style.color = 'var(--error)';
-        }
-        
-        // Group progress by level and category
-        const groupedProgress = groupProgressData(quizzes);
-        displayGroupedProgress(groupedProgress);
-        
-      } catch (error) {
-        console.error('Error loading progress:', error);
-        document.querySelector('.practice').innerHTML = `
-          <div class="container">
-            <div class="card" style="text-align: center; padding: 40px;">
-              <h3>❌ Error Loading Progress</h3>
-              <p>${error.message}</p>
-              <button onclick="location.reload()" class="btn btn-primary" style="margin-top: 20px;">Retry</button>
+        if (data.length > 0) {
+          html += `<h3 style='margin-top:2rem;'>Recent Activity</h3><div class='activity-list'>`;
+          html += data.sort((a,b)=>new Date(b.completedAt)-new Date(a.completedAt)).slice(0,10).map(activity => `
+            <div class='activity-item'>
+              <div><strong>${activity.type === 'test' ? '📝 Test' : '🎯 Quiz'}</strong> - ${activity.level.toUpperCase()} - <span style='color:${activity.percentage >= 80 ? '#27ae60' : activity.percentage >= 60 ? '#f39c12' : '#e74c3c'}'>${activity.percentage}%</span></div>
+              <div style='color:var(--text-secondary);font-size:0.9rem;'>${new Date(activity.completedAt).toLocaleDateString()}</div>
             </div>
-          </div>
-        `;
+          `).join('');
+          html += `</div>`;
+        }
+        html += `</div>`;
+        container.innerHTML = html;
+      } catch (e) {
+        container.innerHTML = `<div class='empty-state'><h3>Error</h3><p>${e.message}</p></div>`;
       }
     }
-    
-    function formatLastActivity(date) {
-      const now = new Date();
-      const diffMs = now - date;
-      const diffMins = Math.floor(diffMs / 60000);
-      const diffHours = Math.floor(diffMs / 3600000);
-      const diffDays = Math.floor(diffMs / 86400000);
-      
-      if (diffMins < 60) return 'Just now';
-      if (diffHours < 24) return diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
-      if (diffDays === 1) return 'Yesterday';
-      if (diffDays < 7) return `${diffDays} days ago`;
-      
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    }
-    
-    function groupProgressData(quizzes) {
-      const grouped = {};
-      
-      quizzes.forEach(quiz => {
-        const level = quiz.level || 'unknown';
-        const category = quiz.category || 'general';
-        
-        if (!grouped[level]) {
-          grouped[level] = {};
-        }
-        if (!grouped[level][category]) {
-          grouped[level][category] = [];
-        }
-        
-        grouped[level][category].push(quiz);
-      });
-      
-      return grouped;
-    }
-    
-    function displayGroupedProgress(groupedData) {
-      const container = document.getElementById('progressLevels');
-      const levelOrder = ['newbie', 'level1', 'level2', 'level3', 'sjkc'];
-      const levelNames = {
-        'newbie': 'Newbie',
-        'level1': 'Level 1',
-        'level2': 'Level 2',
-        'level3': 'Level 3',
-        'sjkc': 'SJKC'
-      };
-      const categoryNames = {
-        'general': 'General',
-        'text': 'Text',
-        'hanyupinyin': 'Hanyu Pinyin',
-        'extravocab': 'Extra Vocab'
-      };
-      
-      let html = '';
-      
-      // Sort levels by predefined order
-      const sortedLevels = Object.keys(groupedData).sort((a, b) => {
-        const indexA = levelOrder.indexOf(a);
-        const indexB = levelOrder.indexOf(b);
-        if (indexA === -1 && indexB === -1) return 0;
-        if (indexA === -1) return 1;
-        if (indexB === -1) return -1;
-        return indexA - indexB;
-      });
-      
-      sortedLevels.forEach(level => {
-        const categories = groupedData[level];
-        const levelName = levelNames[level] || level.charAt(0).toUpperCase() + level.slice(1);
-        
-        html += `<div class="level-group">`;
-        html += `<h3 class="level-group-title">${levelName}</h3>`;
-        html += `<div class="category-grid">`;
-        
-        Object.keys(categories).forEach(category => {
-          const quizzes = categories[category];
-          const categoryName = categoryNames[category] || category.charAt(0).toUpperCase() + category.slice(1);
-          
-          // Calculate stats
-          const attempts = quizzes.length;
-          const scores = quizzes.map(q => q.percentage);
-          const avgScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-          const lastAttempt = quizzes[0]; // Assuming sorted by date (newest first)
-          const lastScore = lastAttempt.percentage;
-          const lastDate = new Date(lastAttempt.completedAt);
-          
-          // Determine performance status
-          let performanceClass = '';
-          let performanceLabel = '';
-          if (avgScore >= 80) {
-            performanceClass = 'strong';
-            performanceLabel = 'Strong';
-          } else if (avgScore >= 60) {
-            performanceClass = 'average';
-            performanceLabel = 'Average';
-          } else {
-            performanceClass = 'weak';
-            performanceLabel = 'Needs Practice';
-          }
-          
-          html += `
-            <div class="category-card ${performanceClass}">
-              <div class="category-header">
-                <h4 class="category-title">${categoryName}</h4>
-                <span class="performance-badge ${performanceClass}">${performanceLabel}</span>
-              </div>
-              
-              <div class="category-stats">
-                <div class="stat-row">
-                  <span class="stat-label">Quizzes taken:</span>
-                  <span class="stat-value">${attempts}</span>
-                </div>
-                <div class="stat-row">
-                  <span class="stat-label">Average score:</span>
-                  <span class="stat-value stat-highlight">${avgScore}%</span>
-                </div>
-                <div class="stat-row">
-                  <span class="stat-label">Last attempt:</span>
-                  <span class="stat-value">${lastScore}%</span>
-                </div>
-                <div class="stat-row">
-                  <span class="stat-label">Last practiced:</span>
-                  <span class="stat-value stat-date">${formatLastActivity(lastDate)}</span>
-                </div>
-              </div>
-              
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: ${avgScore}%"></div>
-              </div>
-              
-              <a href="quiz-select.html" class="practice-again-btn">Practice Again</a>
-            </div>
-          `;
-        });
-        
-        html += `</div></div>`;
-      });
-      
-      container.innerHTML = html;
-    }
-
+    window.addEventListener('DOMContentLoaded', () => {
+      renderProgress();
+      if (window.DarkMode && typeof DarkMode.init === 'function') {
+        DarkMode.init();
+      }
+    });
     function toggleMobileMenu() {
       const menu = document.getElementById('mobileMenu');
-      menu.classList.toggle('active');
+      const toggle = document.querySelector('.mobile-menu-toggle');
+      const isExpanded = menu.classList.toggle('active');
+      toggle.setAttribute('aria-expanded', isExpanded);
     }
-
     function closeMobileMenu() {
       const menu = document.getElementById('mobileMenu');
+      const toggle = document.querySelector('.mobile-menu-toggle');
       menu.classList.remove('active');
+      toggle.setAttribute('aria-expanded', 'false');
     }
-
-    // Load progress on page load
-    document.addEventListener('DOMContentLoaded', loadProgress);
+    document.addEventListener('click', function(event) {
+      const menu = document.getElementById('mobileMenu');
+      const toggle = document.querySelector('.mobile-menu-toggle');
+      if (menu && !menu.contains(event.target) && !toggle.contains(event.target)) {
+        closeMobileMenu();
+      }
+    });
   </script>
-
 </body>
 </html>

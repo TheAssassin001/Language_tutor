@@ -1881,6 +1881,65 @@ p {
   }
 }
 
+/* Detailed Student Progress View (similar to tutor dashboard) */
+.student-detail {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-2xl);
+  border: 2px solid var(--bg-tertiary);
+}
+
+.student-detail h3 {
+  margin-top: 0;
+  color: var(--accent);
+}
+
+.progress-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--spacing-md);
+  margin: var(--spacing-lg) 0;
+}
+
+.progress-item {
+  background: var(--bg-card);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-md);
+  text-align: center;
+  border: 1px solid var(--bg-tertiary);
+}
+
+.progress-item h4 {
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.progress-item .value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.activity-list {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: var(--spacing-lg);
+}
+
+.activity-item {
+  background: var(--bg-card);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid var(--bg-tertiary);
+}
+
 /* Responsive Quiz Design */
 @media (max-width: 768px) {
   .quiz-card {

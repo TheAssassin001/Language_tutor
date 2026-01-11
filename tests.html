@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="description" content="Chinese Language Tests - Practice Mandarin">
+  <link rel="icon" href="/icon-192.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon-192.svg">
   <title>Tests - Chinese Language Tutor</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -21,11 +24,12 @@
           <li><a href="quiz-select.html" class="nav-link">Quizzes</a></li>
           <li><a href="test-select.html" class="nav-link">Tests</a></li>
           <li><a href="flashcard-select.html" class="nav-link">Flashcards</a></li>
-          <li><a href="progress.html" class="nav-link">Progress</a></li>
+          <!-- Progress link removed -->
           <li><a href="resources.html" class="nav-link">Resources</a></li>
           <li><a href="writing.html" class="nav-link">Writing Practice</a></li>
         </ul>
         <button id="darkModeToggle" class="dark-mode-toggle" onclick="DarkMode.toggle()" aria-label="Toggle dark mode">🌙</button>
+        <button id="installBtn" class="btn btn-secondary" style="display:none; margin-left:8px;" aria-label="Install app">Install</button>
       </div>
     </div>
   </nav>
@@ -381,7 +385,26 @@
       });
 
       container.innerHTML = html;
-      document.getElementById('submitTest').style.display = 'inline-block';
+      // Show submit button but keep disabled until all questions answered
+      const submitBtn = document.getElementById('submitTest');
+      if (submitBtn) {
+        submitBtn.style.display = 'inline-block';
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = 0.6;
+        submitBtn.setAttribute('aria-disabled', 'true');
+
+        // Add debug element showing answered count
+        let dbg = document.getElementById('test-debug');
+        if (!dbg) {
+          dbg = document.createElement('div');
+          dbg.id = 'test-debug';
+          dbg.style.cssText = 'background:#ffeeba;color:#856404;padding:8px 12px;margin-top:10px;border-radius:6px;font-size:0.95em;text-align:center;';
+          dbg.innerText = `Debug: 0 / ${tests.length} answered`;
+          submitBtn.parentNode.insertBefore(dbg, submitBtn);
+        } else {
+          dbg.innerText = `Debug: 0 / ${tests.length} answered`;
+        }
+      }
       
       // Start timer
       if (typeof Timer !== 'undefined') {
@@ -420,6 +443,21 @@
 
       // Store answer
       userAnswers[testId] = optionIndex;
+      console.log('DEBUG: selectAnswer stored', { testId, optionIndex });
+      // Update debug counter
+      const totalQuestions = (testData[currentLevel] && testData[currentLevel][currentLanguage]) ? testData[currentLevel][currentLanguage].length : document.querySelectorAll('.question').length;
+      const dbgEl = document.getElementById('test-debug');
+      if (dbgEl) dbgEl.innerText = `Debug: ${Object.keys(userAnswers).length} / ${totalQuestions} answered`;
+      // Enable submit button when all answered
+      const submitBtn = document.getElementById('submitTest');
+      if (submitBtn && Object.keys(userAnswers).length === totalQuestions) {
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = 1;
+        submitBtn.removeAttribute('aria-disabled');
+        submitBtn.style.pointerEvents = 'auto';
+        submitBtn.focus();
+        console.log('DEBUG: All test questions answered, enabling submitTest');
+      }
     }
 
     async function submitTest() {

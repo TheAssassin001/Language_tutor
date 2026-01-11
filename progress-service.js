@@ -98,12 +98,15 @@ const ProgressService = {
         headers: AuthService.getAuthHeaders()
       });
 
+      console.log('ProgressService.getProgress status:', response.status);
+
       if (response.status === 401) {
         AuthService.handleUnauthorized();
         throw new Error('Unauthorized');
       }
 
       const data = await response.json();
+      console.log('ProgressService.getProgress data:', data);
       return data;
     } catch (error) {
       console.error('Error fetching progress:', error);

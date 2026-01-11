@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <meta name="theme-color" content="#4a9d6f">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="format-detection" content="telephone=no">
   <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="/icon-192.svg">
   <meta name="description" content="Chinese Flashcards - Interactive Vocabulary Practice">
   <title>Flashcards - Chinese Language Tutor</title>
   <link rel="stylesheet" href="style.css">
@@ -27,10 +28,11 @@
           <li><a href="quiz-select.html" class="nav-link">Quizzes</a></li>
           <li><a href="test-select.html" class="nav-link">Tests</a></li>
           <li><a href="flashcard-select.html" class="nav-link">Flashcards</a></li>
-          <li><a href="progress.html" class="nav-link">Progress</a></li>
+          <!-- Progress link removed -->
           <li><a href="resources.html" class="nav-link">Resources</a></li>
         </ul>
         <button id="darkModeToggle" class="dark-mode-toggle" onclick="DarkMode.toggle()" aria-label="Toggle dark mode">🌙</button>
+        <!-- Install button removed -->
       </div>
     </div>
   </nav>
@@ -89,6 +91,7 @@
     let currentLanguage = '';
     let currentLevel = '';
     let currentCategory = '';
+    let currentSublevel = '';
 
     // Load flashcards based on URL parameters
     document.addEventListener('DOMContentLoaded', () => {
@@ -96,6 +99,7 @@
       currentLanguage = params.get('language') || 'mandarin';
       currentLevel = params.get('level') || 'newbie';
       currentCategory = params.get('category') || '';
+      currentSublevel = params.get('sublevel') || '';
       
       // Update subtitle with level info
       const levelNames = {
@@ -126,22 +130,44 @@
     });
 
     function loadFlashcards() {
+      // Helper to flatten nested arrays/objects into a single array of cards
+      function flatten(group) {
+        if (!group) return [];
+        if (Array.isArray(group)) return group;
+        if (typeof group === 'object') {
+          return Object.values(group).reduce((acc, v) => acc.concat(flatten(v)), []);
+        }
+        return [];
+      }
+
       // Check if level has categories (level1, level2)
       const levelData = FlashcardData[currentLanguage]?.[currentLevel];
-      
+
       if (typeof levelData === 'object' && !Array.isArray(levelData)) {
-        // Level has categories
+        // Level has categories or nested sublevels
         if (currentCategory && levelData[currentCategory]) {
-          currentDeck = levelData[currentCategory];
+          // If a specific sublevel is selected, use it
+          if (currentSublevel && levelData[currentCategory][currentSublevel]) {
+            currentDeck = flatten(levelData[currentCategory][currentSublevel]);
+            console.debug('Using specific sublevel:', currentSublevel);
+          } else {
+            currentDeck = flatten(levelData[currentCategory]);
+          }
+        } else if (currentSublevel && levelData[currentSublevel]) {
+          // Level top-level sublevel (no category) requested
+          currentDeck = flatten(levelData[currentSublevel]);
         } else {
-          // No category selected or invalid category
-          currentDeck = [];
+          // No category/sublevel selected - combine all categories and sublevels
+          currentDeck = flatten(levelData);
         }
       } else {
         // Level doesn't have categories (simple array)
         currentDeck = levelData || [];
       }
-      
+
+      // Debug: log deck size and what was selected
+      console.debug('Flashcards loaded for', currentLevel, 'category', currentCategory, 'sublevel', currentSublevel, '->', currentDeck.length, 'cards');
+
       if (currentDeck.length === 0) {
         document.getElementById('flashcard').innerHTML = `
           <div style="padding: 40px; text-align: center;">
@@ -151,7 +177,7 @@
         `;
         return;
       }
-      
+
       currentCardIndex = 0;
       isFlipped = false;
       displayCard();
@@ -159,19 +185,29 @@
 
     function displayCard() {
       if (currentDeck.length === 0) return;
-      
       const card = currentDeck[currentCardIndex];
       const flashcard = document.getElementById('flashcard');
-      
       // Reset flip state
       flashcard.classList.remove('flipped');
       isFlipped = false;
-      
-      // Update content
-      document.getElementById('frontText').textContent = card.front;
-      document.getElementById('backPinyin').textContent = card.back.split(' - ')[0];
-      document.getElementById('backMeaning').textContent = card.back.split(' - ')[1] || card.back;
-      
+
+      // For 'newbie', Level 1, and Hanyu Pinyin/Extra Vocab categories, front = English/pinyin, back = meaning
+      if (
+        currentLevel === 'newbie' ||
+        currentLevel === 'level1' ||
+        currentCategory === 'hanyupinyin' ||
+        currentCategory === 'extravocab'
+      ) {
+        document.getElementById('frontText').textContent = card.front || '';
+        document.getElementById('backPinyin').textContent = '';
+        document.getElementById('backMeaning').textContent = card.back || '';
+      } else {
+        // Default: front = Chinese (audio), back = pinyin + meaning
+        document.getElementById('frontText').textContent = card.audio || card.front;
+        document.getElementById('backPinyin').textContent = card.front || '';
+        document.getElementById('backMeaning').textContent = card.back || '';
+      }
+
       // Update progress
       document.getElementById('cardProgress').textContent = `${currentCardIndex + 1} / ${currentDeck.length}`;
     }
