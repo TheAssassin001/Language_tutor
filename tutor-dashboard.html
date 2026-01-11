@@ -318,7 +318,7 @@
                         <th>Email</th>
                         <th>Total Activities</th>
                         <th>Last Activity</th>
-                        <th>Action</th>
+                        <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -328,13 +328,36 @@
                           <td>${student.email}</td>
                           <td>${student.totalActivities || 0}</td>
                           <td>${student.lastActivity ? new Date(student.lastActivity).toLocaleDateString() : 'Never'}</td>
-                          <td><button class="btn-view" onclick="event.stopPropagation(); viewStudent('${student.id}')">View Details</button></td>
+                          <td>
+                            <button class="btn-view" onclick="event.stopPropagation(); viewStudent('${student.id}')">View Details</button>
+                            <button class="btn-view" style="background:#e74c3c;margin-left:8px;" onclick="event.stopPropagation(); window.deleteStudentFromList('${student.id}','${student.name}')">Delete</button>
+                          </td>
                         </tr>
                       `).join('')}
                     </tbody>
                   </table>
                 `;
                 document.getElementById('studentsTable').innerHTML = html;
+              // Delete student from dashboard list (global)
+              window.deleteStudentFromList = async function(studentId, studentName) {
+                if (!confirm(`Delete student ${studentName}? This cannot be undone.`)) return;
+                try {
+                  const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://language-tutor-efn5.onrender.com/api';
+                  const response = await fetch(`${API_URL}/tutor/students/${studentId}`, {
+                    method: 'DELETE',
+                    headers: AuthService.getAuthHeaders()
+                  });
+                  const data = await response.json();
+                  if (data.success) {
+                    alert('Student deleted.');
+                    loadStudents();
+                  } else {
+                    alert('Failed to delete: ' + (data.message || 'Unknown error'));
+                  }
+                } catch (e) {
+                  alert('Error: ' + e.message);
+                }
+              }
               } else {
                 document.getElementById('studentsTable').innerHTML = `
                   <div class="empty-state">
