@@ -392,18 +392,6 @@
         submitBtn.disabled = true;
         submitBtn.style.opacity = 0.6;
         submitBtn.setAttribute('aria-disabled', 'true');
-
-        // Add debug element showing answered count
-        let dbg = document.getElementById('test-debug');
-        if (!dbg) {
-          dbg = document.createElement('div');
-          dbg.id = 'test-debug';
-          dbg.style.cssText = 'background:#ffeeba;color:#856404;padding:8px 12px;margin-top:10px;border-radius:6px;font-size:0.95em;text-align:center;';
-          dbg.innerText = `Debug: 0 / ${tests.length} answered`;
-          submitBtn.parentNode.insertBefore(dbg, submitBtn);
-        } else {
-          dbg.innerText = `Debug: 0 / ${tests.length} answered`;
-        }
       }
       
       // Start timer
