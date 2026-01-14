@@ -51,6 +51,7 @@
     <p style="margin-top: var(--spacing-sm); font-size: 0.9rem;">Professional Mandarin instruction with Pushpavalli, M.Ed</p>
   </footer>
 
+  <!-- Ensure auth-service.js is loaded first for AuthService global -->
   <script src="auth-service.js"></script>
   <script src="progress-service.js"></script>
   <script src="app.js"></script>
@@ -60,6 +61,11 @@
       if (!AuthService.isAuthenticated()) {
         container.innerHTML = `<div class="card"><h3>Login Required</h3><p>Please <a href='login.html?redirect=progress.html'>log in</a> to view your progress.</p></div>`;
         return;
+      }
+      // Debug log for student role
+      const user = AuthService.getCurrentUser();
+      if (user) {
+        console.log('[DEBUG] User role:', user.role);
       }
       try {
         const [progress, stats, streak] = await Promise.all([

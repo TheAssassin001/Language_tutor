@@ -14,8 +14,10 @@ const AuthService = {
    * @returns {string|null}
    */
   getToken() {
-    // Check new key first, then fall back to old key for backward compatibility
-    return localStorage.getItem('token') || localStorage.getItem('authToken');
+    // Always use unified key
+    const authToken = localStorage.getItem('authToken');
+    console.log('TOKEN:', authToken);
+    return authToken;
   },
 
   /**
@@ -23,11 +25,13 @@ const AuthService = {
    * @returns {Object|null}
    */
   getCurrentUser() {
-    // Check new key first, then fall back to old key for backward compatibility
-    const userStr = localStorage.getItem('user') || localStorage.getItem('currentUser');
+    // Always use unified key
+    const userStr = localStorage.getItem('user');
     if (!userStr) return null;
     try {
-      return JSON.parse(userStr);
+      const user = JSON.parse(userStr);
+      if (user && user.role) console.log('USER:', user.role);
+      return user;
     } catch (e) {
       console.error('Failed to parse user data');
       return null;
@@ -111,10 +115,18 @@ const AuthService = {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.data));
-        console.log('✓ Login successful:', data.data.name, `(${data.data.role})`);
-        return { success: true, user: data.data };
+        localStorage.setItem('authToken', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        console.log('✓ Login successful:', data.user?.name, `(${data.user?.role})`);
+        console.log('TOKEN:', data.token);
+        console.log('USER:', data.user?.role);
+        // Redirect after login
+        if (data.user?.role === 'tutor') {
+          window.location.href = 'tutor-dashboard.html';
+        } else {
+          window.location.href = 'progress.html';
+        }
+        return { success: true, user: data.user };
       } else {
         console.error('✗ Login failed:', data.message);
         return { success: false, message: data.message || 'Login failed' };
@@ -144,10 +156,18 @@ const AuthService = {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.data));
-        console.log('✓ Signup successful:', data.data.name, `(${data.data.role})`);
-        return { success: true, user: data.data };
+        localStorage.setItem('authToken', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        console.log('✓ Signup successful:', data.user?.name, `(${data.user?.role})`);
+        console.log('TOKEN:', data.token);
+        console.log('USER:', data.user?.role);
+        // Redirect after signup
+        if (data.user?.role === 'tutor') {
+          window.location.href = 'tutor-dashboard.html';
+        } else {
+          window.location.href = 'progress.html';
+        }
+        return { success: true, user: data.user };
       } else {
         console.error('✗ Signup failed:', data.message);
         return { success: false, message: data.message || 'Signup failed' };
@@ -162,11 +182,9 @@ const AuthService = {
    * Logout user - clear all auth data
    */
   logout() {
-    // Remove both old and new keys
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    // Remove only unified keys
     localStorage.removeItem('authToken');
-    localStorage.removeItem('currentUser');
+    localStorage.removeItem('user');
     console.log('✓ User logged out');
   },
 
@@ -191,16 +209,24 @@ const AuthService = {
    * @param {string} requiredRole - 'student' or 'tutor'
    */
   requireRole(requiredRole) {
-    if (!this.isAuthenticated()) {
+    const token = this.getToken();
+    const user = this.getCurrentUser();
+    if (!token || !user || !user.role) {
       this.requireAuth();
       return;
     }
-    if (!this.hasRole(requiredRole)) {
+    // Case-insensitive check for student role
+    if (requiredRole.toLowerCase() === 'student') {
+      if (String(user.role).toLowerCase() !== 'student') {
+        alert('Access Denied: This page is only accessible to students.');
+        window.location.href = 'login.html';
+      }
+    } else if (user.role !== requiredRole) {
       alert(`Access Denied: This page is only accessible to ${requiredRole}s.`);
-      window.location.href = 'index.html';
+      window.location.href = 'login.html';
     }
   }
 };
 
-// Backward compatibility alias
-const AuthAPI = AuthService;
+// Ensure global
+window.AuthService = AuthService;

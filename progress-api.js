@@ -1,7 +1,7 @@
 /**
  * Progress API Client
  * Handles all progress-related API calls
- * NOTE: Uses API_BASE_URL from auth-client.js (loaded first)
+ * NOTE: Uses API_URL from auth-service.js (loaded first)
  */
 
 const ProgressAPI = {
@@ -12,18 +12,18 @@ const ProgressAPI = {
     console.log('ProgressAPI.saveScore called:', { type, language, level, score, total, timeSpent });
     
     // If not authenticated, use localStorage as fallback
-    if (!AuthAPI.isAuthenticated()) {
+    if (!AuthService.isAuthenticated()) {
       console.log('Not authenticated - saving to localStorage only');
       return ProgressTracker.saveToLocalStorage(type, language, level, score, total);
     }
 
     console.log('User is authenticated - saving to database');
-    console.log('API URL:', API_BASE_URL);
+    console.log('API URL:', API_URL);
     
     try {
-      const response = await fetch(`${API_BASE_URL}/progress`, {
+      const response = await fetch(`${API_URL}/progress`, {
         method: 'POST',
-        headers: AuthAPI.getAuthHeaders(),
+        headers: AuthService.getAuthHeaders(),
         body: JSON.stringify({
           type,
           language,
@@ -55,14 +55,14 @@ const ProgressAPI = {
    * Get all progress for current user
    */
   async getProgress(filters = {}) {
-    if (!AuthAPI.isAuthenticated()) {
+    if (!AuthService.isAuthenticated()) {
       return ProgressTracker.getFromLocalStorage();
     }
 
     try {
       const params = new URLSearchParams(filters);
-      const response = await fetch(`${API_BASE_URL}/progress?${params}`, {
-        headers: AuthAPI.getAuthHeaders()
+      const response = await fetch(`${API_URL}/progress?${params}`, {
+        headers: AuthService.getAuthHeaders()
       });
 
       const data = await response.json();
@@ -77,13 +77,13 @@ const ProgressAPI = {
    * Get statistics for current user
    */
   async getStats() {
-    if (!AuthAPI.isAuthenticated()) {
+    if (!AuthService.isAuthenticated()) {
       return ProgressTracker.getStatsFromLocalStorage();
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/progress/stats`, {
-        headers: AuthAPI.getAuthHeaders()
+      const response = await fetch(`${API_URL}/progress/stats`, {
+        headers: AuthService.getAuthHeaders()
       });
 
       const data = await response.json();
@@ -98,13 +98,13 @@ const ProgressAPI = {
    * Get streak information
    */
   async getStreak() {
-    if (!AuthAPI.isAuthenticated()) {
+    if (!AuthService.isAuthenticated()) {
       return ProgressTracker.getStreakFromLocalStorage();
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/progress/streak`, {
-        headers: AuthAPI.getAuthHeaders()
+      const response = await fetch(`${API_URL}/progress/streak`, {
+        headers: AuthService.getAuthHeaders()
       });
 
       const data = await response.json();
@@ -133,12 +133,10 @@ Object.assign(window.ProgressTracker || ProgressTracker, {
    */
   async saveTestScore(language, level, score, total, timeSpent = 0) {
     const result = await ProgressAPI.saveScore('test', language, level, score, total, timeSpent);
-    
     // Check for certificate eligibility
     if (level === 'expert' && (score / total) >= 0.9) {
       this.awardCertificate(language, level);
     }
-    
     return result;
   },
 
@@ -146,10 +144,9 @@ Object.assign(window.ProgressTracker || ProgressTracker, {
    * Get all progress (API or localStorage)
    */
   async getAllProgress() {
-    if (!AuthAPI.isAuthenticated()) {
+    if (!AuthService.isAuthenticated()) {
       return this.getAllProgressFromLocalStorage();
     }
-
     const statsData = await ProgressAPI.getStats();
     if (statsData.success) {
       return {
@@ -161,7 +158,6 @@ Object.assign(window.ProgressTracker || ProgressTracker, {
         byLevel: statsData.data.byLevel
       };
     }
-
     return this.getAllProgressFromLocalStorage();
   },
 

@@ -21,10 +21,10 @@
   
   <title>Chinese Learning Platform - Professional Language Tutoring</title>
   <link rel="stylesheet" href="style.css">
-  <script src="auth-client.js"></script>
+  <script src="auth-service.js"></script>
   <script>
     // Redirect non-authenticated users to welcome page
-    if (!AuthService.isAuthenticated()) {
+    if (!window.AuthService || !AuthService.isAuthenticated()) {
       window.location.href = 'welcome.html';
     }
   </script>
@@ -239,8 +239,8 @@
     SCRIPTS
     Load order: Quiz logic → Auth → Progress API → App core
   -->
+  <script src="auth-service.js"></script>
   <script src="quizzes.js"></script>
-  <script src="auth-client.js"></script>
   <script src="progress-api.js"></script>
   <script>
     // ============================================
@@ -276,14 +276,13 @@
     function updateNavigation() {
       const authLinks = document.getElementById('authLinks');
       const tutorLink = document.getElementById('tutorDashboardLink');
-      
-      if (AuthAPI.isAuthenticated()) {
-        const user = AuthAPI.getCurrentUser();
+      if (window.AuthService && AuthService.isAuthenticated()) {
+        const user = AuthService.getCurrentUser();
         authLinks.innerHTML = `
           <span class="nav-link" style="color: var(--accent); font-weight: 600;">${user.name}</span> | 
-          <a href="#" onclick="AuthAPI.logout(); return false;" class="nav-link">Logout</a>
+          <a href="#" onclick="AuthService.logout(); return false;" class="nav-link">Logout</a>
         `;
-        if (user.role === 'tutor' && tutorLink) {
+        if (user && user.role === 'tutor' && tutorLink) {
           tutorLink.style.display = 'block';
         }
       } else {

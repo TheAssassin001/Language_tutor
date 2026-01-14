@@ -183,7 +183,7 @@
     </div>
   </div>
 
-  <script src="auth-client.js"></script>
+  <script src="auth-service.js"></script>
   <script>
     const form = document.getElementById('signupForm');
     const submitBtn = document.getElementById('submitBtn');
@@ -200,7 +200,8 @@
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       const confirmPassword = document.getElementById('confirmPassword').value;
-      const role = document.getElementById('role').value;
+      // Always set role to 'student' for public signups (ignore hidden field)
+      const role = 'student';
 
       // Validation
       let hasError = false;
@@ -234,26 +235,9 @@
       submitBtn.textContent = 'Creating account...';
 
       try {
-        const result = await AuthAPI.signup(name, email, password, role);
-        
-        if (result.success) {
-          showAlert('Account created successfully! Redirecting...', 'success');
-          
-          // Check for redirect URL parameter
-          const urlParams = new URLSearchParams(window.location.search);
-          const redirectUrl = urlParams.get('redirect');
-          
-          // Redirect based on redirect parameter or role
-          setTimeout(() => {
-            if (redirectUrl) {
-              window.location.href = redirectUrl;
-            } else if (result.user.role === 'tutor') {
-              window.location.href = 'tutor-dashboard.html';
-            } else {
-              window.location.href = 'home.html';
-            }
-          }, 1500);
-        } else {
+        const result = await AuthService.signup(name, email, password, role);
+        // AuthService.signup will handle redirect on success
+        if (!result.success) {
           showAlert(result.message || 'Signup failed', 'error');
           submitBtn.disabled = false;
           submitBtn.textContent = 'Create Account';
@@ -277,8 +261,13 @@
     }
 
     // Check if already logged in
-    if (AuthAPI.isAuthenticated()) {
-      window.location.href = 'home.html';
+    if (AuthService.isAuthenticated()) {
+      const user = AuthService.getCurrentUser();
+      if (user && user.role === 'tutor') {
+        window.location.href = 'tutor-dashboard.html';
+      } else if (user) {
+        window.location.href = 'progress.html';
+      }
     }
   </script>
 </body>

@@ -220,8 +220,7 @@
       }
 
       let html = '<div class="quiz-list">';
-      // Debug info: show number of questions and answers
-      html += `<div id="quiz-debug" style="background:#ffeeba;color:#856404;padding:8px 12px;margin-bottom:10px;border-radius:6px;font-size:0.95em;">Debug: <span id='debug-answered'>0</span> / <span id='debug-total'>${quizzes.length}</span> answered</div>`;
+      // ...existing code...
       quizzes.forEach((quiz, index) => {
         html += `
           <div class="quiz-card" id="quiz-card-${quiz.id}">
@@ -290,11 +289,7 @@ const feedbackElement = document.getElementById(`feedback-${quizId}`);
     
     // Store answer
     quizAnswers[quizId] = isCorrect;
-    console.log('DEBUG: answerQuiz stored', { quizId, isCorrect, selectedAnswer });
-    // Update debug info (after storing)
-    if (document.getElementById('debug-answered')) {
-      document.getElementById('debug-answered').textContent = Object.keys(quizAnswers).length;
-    }
+    // ...existing code...
       
       // Find correct answer for display
       const buttons = quizCard.querySelectorAll('.quiz-option-btn');
@@ -347,10 +342,7 @@ const feedbackElement = document.getElementById(`feedback-${quizId}`);
       
       // Check if all quizzes answered (include subcategory)
       const totalQuizzes = getQuizData(currentLevel, currentCategory, currentSubcategory).length;
-      console.log('DEBUG: totalQuizzes=', totalQuizzes, 'answered=', Object.keys(quizAnswers).length);
-      if (document.getElementById('debug-answered')) {
-        document.getElementById('debug-answered').textContent = Object.keys(quizAnswers).length;
-      }
+      // ...existing code...
       const submitBtn = document.getElementById('submitQuizzes');
       if (submitBtn) {
         if (Object.keys(quizAnswers).length === totalQuizzes) {
@@ -367,9 +359,6 @@ const feedbackElement = document.getElementById(`feedback-${quizId}`);
           submitBtn.focus();
           // Extra debug: visually show if still disabled
           setTimeout(() => {
-            if (submitBtn.disabled) {
-              submitBtn.insertAdjacentHTML('afterend', '<div style="color:red;font-weight:bold;">DEBUG: Submit button is still disabled after force-enable!</div>');
-            }
             submitBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }, 300);
         } else {
@@ -379,12 +368,12 @@ const feedbackElement = document.getElementById(`feedback-${quizId}`);
           submitBtn.style.opacity = 0.6;
         }
       } else {
-        console.log('DEBUG: Submit button not found in DOM.');
+        // ...existing code...
       }
     }
 
     async function submitAllQuizzes() {
-      console.log('DEBUG: submitAllQuizzes called');
+      // ...existing code...
       const totalQuizzes = Object.keys(quizAnswers).length;
       const correctCount = Object.values(quizAnswers).filter(answer => answer === true).length;
       const timeSpent = Math.floor((Date.now() - startTime) / 1000);
